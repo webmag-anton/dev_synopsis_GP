@@ -1,0 +1,1132 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>JS Browser</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="js_browser"><main class="sections-wrapper"><!--Browser Engines--><section class="section" id="browser-engines"><div class="section-container"><h2 class="section-title">Browser Engines</h2><article class="section-info"><pre>
+  <b>в браузере 2 движка:</b>
+• движок браузера (например Blink) для преобразования содержимого веб-страниц (файлы
+  HTML, XML, картинки...) и информацию о форматировании (в форматах CSS, XSL...) в
+  изображение на экране. Движок браузера запускает движок JavaScript
+• JS движок (например V8) для компиляции js в машинный код
+
+  Компьютер не работает напрямую c js (не понимает js). Для работы компу нужен машинный
+код (machine code runs on the CPU). Таким образом браузер, например Chrome (под капотом V8),
+с помощью JS движка компилирует js в машинный код.
+
+  V8 — самый популярный JS движок (стоит во всех Cromium подобных браузерах). V8 также
+стоит в Node.js
+  JavaScriptCore (SquirrelFish) — JS движок для Safari
+  SpiderMonkey — JS движок для Firefox
+
+  WebKit (Apple), Blink (Google, fork of WebKit), Gecko (Mozilla) — движки браузеров для
+отображения веб-страниц. Эти движки управляют макетом сайта, а также включают движок JS,
+который интерпретирует и компилирует JS код. Самый популярный из этих JS движков - V8;
+он поддерживает не только браузер Chrome. V8 также поддерживает JS фреймворк Electron
+(разработан GitHub), который позволяет создавать десктопные приложения.
+        </pre></article></div></section><!--Critical Rendering Path--><section class="section" id="critical-rendering-path"><div class="section-container"><h2 class="section-title">Critical Rendering Path</h2><article class="section-info"><pre>
+  Критические этапы рендеринга (Critical Rendering Path) - это последовательность шагов,
+которые выполняет браузер, когда преобразуется HTML, CSS и JavaScript в пиксели, которые
+вы видите на экране
+
+  Браузер загружает и отображает страницу постепенно по мере выполнения <b>Critical Rendering Path:</b>
+DOM + CSSOM = render tree -> layout (flow) -> render (paint)
+
+  <b>Чтобы нарисовать на экране результат работы нашего кода,
+браузеру нужно выполнить несколько этапов:</b>
+- Сперва ему нужно скачать исходники (fetching)
+- Затем их нужно прочитать (parsing)
+- После этого браузер приступает к отрисовке (rendering)
+
+
+      <b>parsing:</b>
+
+  Браузер работает не с текстом разметки, а с абстракциями над ним. Одна из таких
+абстракций, результат парсинга HTML-кода, называется DOM. DOM — это дерево (корень — HTML)
+
+  Пока браузер парсит документ и строит DOM, он натыкается на элементы типа img, link,
+script, которые содержат ссылки на другие ресурсы
+
+  Если ресурс неблокирующий (изображение), браузер запрашивает его параллельно с парсингом
+оставшейся части документа
+
+  Т.к. картинки не блокируют рендеринг страницы, они могут рендериться после отрисовки
+документа => для них нужно предусмотреть placeholder
+
+  <b>Блокирующие ресурсы (скрипты, стили, шрифты)</b> приостанавливают обработку до своей
+полной загрузки, а для js - до загрузки и до выполнения
+
+  Когда браузер находит элемент link, который указывает на файл стилей, браузер скачивает
+и парсит его. Результат парсинга CSS-кода — CSSOM
+
+  Благодаря оптимизациям (например, сканеру предзагрузки) стили могут не блокировать чтение
+HTML, но они точно блокируют выполнение JavaScript, потому что в JS могут использоваться
+CSS-селекторы для выборки элементов
+        </pre><img src="images/js_browser/browser-parsing-scheme.webp" alt="browser-parsing-scheme"><pre>
+
+  После того как у браузера появилось Render Tree, он начинает «расставлять» элементы на
+странице. Этот процесс называется Layout (flow)
+
+
+      <b>rendering (paint):</b>
+
+   Во время отрисовки браузер наполняет пиксели на экране нужными цветами в зависимости от
+того, что в конкретном месте должно быть нарисовано: текст, изображение, цвет фона, тени,
+рамки и т.д.
+
+
+   <b>Что влияет на CRP?</b>
+
+<b>HTML-код:</b>      невозможно отобразить веб-страницу без полной загрузки HTML и построения
+               объектной модели документа (DOM). Отрисовка страницы может начаться только
+               после полной загрузки HTML.
+<b>CSS:</b>           имеет свою собственную объектную модель, CSSOM, которая также должна
+               быть создана и применена к DOM. Процесс построения CSSOM блокирует процесс
+               отрисовки.
+<b>Шрифты:</b>        загрузка всех подключаемых шрифтов страницы, на которые имеются ссылки
+               в DOM/CSSOM, также блокирует отрисовку.
+<b>JavaScript:</b>    взаимодействуя как с HTML, так и с CSS, JavaScript потенциально является
+               наиболее “разрушительным” компонентом, влияющим на CRP. Пока JavaScript
+               загружается и выполняется, браузеры прекращают рендеринг, если не
+               предпринимаются дополнительные шаги. В результате выполнения JS может
+               быть изменен DOM/CSSOM, что влечет за собой повторение всех шагов CRP сначала.
+
+
+  Изображения представляют собой простое содержимое и не оказывают никакого
+влияния на рендеринг
+
+
+* CSS блокирует рендеринг, а также выполнение JavaScript, но не блокирует парсинг
+
+* JavaScript блокирует парсинг, потому что он блокирует построение DOM, когда мы
+  сталкиваемся с тегом script. Но если скрипт с defer (выполняется после парсинга
+  документа), то ни загрузка ни выполнение скрипта не повлияют на парсинг html-документа
+  и следовательно на рендеринг.
+  Некоторые скрипты не изменяют DOM или CSSOM и не должны блокировать рендеринг. Для них
+  лучше использовать async, чтобы они не блокировали построение DOM и не блокировались CSSOM'ом
+
+* есть кроссбраузерный хак для внешнего стиля, чтобы его загрузка не блокировала
+  рендеринг (стиль применится только после загрузки):
+  &lt;link rel='stylesheet' href='./style.css' media='print' onload='this.media="all"'>
+    Суть подхода в том, что бы разделить стили на критичные (для стилизации первого экрана)
+  и не кретичные (не влияющие на первый экран). Не кретичные стили нужно загружать этим
+  хаком, а критичные инлайново
+        </pre></article><article class="section-info"><b>оптимизация загрузки 1го экрана (above-the-fold - над сгибом)</b><pre>
+  Контент (все компоненты, входящие в CRP) загружается браузером отдельными «фрагментами».
+Каждый фрагмент сайта состоит из пакета данных размером до 14 КБ, что в результате ведет к
+более быстрой загрузки веб-страницы размером 14 КБ или меньше. Для страницы 15 КБ потребуются
+уже два фрагмента.
+
+  В CRP должны быть включены только коды/ресурсы, необходимые для визуализации первого
+экрана (Above The Fold).
+
+  Нужно поместить критически важные компоненты (части HTML/CSS/JS/шрифты, которые имеют
+решающее значение для отрисовки содержимого в одном экране) в первые 14 КБ. А оставшееся
+содержимое загружать асинхронно, либо переместить ниже в коде.
+        </pre></article><article class="section-info"><b>conclusion, web performance optimizations:</b><pre>
+<b>html:</b>
+   - минифицировать html-документ
+<b>css:</b>
+   - минифицировать css
+   - разделить стили на критичные (для стилизации первого экрана)
+     и не кретичные (не влияющие на первый экран). Не кретичные
+     стили нужно загружать с помощью media='print', а критичные -
+     прописывать инлайново в html
+<b>fonts:</b>
+   - использовать fallback шрифт (sans-serif...), который отобразит
+     текст до подгрузки основного кастомного шрифта
+<b>images:</b>
+   - минифицировать, использовать webp, svg, по возможности
+     перегнать в base-64 для экономии числа запросов
+   - лучше предусмотреть placeholder для картинок, что бы
+     не было скачков в момент их отрисовки
+<b>js:</b>
+   - минифицировать
+   - чтобы не блокировать парсинг html - добавить скрипт перед
+     закрывающим тегом body + добавить defer (если взаимодействует
+     с DOM) или async (если не взаимодействует с DOM)
+<b>other:</b>
+   - use HTTP/2 on your server (or CDN)
+   - lazy loading parts of your application outside the viewport,
+     for example, by using the loading attribute on the img and
+     iframe elements. If you do, have a backup plan for SEO (e.g
+     render full page for bot traffic)
+   - using resource hints such as:
+     rel=preconnect, rel=dns-prefetch, rel=prefetch, rel=preload
+       </pre></article><ul class="section-refs"><li><a href="https://dev.to/coderedjack/critical-rendering-path-web-performance-23ij" target="_blank">Critical Rendering Path</a></li><li><a href="https://doka.guide/js/how-the-browser-creates-pages/#poluchenie-resursov-fetching" target="_blank">Critical Rendering Path 2</a></li><li><a href="https://blog.clickio.com/ru/kak-optimizirovat-critical-rendering-path/" target="_blank">CRP optimization</a></li><li><a href="https://3perf.com/talks/web-perf-101/" target="_blank">a comprehencive guide into modern loading performance</a></li><li><a href="https://habr.com/ru/post/445264/" target="_blank">preload · prefetch · preconnect · dns-prefetch · prerender</a></li><li><a href="https://developer.mozilla.org/ru/docs/Web/Performance/Lazy_loading" target="_blank">lazy loading</a></li></ul></div></section><!--asynchrony / event loop--><section class="section" id="asynchrony"><div class="section-container"><h2 class="section-title">асинхронность / event loop</h2><article class="section-info"><pre>
+JavaScript работает в <b>однопоточном</b> режиме (один стек вызовов), т.е.
+только одна операция может быть выполнена в определенный момент времени
+
+синхронное выполнение кода — следующая операция не выполняется до завершения
+                             предыдущей (например, пока не закроется alert).
+                             Или допустим у нас есть 2 строки кода: строка 2
+                             не может запуститься до тех пор, пока строка 1 не
+                             закончит своё выполнение
+
+<b>call stack</b> — структура данных в JS, которая в основном записывает, где
+             мы находимся в программе. Если мы переходим в функцию, мы помещаем ее
+             на вершину стека. Если мы возвращаемся из функции, мы убирает ее из
+             верхней части стека. Каждая запись в стеке вызовов называется кадром
+             стека (<b>stack trace</b>; console.trace() - выведет все кадры стека)
+
+
+  Когда движок начнет выполнять этот код, стек вызовов будет пуст:
+
+function multiply(x, y) {
+  return x * y
+  console.trace()  // выведет текущий call stack
+}
+function printSquare(x) {
+  var s = multiply(x, x)
+  console.log(s)
+}
+printSquare(4)
+                                              call stack:
+    step 1      ->      step 2      ->      step 3      ->      step 4      ->   step 5
+                                                                                 (empty stack)
+                    multiply(x, x)      console.log(s)
+printSquare(4)      printSquare(4)      printSquare(4)      printSquare(4)
+
+
+                                <b>Event Loop:</b>
+
+  1. когда интерпритатор доходит до функции, относящейся к <b>web api</b> (манипуляции с DOM,
+addEventListener, fetch, setTimeout, postMessage...), он пропускает ее и идет дальше,
+а эта функция начинает выполняться браузером
+  2. когда функция из web api готова (прошло время setTimeout, зарегистрировался
+слушатель...), она попадает в очередь <b>callback queue (macrotask queue)</b>
+  3. после выполнения синхронного кода, колбэки из callback queue по очереди,
+по которой попали в callback queue, попадают в call stack и исполняются
+
+
+* колбэк из setTimeout с заданым временем выполнится через >= этого время, т.к.
+  колбэки из очереди попадают в call stack только когда тот пуст; (в call stack может
+  выполняться затратная операция на момент истечения времени заданого в setTimeout)
+
+* если нужно выполнять функцию, время выполнения которой существенно, строго
+  через определенное время после выполнения предыдущей, то лучше вместо setInterval
+  использовать <b>вложенный setTimeout</b>. Т.к. setInterval начнет отсчет сразу после
+  запуска колбэка не дожидаясь его выполнения. Пример:
+  setTimeout(cb = () => {
+    // some actions
+    setTimeout(cb, 200)
+  }, 200)
+
+* <b>рендеринг изменений в браузере происходит только после выполнения ф-ии, а не в процессе</b>,
+  т.к. рендеринг чего либо - это манипуляции с DOM => задача из callback queue.
+    Если ф-я тяжелая, то пока ее выполнение не завершится мы не увидим результат на экране
+  => что бы браузер рендерил каждое изменение на экране, нужно разбить тяжелую ф-ю на
+  множество легких с помощью setTimeout;
+  это касается не только отрисовки, но и впринципе event loop - <b>пока в call stack
+  выполняется тяжелая ф-я, интерфейс браузера заблокирован</b> - не будут выполняться
+  обработчики событий и прочие колбэки из callback queue. <b>Поэтому тяжелые задачи лучше
+  разбивать на части с помощью setTimeout</b>
+
+
+                            <b>макро и микро задачи:</b>
+
+  Существуют макро и микро задачи и соответственно <b>macrotask queue (callback queue)
+и microtask queue (promise jobs)</b>
+
+<b>Макрозадачи приходят из web api, а микрозадачи - только из js кода!</b>
+
+<b>Макрозадачи</b>: загрузка внешнего скрипта, манипуляции с DOM (изменение контента,
+             узлов...), fetch, обработка событий, setTimeout, setInterval, postMessage...
+<b>Микрозадачи</b>: обработчики промисов, async/await и MutationObserver
+
+* <b>сразу после выполнения каждой макрозадачи движок исполняет все задачи из очереди
+  микрозадач c отрисовкой изменений (если они есть) после выполнения всех микрозадач</b>
+  перед тем, как выполнить следующую макрозадачу.
+  У микрозадач приоритет над макрозадачами, они выполняются как можно быстрее!
+
+* чтобы добавить в очередь новую макрозадачу используется setTimeout(func) с нулевой
+  задержкой;
+  для добавления в очередь новой микрозадачи применяется ф-ия <b>queueMicrotask(func)</b>
+  или резолвится промис: Promise.resolve().then(func)
+
+
+<b>requestIdleCallback(func)</b> - ставит в очередь функцию, которая будет вызываться
+                            во время периодов простоя браузера - когда event loop
+                            в режиме ожидания. Возвращает id, который может быть
+                            использован для отмены: cancelIdleCallback(id)
+          </pre><pre>
+
+  <b>пример 1:</b>
+            <code class="language-js">
+console.log('script start')
+
+const interval = setInterval(() => {
+  console.log('setInterval')
+}, 0)
+
+setTimeout(() => {
+  console.log('setTimeout 1')
+
+  Promise.resolve()
+    .then(() => console.log('promise 3'))
+    .then(() => console.log('promise 4'))
+    .then(() => {
+      setTimeout(() => {
+        console.log('setTimeout 2')
+        Promise.resolve().then(() => console.log('promise 5'))
+          .then(() => console.log('promise 6'))
+          .then(() => clearInterval(interval))
+      }, 0)
+    })
+}, 0)
+
+Promise.resolve()
+  .then(() => console.log('promise 1'))
+  .then(() => console.log('promise 2'))
+
+<b>консоль выведет:</b>
+'script start'
+'promise 1'
+'promise 2'
+'setInterval'
+'setTimeout 1'
+'promise 3'
+'promise 4'
+'setInterval'
+'setTimeout 2'
+'promise 5'
+'promise 6'
+              </code>
+          </pre><pre>
+
+<b>пример 2:</b>
+
+<img id="async1" src="images/js_browser/async1.jpg" alt="async1">
+            <code class="language-js">
+<b>консоль выведет:</b> 3 6 7 2 5 1 4
+// в момент нажатия стэк пустой => в стэк из очереди макрозадач попадут обработчики;
+// т.к. эмитируем клик програмно, то клики совершены одновременно и 2 обработчика
+// попадут в стэк один за другим, не пропуская микротаски
+              </code>
+        </pre><pre>
+
+  <b>пример 3:</b>
+            <code class="language-js">
+
+(function() {
+  console.log('start')
+
+  for (var i = 0; i &lt; 100; i++) {
+    // здесь IIFE будет сохранять локальную переменную i при каждом вызове =>
+    // колбэк в setTimeout будет брать ее, а не var, который уже к моменту попадания
+    // первого колбэка в call stack будет равен 100.
+    //   Если бы не было IIFE, то решением было бы поменять var на let, что бы внутри
+    // каждого блока (тела цикла) создавалась новая i, т.к. у var нет блочного scope
+    ((i) => setTimeout(() => console.log(i), 15))(i)
+  }
+
+  console.log('end')
+})()
+              </code>
+        </pre></article><ul class="section-refs"><li><a href="http://latentflip.com/loupe/?code=JC5vbignYnV0dG9uJywgJ2NsaWNrJywgZnVuY3Rpb24gb25DbGljaygpIHsKICAgIHNldFRpbWVvdXQoZnVuY3Rpb24gdGltZXIoKSB7CiAgICAgICAgY29uc29sZS5sb2coJ1lvdSBjbGlja2VkIHRoZSBidXR0b24hJyk7ICAgIAogICAgfSwgMjAwMCk7Cn0pOwoKY29uc29sZS5sb2coIkhpISIpOwoKc2V0VGltZW91dChmdW5jdGlvbiB0aW1lb3V0KCkgewogICAgY29uc29sZS5sb2coIkNsaWNrIHRoZSBidXR0b24hIik7Cn0sIDUwMDApOwoKY29uc29sZS5sb2coIldlbGNvbWUgdG8gbG91cGUuIik7!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D" target="_blank">Event Loop</a></li><li><a href="https://www.jsv9000.app/" target="_blank">Event Loop with Microtask Queue</a></li><li><a href="https://www.youtube.com/watch?v=-t9TWD9FEfw" target="_blank">Event Loop крутится, task'и мутятся</a></li></ul></div></section><!--window--><section class="section" id="window"><div class="section-container"><h2 class="section-title">window</h2><article class="section-info"><pre>
+  * объект Windows создается автоматически для каждого окна браузера
+
+  Окружение предоставляет свои объекты и дополнительные функции, в дополнение
+базовым языковым.
+  На схеме в общих чертах показано, что доступно для JS в браузерном окружении:
+
+                                      window (globalThis)
+
+               /                              |                               \
+              DOM                            BOM                            JavaScript
+
+document (window.document             navigator (window.navigator)       Object (window.Object)
+- экземпляр класса HTMLDocument)      screen                             Array
+...                                   location                           Function
+                                      frames                             Error
+                                      history                            ...
+                                      console
+                                      XMLHttpRequest
+        </pre><img class="img-window" src="images/js_browser/window.jpg" alt="window"> * window.document.location === window.location</article><ul class="section-refs"><li><a href="http://xn--80adth0aefm3i.xn--j1amh/window" target="_blank">window</a></li></ul></div></section><!--Document / nodes / styles--><section class="section" id="document"><div class="section-container"><h2 class="section-title">Document / nodes / styles</h2><article class="section-info"><pre>
+  DOM – объектная модель документа, которая представляет все содержимое страницы
+в виде объектов, которые можно менять. Все, что есть в HTML, даже комментарии,
+является частью DOM
+
+  <b>DOM-узлы</b> – это обычные объекты JS. Мы можем их изменять, добавлять св-ва,
+методы.
+  Каждый DOM-узел принадлежит определённому классу. Классы формируют иерархию.
+  Весь набор свойств (href, value...) и методов (querySelector, append...)
+является результатом наследования
+
+  Для узлов-элементов большинство стандартных HTML-атрибутов автоматически
+становятся свойствами DOM-объектов. Например, для &lt;body id='page'> у DOM-объекта
+будет такое свойство body.id='page'.
+  Для нестандартных атрибутов (например, &lt;body type=''>) не будет соответствующих
+DOM-свойств (alert(body.type) - undefined). Но такие атрибуты доступны с помощью
+методов для атрибутов ( elem.getAttribute(name)... )
+
+  <b>Получив DOM-node мы получаем объект со встроенными DOM-свойства (href, value...)
+и DOM-методами (querySelector, append...) + со стандартными св-ми и методами объектов JS</b>
+
+  Можно выделить какой то элемент в devTools и в консоле набрать console.dir($0).
+Мы увидем огромное количество свойств у DOM-node объекта.
+  <b>Поэтому самая затратная работа в JS - работа с DOM</b>
+
+  DOM-узлы можно изменять, добавлять св-ва, методы.
+Например, создадим новое св-во у document.body:
+document.body.myData = {
+  name: 'Caesar',
+  title: 'Imperator'
+}
+<b>DOM-свойства и методы ведут себя так же, как и обычные объекты JS</b>:
+- им можно присвоить любое значение
+- они регистрозависимы (нужно писать elem.nodeType, не elem.NoDeTyPe)
+
+  Получая набор из нескольких DOM-узлов с помощью, например, метода childNodes,
+мы получаем <b>коллекцию NodeList - особый перебираемый псевдомассив</b> (можно
+перебрать в for..of, есть forEach()).
+  Можно использовать Array.from() или [...nodes] для создания массива из коллекции
+
+
+  <b>главные свойства DOM-узла:</b>
+node/elem.nodeType == 1 для узлов-элементов
+                   == 3 для текстовых
+                   == 9 для объектов документа
+node/elem.nodeName/tagName      - только для чтения
+elem.innerHTML                  - внутреннее HTML-содержимое узла-элемента
+elem.outerHTML                  - внешнее HTML-содержимое узла-элемента, т.е. включая elem
+node.data                       - cодержимое узла-неэлемента: текста, комментария
+elem.textContent                - читает текст без учета тегов;
+                                  записывает «как текст», даже если есть теги
+elem.hidden                     - если значение true, делает то же, что и CSS display: none
+        </pre></article><article class="section-info"><b>навигация по DOM-элементам</b><pre>
+<b>&lt;html/></b> - document.documentElement
+<b>&lt;head/></b> - document.head
+<b>&lt;body/></b> - document.body
+
+  Получив DOM-узел, мы можем перейти к его ближайшим соседям используя
+навигационные ссылки. Есть два основных набора ссылок:
+  <b>для всех узлов (теги, текст, комментарии...):</b>
+* childNodes содержит и текстовые узлы в т.ч.
+parentNode, childNodes, firstChild, lastChild, previousSibling, nextSibling
+  <b>только для узлов-элементов (тегов):</b>
+parentElement, children, firstElementChild, lastElementChild,
+previousElementSibling, nextElementSibling
+
+
+elem.matches(css)      - [boolean], проверяет, удовлетворяет ли elem CSS-селектору
+elem.closest(css)      - ищет ближайшего предка включая себя, соответствующего CSS-селектору
+elemA.contains(elemB)  - вернёт true, если elemB находится внутри elemA
+        </pre></article><article class="section-info"><b>атрибуты и свойства</b><pre>
+Атрибуты – это то, что написано в HTML.
+Свойства – это то, что находится в DOM-объектах.
+Значением атрибута может быть только строка, а свойства - любой тип, как у обычного объекта.
+У св-ва имя регистрозависимо, а у атрибута - нет.
+В большинстве ситуаций предпочтительнее использовать DOM-свойства
+
+<b>методы для работы с атрибутами:</b>
+elem.hasAttribute(name)         – проверить на наличие
+elem.getAttribute(name)         – получить значение
+elem.setAttribute(name, value)  – установить значение
+elem.removeAttribute(name)      – удалить атрибут
+elem.attributes                 – это коллекция всех атрибутов
+
+
+атрибуты «data-...» доступны в свойстве <b>dataset</b> (например, data-about='')
+elem.dataset.about - доступно чтение и запись
+        </pre></article><article class="section-info"><b>создания / вставка / удаление узлов</b><pre>
+  <b>создание:</b>
+document.createElement(tag)       – создаёт элемент с заданным тегом
+document.createTextNode(value)    – создаёт текстовый узел
+elem.cloneNode(deep)              – клонирует элемент, если deep==true,
+                                    то со всеми дочерними элементами
+
+  <b>вставка и удаление:</b>
+  <span>если добавить существующий элемент, то он вырежется</span>
+node.append(...nodes or strings)      – добавляет узлы или строки (текст) в конец node
+node.prepend(...nodes or strings)     – вставляет узлы или строки в начало node
+node.before(...nodes or strings)      – вставляет узлы или строки перед node
+node.after(...nodes or strings)       – вставляет узлы или строки после node
+node.replaceWith(...nodes or strings) - заменяет node заданными узлами или строками, не удаляя
+node.remove()                         – удаляет node
+
+elem.insertAdjacentHTML(where, html)        - вставляет фрагмент HTML в зависимости от where
+                                              'beforebegin' – вставляет html прямо перед elem
+                                              'afterbegin' – вставляет html в elem в начало
+                                              'beforeend' – вставляет html в elem в конец
+                                              'afterend' – вставляет html сразу после elem
+elem.insertAdjacentText(where, text)        - вставляет текстовые строки
+elem.insertAdjacentElement(where, element)  - вставляет элементы
+
+
+  HTML5 не позволяет динамически добавлять теги script с помощью innerHTML,
+insertAdjacentHTML! Нужно создавать тег script и динамически добавлять в DOM.
+  <b>Например создание инлайн скрипта:</b>
+var newScript = document.createElement("script")
+var inlineScript = document.createTextNode("alert('Hello World!')")
+newScript.appendChild(inlineScript)
+        </pre></article><article class="section-info"><b>стили и классы</b><pre>
+elem.className – строковое значение, удобно для управления всем набором классов
+elem.classList – объект с методами add/remove/toggle/contains, для
+                 управления отдельными классами; classList перебираемый
+
+
+  <span>elem.style – это объект, который соответствует только тому, что есть в атрибуте 'style';
+используя elem.style, мы не можем прочитать ничего, что приходит из классов CSS (для
+этого есть getComputedStyle()); возвращает строку; все св-ва с дефисом через camelCase:</span>
+elem.style.width = '5px'  <span>document.body.style.display = '' - для удаления стиля</span>
+
+  <span>свойство style.cssText соответствует всему атрибуту 'style', полной строке стилей;
+для задания нескольких стилей в одной строке используется свойство style.cssText:</span>
+div.style.cssText = `color: red;
+                     width: 100px;`
+
+
+  <span>для чтения окончательных стилей из css + атрибута style (после
+применения всех CSS-правил и CSS-наследования) используется getComputedStyle:</span>
+let computedObj = getComputedStyle(elem, [pseudo]).marginTop    - только для чтения,
+                                                                  возвращает строку '5px'
+
+
+  <b>записывать св-ва можно только в атрибут 'style', в css нельзя! из css только чтение</b>
+        </pre></article><article class="section-info"><b>&lt;table></b><pre>
+  <b>таблица поддерживает следующие свойства:</b>
+table.rows                   – коллекция строк &lt;tr> таблицы
+table.caption/tHead/tFoot    – ссылки на элементы таблицы &lt;caption/>, &lt;thead/>, &lt;tfoot/>
+table.tBodies                – коллекция элементов таблицы &lt;tbody/>
+                               (по спецификации их может быть больше одного)
+thead/tbody/tfoot.rows       – коллекция строк &lt;tr> секции
+tr.cells                     – коллекция &lt;td> и &lt;th> ячеек, находящихся внутри строки &lt;tr>
+tr.sectionRowIndex           – номер строки &lt;tr> в текущей секции &lt;thead>/&lt;tbody>/&lt;tfoot>
+tr.rowIndex                  – номер строки &lt;tr> в таблице (включая все строки таблицы)
+td.cellIndex                 – номер ячейки в строке &lt;tr>
+        </pre></article><ul class="section-refs"><li><a href="https://dom.spec.whatwg.org" target="_blank">Спецификация DOM</a></li><li><a href="https://www.w3.org/TR/cssom-1/" target="_blank">Спецификация CSSOM</a></li><li><a href="https://html.spec.whatwg.org" target="_blank">Спецификация HTML</a></li><li><a href="https://learn.javascript.ru/selection-range" target="_blank">Selection и Range / выделение в элементах форм</a></li></ul></div></section><!--size / scroll / coordinates--><section class="section" id="size-scroll-coordinates"><div class="section-container"><h2 class="section-title">size / scroll / coordinates</h2><article class="section-info"><b>размеры и прокрутка элементов</b><pre>
+
+<b>все св-ва только для чтения, кроме scrollLeft и scrollTop
+все св-ва возвращают number</b>
+
+offsetParent                – ближайший CSS-позиционированный родитель
+                              или ближайший td, th, table, body
+offsetLeft / offsetTop      – позиция в пикселях верхнего левого угла относительно offsetParent
+                              (transform не влияет; значение округляется до целого числа)
+offsetWidth / offsetHeight  – «внешняя» ширина/высота элемента <span>clientWidth + scrollBar + border</span>
+
+clientLeft / clientTop      – расстояние от верхнего левого внешнего угла до
+                              внутренного <span>offsetWidth - clientWidth = scrollBar + border</span>
+clientWidth / clientHeight  – ширина/высота видимого в окне браузера содержимого вместе с
+                              padding, но без scrollbar <span>content + padding - scrollBar</span>
+
+scrollLeft / scrollTop      – ширина/высота прокрученной части элемента от верхнего левого угла
+scrollWidth / scrollHeight  – ширина/высота содержимого, аналогично clientWidth/Height,
+                              но учитывает прокрученную, невидимую область элемента
+
+<span><b>offset</b>: content + padding + scrollBar + border
+<b>client</b>: content + padding (только видимая в окне браузера область элемента)
+<b>scroll</b>: content + padding (учитывает прокрученную, невидимую область элемента)</span>
+        </pre></article><article class="section-info"><b>размеры и прокрутка окна</b><pre>
+<span>window.clientWidth не бывает</span>
+window.innerWidth/Height    - ширина/высота окна с учетом scrollBar, только для чтения
+
+<span>способ получить полную высоту документа,
+учитывая несоответствия/ошибки браузеров:</span>
+const scrollHeight = Math.max(
+  document.body.scrollHeight, document.documentElement.scrollHeight,
+  document.body.offsetHeight, document.documentElement.offsetHeight,
+  document.body.clientHeight, document.documentElement.clientHeight
+)
+
+
+window.pageXOffset/pageYOffset  - текущая прокрутка страницы, только для чтения
+
+window.scrollBy(x,y)            - прокручивает страницу относительно её текущего положения
+window.scrollTo(pageX,pageY)    - прокручивает страницу на абсолютные координаты;
+                                    возможен вызов с объектом опций <b>для плавной прокрутки</b>:
+                                  window.scrollTo({ top: 0, behavior: 'smooth' })
+
+
+<span>если top=true (по умолчанию) - elem появится в верхней части окна;
+если false - нижний край элемента будет совмещён с нижним краем окна</span>
+elem.scrollIntoView(top)        - прокручивает страницу к элементу
+        </pre></article><article class="section-info"><b>координаты</b><pre>
+  Любая точка на странице имеет координаты:
+
+  <span>- относительно окна браузера, даже если элемент находится вне окна (вне видимости)
+    отсчет от border, если есть:</span>
+elem.getBoundingClientRect()      - возвращает объект со св-ми:
+                                    x/y, width/height, top/bottom, left/right
+
+  <span>- относительно документа, например:</span>
+elem.getBoundingClientRect().top + window.pageYOffset
+        </pre></article></div></section><!-- events --><section class="section" id="events"><div class="section-container"><h2 class="section-title">events</h2><article class="section-info"><pre>
+  <b>3 способа назначения / удаления обработчиков:</b>
+
+  <span>on{event}</span>
+- aтрибут:     onclick='functionDo(this.innerHTML)' <span>тут functionDo возвращает function(event){}</span>
+
+  <span>on{event}; убрать обработчик: elem.onclick = null;
+    т.к. у элемента может быть только одно свойство с именем
+  onclick, то назначить более одного обработчика нельзя!</span>
+- DOM_свойство:     elem.onclick = function(event) { alert('click') }
+
+  <span>позволяют повесить несколько обработчиков на одно событие!
+  для удаления нужно передать именно ту же функцию-обработчик которая была назначена</span>
+- метод:      elem.addEventListener(event, handler[, options])     - для добавления
+              elem.removeEventListener(event, handler[, options])  - для удаления
+
+
+  <b>внутри обработчиков this ссылается на текущий элемент!</b>
+        </pre></article><article class="section-info"><b>всплытие и погружение</b><pre>
+<b>принцип всплытия</b> - когда на элементе происходит событие, обработчики
+                   сначала срабатывают на нём, потом на его родителе,
+                   затем выше и так далее, вверх по цепочке предков
+<img class="img-bubbling" src="images/js_browser/event-order-bubbling.svg" alt="event-order-bubbling">
+<b>* почти все события всплывают</b>
+
+event.target                      - самый глубокий элемент, вызывающий событие, называется
+                                    целевым элементом
+event.currentTarget               - элемент, до которого дошло всплытие, на нём сейчас
+                                    выполняется обработчик (он же this в обработчике)
+
+event.stopPropagation()           - останавливает всплытие
+event.stopImmediatePropagation()  - не только останавливает всплытие, но и
+                                    останавливает обработку событий у текущего элемента
+
+  <b>любой промежуточный обработчик может решить, что
+событие полностью обработано, и остановить всплытие</b>
+
+  * не прекращайте всплытие без необходимости, т.к. stopPropagation может
+создать «мёртвую зону» для статистики, когда мы кликаем на элемент с stopPropagation
+
+
+
+  Существует ещё одна фаза из жизненного цикла события – <b>погружение</b> (иногда
+её называют перехват). Она очень редко используется в реальном коде, однако тоже
+может быть полезной
+
+  стандарт DOM Events описывает <b>3 фазы прохода события</b>:
+фаза погружения (capturing phase)    – событие сначала идёт сверху вниз
+фаза цели (target phase)             – событие достигло целевого элемента
+фаза всплытия (bubbling stage)       – событие начинает всплывать
+
+
+  <span>чтобы поймать событие на стадии погружения, нужно
+использовать третий аргумент capture вот так</span>:
+elem.addEventListener(..., {capture: true}) <span>или просто true, как сокращение для {capture: true}</span>
+<span>если аргумент false (по умолчанию), то событие будет поймано при всплытии</span>
+
+  <b>чтобы убрать обработчик removeEventListener, нужна та же фаза, например:
+removeEventListener(..., true)</b>
+
+
+  Если несколько обработчиков одного события, назначенных addEventListener на один
+элемент, в рамках одной фазы, то их порядок срабатывания – тот же, в котором они установлены
+        </pre></article><article class="section-info"><b>делегирование</b><pre>
+  <b>Делегирование событий</b> - прием, когда на общий для нескольких элементов предок-элемент
+вешается обработчик, и в зависимости от цели (event.target) обрабатывются дочерние
+элементы.
+  Это <b>позволяет создавать один обработчик для нескольких элементов</b>
+        </pre></article><article class="section-info"><b>действия браузера по умолчанию</b><pre>
+  Действий браузера по умолчанию достаточно много, например:
+
+mousedown    – начинает выделять текст (если двигать мышкой)
+submit       – при нажатии на &lt;input type='submit'> или при нажатии
+               клавиши Enter в форме данные отправляются на сервер
+keydown      – при нажатии клавиши в поле ввода появляется символ
+contextmenu  – при правом клике показывается контекстное меню браузера
+
+
+  <b>Бывают события, вытекающие из других</b>
+Например, mousedown для &lt;input> приводит к фокусировке на нём и запускает
+событие focus. Если мы отменим событие mousedown (т.е. действие браузера по
+умолчанию), то фокусирование не произойдёт
+
+
+  Можно использовать <b>event.cancelable</b> чтобы проверить, является ли событие отменяемым
+
+
+<b>event.preventDefault()</b> - отменить действие браузера по умолчанию; для обработчиков
+                         назначенных через on{event} можно так же return false
+
+* сначало выполняются действия в обработчике события, а затем действие по умолчанию, если
+  не отменено. Но действия в обработчике могут занимать много времени и для таких событий
+  как touchmove (пользователь перемещает палец по экрану => происходит прокрутка) это
+  критично, т.к. скролл будет запоздалым.
+    Есть способ выполнять дефолтное действие на событие одновременно с нашей обработкой,
+  а не после: указать необязательную опцию <b>passive: true</b>, которая сообщает браузеру,
+  что обработчик не собирается отменять дефолтное действие
+
+
+* останавливать всплытие – плохо, т.к. например клик при всплытии может быть ипользован
+  для статистичесих счетчиков, а stopPropagation() закроет доступ к этому обработчику.
+    Лучше вместо этого проверять св-во <b>event.defaultPrevented</b> в обработчике вышестоящего
+  элемента, чтобы понимать что в обработчике одного из дочерних элементов уже отменялось
+  дефолтное действие и обрабатывалось такое же событие => не обрабатывать лишний раз в
+  родительском, если это не нужно:
+  в верхнем обработчике: if (event.defaultPrevented) return <span> выходим из обработчика</span>
+        </pre></article><article class="section-info"><b>генерация пользовательских событий</b><pre>
+  Событие встроенного класса Event можно создать так:
+const event = <b>new Event(type[, options])</b>
+
+type    – тип события, например 'click' или
+          любой придуманный нами: 'my-event'
+options – объект с двумя необязательными свойствами
+          (по умолчанию оба свойства false):
+            - bubbles:      если true - всплывает
+            - cancelable:   если true - можно использовать preventDefault()
+
+
+  Для некоторых конкретных типов событий есть свои <b>специфические конструкторы</b>, например:
+<b>UIEvent, FocusEvent, MouseEvent, WheelEvent, KeyboardEvent...</b> Стоит использовать их
+вместо new Event. Специфический конструктор позволяет указать стандартные свойства для
+данного типа события (clientX/clientY для события мыши)
+const event = new MouseEvent('click', {bubbles: true, clientX: 100, clientY: 100})
+
+  Для генерации событий совершенно новых типов, таких как, например, 'hello', следует
+использовать <b>конструктор new CustomEvent</b>. Технически CustomEvent абсолютно идентичен Event
+за исключением небольшой детали: у второго аргумента-объекта есть дополнительное свойство
+detail, в котором можно указывать информацию для передачи в событие, например:
+let customEvent = new CustomEvent( 'hello', {detail: {name: 'Вася'}} )
+  Нужно использовать addEventListener для наших собственных событий.
+on{event}-свойства существуют только для встроенных событий: document.onhello не сработает
+
+  после того, как объект события создан, мы должны запустить его на элементе, вызвав метод
+<b>elem.dispatchEvent(event)</b>
+
+
+  можно отличить настоящее событие от сгенерированного кодом с помощью св-ва
+объекта события <b>event.isTrusted</b>  <span> true для реальных действий пользователя</span>
+        </pre></article><article class="section-info"><b>интерфейсные события</b><pre>
+<b class="center">события мыши</b>
+<b>простые события:</b>
+mousedown/mouseup      - кнопка мыши нажата/отпущена над элементом
+mouseover/mouseout     - курсор появляется над элементом и уходит с него;
+                         имеют дополнительное св-во relatedTarget, которое
+                         содержит ссылку на элемент с/на который мы переходим
+mouseenter/mouseleave  - курсор переходит на элемент или уходит с него;
+                         но переходы внутри элемента на его потомки и с них не
+                         считаются; так же есть св-во relatedTarget; эти события
+                         не всплывают, поэтому нельзя использовать делегирование!
+mousemove              - каждое движение мыши над элементом генерирует это событие
+contextmenu            - вызывается при попытке открытия контекстного меню правой кнопки мыши
+
+<b>комплексные события:</b>
+click                  - вызывается при mousedown и затем mouseup над одним
+                         и тем же элементом, если использовалась левая кнопка мыши
+dblclick               - вызывается двойным кликом на элементе
+
+<b>cобытия мыши имеют следующие свойства:</b>
+- кнопка: button (0 - левая, 1 - колесо, 2 - правая)
+- клавиши-модификаторы (true если нажаты): altKey, ctrlKey, shiftKey и metaKey (на Mac)
+- координаты относительно окна: clientX/clientY
+- координаты относительно документа: pageX/pageY
+- скролл колеса мыши: wheel
+
+  В современном стандарте HTML5 есть раздел о Drag and Drop – и там есть специальные
+события именно для Drag’n’Drop переноса, такие как dragstart, dragend и т.д.
+
+  Браузер имеет свой собственный Drag’n’Drop (события dragstart, dragend...), который
+автоматически запускается и вступает в конфликт с нашим; это происходит именно для
+картинок и некоторых других элементов; чтобы его отключить:
+elem.ondragstart = function() { return false }
+
+
+
+<b class="center">события клавиатуры</b>
+keydown   – при нажатии на клавишу (если клавиша
+            остаётся нажатой, происходит автоповтор)
+keyup     – при отпускании клавиши
+
+<b>главные свойства:</b>
+code      – код ('KeyA', 'ArrowLeft'), привязанный к
+            физическому расположению клавиши на клавиатуре
+key       – символ ('A', 'a' ...); при изменении
+            языка раскладки меняется и символ
+repeat    - для событий вызванных автоповтором свойство repeat равно true
+
+
+
+<b class="center">событие прокрутки</b>
+scroll - событие позволяет реагировать на прокрутку страницы или элемента
+        </pre></article></div></section><!-- forms --><section class="section" id="forms"><div class="section-container"><h2 class="section-title">forms</h2><article class="section-info"><b>свойства и методы формы</b><pre>
+<span>«именованная» кол-я форм (document.forms.my (name='my') или document.forms[0])</span>
+<b>document.forms</b>
+
+получаем элемент формы &lt;input name='one'> с помощью <b>св-ва elements</b>;
+если несколько элементов с одним и тем же именем (radio), то form.elements[name] - коллекция
+          const form = document.forms.my
+const elem = form.elements.one
+
+<span>cокращённая форма записи</span>
+form.elements.login == form.login
+
+
+* для любого элемента форма доступна через element.form (элементы хранят ссылку на свою форму)
+
+
+input.value     = 'Новое значение'
+textarea.value  = 'Новый текст'
+input.checked   = boolean <span>для чекбоксов и переключателей</span>
+
+
+<b>элемент &lt;select> имеет 3 важных свойства:</b>
+select.options        – коллекция из подэлементов &lt;option>
+select.value          – значение выбранного в данный момент &lt;option>
+select.selectedIndex  – номер выбранного &lt;option>
+
+<b>свойства элемента &lt;option>:</b>
+option.selected   - boolean
+option.index      - номер опции среди других в списке
+option.text       - содержимое опции
+
+<b>создание элемента &lt;option>:</b>
+new Option(text, value, defaultSelected, selected)
+defaultSelected  – если true, то ставится HTML-атрибут selected
+selected         – если true, то элемент &lt;option> будет выбранным
+        </pre></article><article class="section-info"><b>фокусировка</b><pre>
+  Элемент получает фокус (если он фокусируемый или если у него установлен tabIndex),
+когда пользователь кликает по нему или использует клавишу Tab.
+  Существует <b>HTML-атрибут autofocus</b> - устанавливает фокус, когда страница загружается
+
+  <b>Событие focus/blur не всплывают</b>, но можно использовать или фазу погружения,
+установив 3й параметр метода addEventListener в true, или <b>всплывающие focusin/focusout</b>
+focus     - вызывается в момент фокусировки, не всплывает
+blur      - вызывается когда элемент теряет фокус, не всплывает
+focusin   - вызывается в момент фокусировки, всплывает
+focusout  - вызывается когда элемент теряет фокус, всплывает
+
+* нельзя отменить потерю фокуса, вызвав event.preventDefault() в обработчике
+события blur потому, что onblur срабатывает после потери фокуса элементом
+
+
+<b>elem.focus()</b>  - устанавливеют фокус элементу
+<b>elem.blur()</b>   - снимает фокус c элемента
+
+
+  Многие элементы по умолчанию не поддерживают фокусировку; elem.focus() не работает
+для них, и события focus/blur никогда не срабатывают.
+  Однако любой элемент поддерживает фокусировку, если имеет <b>HTML-атрибут tabindex</b>.
+  Порядок перебора табом таков: сначала идут элементы со значениями tabindex от 1
+и выше, в порядке tabindex, а затем элементы без tabindex (например, обычный &lt;input>)
+elem.tabIndex  - добавление tabindex из JavaScript
+tabindex="-1"  - позволяет фокусироваться на элементе только программно (методом elem.focus())
+tabindex="0"   - ставит элемент в один ряд с элементами без tabindex; то есть, при
+                 переключении такие элементы будут после элементов с tabindex ≥ 1
+
+<b>document.activeElement</b>     - получить текущий элемент с фокусом
+        </pre></article><article class="section-info"><b>события: change, input, cut, copy, paste</b><pre>
+change             - срабатывает по окончании изменения элемента; для текстовых &lt;input>;
+                     это означает, что событие происходит при потере фокуса; при печатанье
+                     событие не происходит;
+                     для select/checkbox/radio запускается сразу после изменения значения
+input              - срабатывает каждый раз при изменении значения; если значение не меняется,
+                     например при нажатии стрелочки влево, то событие не срабатывает;
+                     событие input происходит после изменения значения, поэтому
+                     event.preventDefault() не сработает для отмены ввода
+cut, copy, paste   - события происходят при вырезании/копировании/вставке данных; свойство
+                     event.clipboardData предоставляет доступ на чтение/запись в буфер обмена
+        </pre></article><article class="section-info"><b>отправка формы</b><pre>
+
+  Есть два основных способа отправить форму
+  (оба действия сгенерируют событие submit на форме):
+– нажать кнопку &lt;input type='submit'> или &lt;input type='image'>
+– нажать Enter, находясь на каком-нибудь поле
+
+
+событие submit - срабатывает при отправке формы; обычно используется
+                 для валидации формы перед её отправкой на сервер или
+                 для предотвращения отправки и обработки её с помощью JS
+
+* при отправке формы генерируется событие click на кнопке c type='submit'
+
+
+form.submit() - инициирует отправку формы из JavaScript
+        </pre></article></div></section><!-- загрузка документа и ресурсов --><section class="section" id="load"><div class="section-container"><h2 class="section-title">load document and resources</h2><article class="section-info"><pre>
+    <b>defer</b>
+- скрипты с defer не блокируют страницу: ждут окончания парсинга HTML, полного
+  формирования DOM (=> подгрузки и выполнения остальных обычных скриптов (не
+  важно внешних или нет) без defer)
+- скрипты с defer сохраняют порядок относительно друг друга
+- выполняются до события DOMContentLoaded
+
+    <b>async</b> (скрипт абсолютно независим)
+- скрипты с async не блокируют страницу
+- остальные скрипты не ждут async, и скрипты c async не ждут другие скрипты
+- скрипты с async не ждут друг друга
+- событие DOMContentLoaded и асинхронные скрипты не ждут друг друга
+
+* скрипты с async очень полезны для добавления на
+  страницу сторонних скриптов: счётчиков, рекламы и т.д.
+
+
+  Можно <b>добавить скрипт динамически</b>:
+const script = document.createElement('script')
+script.src = '/article/script-async-defer/long.js'
+document.body.append(script)
+  Динамически загружаемые скрипты по умолчанию <b>ведут себя как async</b>. Можно изменить
+относительный порядок скриптов с «первый загрузился – первый выполнился» на порядок,
+в котором они идут в документе (как в обычных скриптах) с помощью явной установки
+свойства async в false
+
+
+<b>DOMContentLoaded             – (событие у document)</b> браузер полностью загрузил HTML,
+                               было построено DOM-дерево (=> загружены и выполнены все
+                               скрипты (кроме скриптов с async и динамически сген-ых)),
+                               но внешние ресурсы, такие как картинки, шрифты, стили,
+                               могут быть ещё не загружены
+
+<b>load                         – (событие у window, после DOMContentLoaded)</b> браузер
+                               загрузил HTML и все внешние ресурсы (картинки, стили,
+                               все скрипты (в т.ч. с async)...)
+
+<b>beforeunload                 – (событие у window)</b> когда пользователь покидает страницу;
+                               можно отменить переход на другую страницу в confirm
+
+<b>unload                       – (событие у window)</b> когда пользователь покидает страницу
+                               (обычно здесь отсылают статистику); отменить переход на
+                               другую страницу нельзя
+
+
+<b>document.readyState</b>      – текущее состояние документа;
+                           изменения можно отследить <b>событием readystatechange (у document)</b>:
+loading       – документ грузится
+interactive   – документ прочитан, происходит примерно в то же
+                время, что и DOMContentLoaded, но до него
+complete      – документ и ресурсы загружены, происходит примерно
+                в то же время, что и window.onload, но до него
+        </pre></article><article class="section-info"><b>загрузка ресурсов: onload и onerror</b><pre>
+
+  изображения, внешние стили, скрипты и другие ресурсы
+предоставляют события load и error для отслеживания загрузки:
+<b>load</b>        - срабатывает при успешной загрузке
+<b>error</b>       - срабатывает при ошибке загрузки
+
+* единственное <b>исключение – это &lt;iframe></b>: по историческим причинам
+  срабатывает всегда load вне зависимости от того, как завершилась
+  загрузка, даже если страница не была найдена
+        </pre></article></div></section><!-- Cookies & Storages --><section class="section" id="cookies&storages"><div class="section-container"><h2 class="section-title">Cookies & L/S Storages</h2><article class="section-info"><pre>
+                              <b>Способы хранения данных в браузере:</b>
+
+1. Local Storage
+2. Session Storage
+3. Cookies
+
+
+
+- Cookies в отличае от Local Storage могут хранить намного меньше данных
+- Local / Session Storage как и Cookies так же привязан к конкретному домену
+- Мы можем сами устанавливать время жизни для Cookie
+- С каждым запросом на сервер автоматически отправляются Cookies и сервер
+  так же может перезаписывать эти Cookies
+
+
+                                  <b>Local / Session Storage:</b>
+
+  Разница между Local Storage и Session Storage только в том, что в Session Storage данные
+стираются каждый раз, когда пользователь закрывает браузер (т.е. когда завершается сеанс),
+а в Local Storage нет
+
+  - key и value должны быть строками; если value объект/массив..., то JSON.stringify(value).
+  - лимит 2 Мб+, зависит от браузера
+
+    <span>API (localStorage и sessionStorage)</span>:
+setItem(key, value) – сохранить пару ключ/значение
+getItem(key)        – получить данные по ключу key
+removeItem(key)     – удалить значение по ключу key
+clear()             – удалить всё
+key(index)          – получить ключ на заданной позиции
+length              – количество элементов в хранилище
+
+* событие storage срабатывает при вызове setItem, removeItem, clear
+
+
+                                         <b>Cookies:</b>
+
+<img src="/images/js_browser/cookies.png" alt="cookies">
+
+  Cookie – это небольшие строки данных, которые я <b>получаю от веб-сервера при первом
+запросе</b>, когда захожу на сайт. А <b>при последующих запросах (например, браузер
+запрашивает другую страницу) куки автоматически отпраляются на сервер с запросом</b>.
+
+                                виды cookies:
+- сессионые (temporary) - они существуют только во время посещения сайта и
+удаляются только когда закрою браузер. В отличие от других типов cookie,
+сессионные cookie не имеют истечения срока действия. Любой файл "cookie",
+созданный без даты истечения срока действия, автоматически является сеансовым.
+Простой пример использования временного файла "cookie" - запись в память данных
+о наполнении корзины в интернет-магазине.
+- постоянные (first-party cookies) - хранятся определенный промежуток времени
+установленный в Expires и потом удаляются
+- сторонние (third-party cookies) - куки, которые не принадлежат текущему домену
+- zombie-cookie - куки, которые разработчики так прячут в браузере, что
+они остаются и после очистки. Там используется дополнительное хранилище
+(Local Storage, Session Storage)
+
+  Часто в таблице с куками во вкладке Application можно встретить куки, которые
+не принадлежат этому домену (сторонние куки: <b>third-party cookies</b>). Это происходит
+потому что сайт использует не только свои рессурсы, но и какие то сторонние (рекламы,
+карты, виджеты, даже подключение скриптов через cdn), которые и создают сторонние куки.
+  third-party cookie – это cookie, созданная не тем доменом, который вы посетили.
+  third-party cookies, также известные как <b>отслеживающие</b>, т.к. могут использоваться
+для слежки и аналитики.
+  В отличие от основных файлов cookie, сторонние cookie создаются на чужом сайте с помощью
+различных виджетов (т.е посещая такой сайт вы цепляете файл cookie этого сайта + файл cookie,
+который создан виджетами и принадлежит другому сайту).
+  Это позволяет создателю third-party cookie собирать и получать данные в любое время, когда
+пользователь посещает другие страницы/сайты с принадлежащим ему (создателю third-party
+cookies) ресурсом.
+  Таким образом создатель third-party cookies знает какие сайты и страницы посещал
+пользователь
+
+
+                  <b>запись / чтение cookies</b>
+
+  Получить все куки для сайта (домена), кроме тех у которых стоит галочка в
+колонке HTTPOnly, можно с помощью <b>document.cookie</b>. Значение состоит из пар
+ключ=значение, разделённых ;. Каждая пара представляет собой отдельное куки
+
+  Чтобы найти определённое куки, достаточно разбить строку из document.cookie
+по ;, и затем найти нужный ключ
+
+  <b>Пример создания cookie</b>, которая добавляется в хранилище:
+document.cookie = 'someKey=someValue;expires=Sun, 16 Jul 3567 06:23:41 GMT'
+
+ * Запись в document.cookie обновит только упомянутые в ней куки, но при этом
+не затронет все остальные
+document.cookie = 'user=John' <span>обновляем только куки с именем 'user'</span>
+
+  * специальные символы (пробелы), требуется кодирование
+let name = 'my name'
+let value = 'John Smith'
+document.cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value)
+
+ * одно куки вмещает до 4kb данных, разрешается более 20 куки на сайт (зависит от браузера)
+
+
+
+        Файлы Cookie хранятся в специальном хранилище Cookies (вкладка Application):
+
+  <b>Name</b>      <b>Value</b>            <b>Domain</b>                     <b>Path</b>                    <b>Expires</b>
+любое      любое      показывает какой домен     путь к дерриктории         время когда кука
+название   строковое  или поддомен имеет         на сервере, для которой    будет просрочена
+           значение   доступ к этой Cookie:      будут доступны куки        и удалена из        ->
+                       .google.com - доступна    (/ - корневой католог,     браузера
+                      для всего домена,          т.е. куки доступны всему
+                      включая поддомены          домену)
+                       .pol.google.com -
+                      только для поддомена
+
+ <b>Size</b>       <b>HTTPOnly</b>          <b>Secure</b>                          <b>SameSite</b>
+размер   параметр который   указывает что     указывает что куки не должны отсылаться с
+куки     запрещает доступ   куки должны       межсайтовыми запросами (сайты могут общаться
+         к куки с помощью   передаваться на   между собой запросами и так же передавать
+         встроенного API    сервер только с   друг другу куки, особенно когда на свой сайт
+         внутри браузера:   помощью HTTPS     подключаю сторонние плагины (гугл-карта...).
+         document.cookie                      Они могут устанавливать куки на ваш сайт)
+                                               None - на передачу куки не накладывается
+                                              никаких ограничений
+                                               Strict - блокирует отправку куки с любыми
+                                              запросами от других рессурсов. Это значит
+                                              что куки будут передаваться только в пределах
+                                              домена, указанного в поле Domain (&lt;-)
+                                               Lax - разрешает передачу куки только
+                                              безопасными HTTP-методами: GET, HEAD, OPTIONS
+                                              и TRACE
+
+
+
+  Я принимаю куки в попапе cookies consent => срабатывает callback, подгружающий или
+инициализирующий метрики, google-аналитики или другие сервисы, запрашивающие согласие
+на принятие куки.
+
+      <b>Cookies могут импользоваться для</b>:
+- Аутентификации. Например, куки может уведомлять сервер, что я уже залогинен на сайте
+и что сессия еще не истекла. В куки файлах почти не хранятся логин и пароль от какого то
+сайта, но хранится идентификатор того, что конкретный пользователь уже залогинен на сайте.
+  При входе на сайт сервер отсылает в ответ HTTP-заголовок Set-Cookie для того, чтобы
+установить куки со специальным уникальным идентификатором сессии. Во время следующего
+запроса к этому же домену браузер посылает на сервер HTTP-заголовок Cookie. Таким образом,
+сервер понимает, кто сделал запрос.
+- Аналитики. cookie будет автоматически отправляться браузером на сервер каждый раз,
+когда запрашивается новая страница с сайта. Сервер не только отправляет страницу как
+обычно, но также сохраняет URL запрошенной страницы, дату / время запроса и файл cookie
+в файле журнала. Анализируя этот файл журнала, можно определить, какие страницы посетил
+пользователь, в какой последовательности и как долго.
+- Персонализация. Каждый раз, когда пользователь получает доступ к странице на веб-сайте,
+сервер может персонализировать страницу в соответствии с ранее выбранными предпочтениями
+(например, светлая/темная тема)
+- Отслеживание. Если вы когда-либо покупали или просто смотрели продукт на Amazon, а
+затем начали видеть объявления о похожих продуктах на других веб-сайтах - вы попали под
+ретаргетинг. Синхронизация файлов cookie происходит, когда две рекламные компании
+объединяются или приобретают базы друг у друга. Эта консолидация помогает им конкурировать
+с Google, но также оказывает негативное влияние на конфиденциальность пользователей.
+
+
+  Если я логинюсь на сайте без ssl-сертификата (http) в общественной сети (например
+из кафе), то теоретически хакеры могут взламать мой трафик и получить доступ к куки,
+благодаря чему использовать его на этом же сайте, обойдя логин и пароля и быть
+авторизированными под моим акком. Установленный в куке параметр Secure предотвратит
+такой взлом, т.к. такие куки передаются только с помощью HTTPS.
+        </pre></article></div></section><!-- MutationObserver --><section class="section" id="mutationObserver"><div class="section-container"><h2 class="section-title">MutationObserver</h2><article class="section-info"><pre>
+  <b>MutationObserver</b> – это встроенный объект, наблюдающий за DOM-элементом и запускающий
+колбэк в случае изменений.
+  MutationObserver может реагировать на изменения в DOM: атрибуты, добавленные/удалённые
+элементы, текстовое содержимое.
+
+  Мы можем использовать его, чтобы отслеживать изменения, производимые другими частями нашего
+собственного кода, а также интегрироваться со сторонними библиотеками.
+
+
+<span>сначала мы создаём наблюдатель за изменениями с помощью колбэк-функции</span>:
+const observer = new MutationObserver(callback)
+
+<span>потом прикрепляем его к DOM-узлу</span>:
+observer.observe(node, config)
+
+<b>config</b> – это объект с булевыми параметрами «на какие изменения реагировать»
+
+  После изменений выполняется callback, в который изменения передаются первым аргументом
+как массив объектов MutationRecord, а сам наблюдатель (экземпляр MutationObserver) идёт
+вторым аргументом
+        </pre></article><ul class="section-refs"><li><a href="https://learn.javascript.ru/mutation-observer" target="_blank">MutationObserver</a></li></ul></div></section><!-- CORS --><section class="section" id="cors"><div class="section-container"><h2 class="section-title">CORS</h2><article class="section-info"><pre>
+  Две страницы имеют одинаковый origin (источник) если протокол,
+порт (если указан), и хост одинаковы для обоих страниц.
+<b>origin</b> - это протокол/домен/порт (https://javascript.info)
+
+            <b>Правило одного источника (same-origin)</b>:
+Если браузер запросил страницу из домена a.com, то и ajax-запрос из
+загруженного на странице js файла должен быть послан по домену a.com.
+Это касается и картинок, шрифтов, стилей запрашиваемых из других источников.
+
+  При запросе на другой источник браузер всегда ставит «от себя»
+заголовок Origin, значением которого является домен источника
+(Origin: https://www.a.com).
+
+            Доверенный источник (CORS):
+<b>CORS</b> (Cross-Origin Resource Sharing) — механизм, использующий дополнительные
+HTTP-заголовки, чтобы дать возможность браузеру получать разрешения на доступ
+к выбранным ресурсам с сервера на источнике (домене), отличном от того, что
+сайт использует в данный момент.
+  Что бы север разрешил браузеру делать запрос на другой источник (b.com),
+сервер может проверить Origin и, если он согласен принять такой запрос,
+добавить особый заголовок <b>Access-Control-Allow-Origin</b> к ответу:
+Access-Control-Allow-Origin: b.com
+
+
+            Есть два вида запросов на другой источник:
+
+- <b>Простые</b>. Простой запрос – это запрос, удовлетворяющий следующим условиям:
+    Простой метод: GET, POST или HEAD
+    Простые заголовки – разрешены только:
+      Accept,
+      Accept-Language,
+      Content-Language,
+      Content-Type со значением application/x-www-form-urlencoded,
+                                multipart/form-data или text/plain
+- <b>Все остальные</b>.
+  Когда мы пытаемся сделать непростой запрос, браузер посылает специальный
+  предварительный запрос (preflight) с методом OPTIONS, который спрашивает
+  у сервера – согласен ли он принять такой непростой запрос или нет?
+  И, если сервер явно не даёт согласие в заголовках, непростой запрос
+  не посылается.
+
+
+            <b>CORS proxy</b> (для избежания CORS ошибок):
+CORS proxy - прокси-сервер (посредник между браузером и другим
+источником (b.com)), на который идет запрос браузера. Далее прокси-сервер
+отсылает запрос другому источнику (b.com) -> получает ответ без CORS
+заголовка (Access-Control-Allow-Origin) -> добавляет заголовоки отправляет
+ответ браузеру уже с заголовком.
+Пример:
+CORS_PROXY = 'https://cors-proxy.elfsight.com/'
+Запрос: CORS_PROXY + 'https://files.elfsight.com/storage/a277.png'
+        </pre></article></div></section></main><script src="https://unpkg.com/scrollnav@3.0.1/dist/scrollnav.min.umd.js"></script><script src="index.js"></script></body></html>

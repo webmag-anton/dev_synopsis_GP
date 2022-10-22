@@ -1,0 +1,1920 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>JS</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="js"><main class="sections-wrapper"><!--basis--><section class="section" id="basis"><div class="section-container"><h2 class="section-title">basis</h2><article class="section-info"><pre>
+  <b>JavaScript</b> — прототипно-ориентированный мультипарадигменный язык програмирования,
+который поддерживает императивный, декларативный, функциональный и объектно-ориентированный
+стили
+
+  JavaScript работает в <b>однопоточном режиме (один стек вызовов)</b>, т.е. только одна
+операция может быть выполнена в определенный момент времени
+
+  <b>Кроссплатформенный язык</b> — использующийся в разных сферах (в браузере, на веб-сервере,
+в кофеварке); каждая среда предоставляет свой функционал, который спецификация JavaScript
+называет окружением
+
+  <b>Динамическая типизация</b> — возможность переменной любого типа присвоить другой тип:
+переменной строкового типа присвоить число (это плохо для больших проектов).
+В js возможность написания кода со статической типизацией дает TypeScript
+
+  JavaScript может выполняться не только в браузере, но и на сервере или на любом другом
+устройстве, которое имеет специальную программу, называющуюся <b>«движком» JavaScript</b>.
+  В браузере для JavaScript доступно всё, что связано с манипулированием веб-страницами,
+взаимодействием с пользователем и веб-сервером.
+  В последнее время появилось много новых языков, которые транспилируются (конвертируются)
+в JavaScript, прежде чем запустятся в браузере, например:
+CoffeeScript (вводит более короткий синтаксис),
+TypeScript, Flow (как и TypeScript добавляет типизацию),
+Dart,
+Brython (транспилирует Python в JS)
+
+  С появлением ES5 (2009 г.) в JS появилась дирректива <b>'use strict'</b>, которая позволяет
+использовать новые возможности языка, но при этом не работают старые, изжившие себя
+(ошибки или несовершенные решения).
+  Для обратной совместимости не используют 'use strict'. То есть, чтобы устаревший код
+работал, как и раньше, не используют 'use strict'. А для включения новых возможностей ES5+
+используют 'use strict'.
+  Классы и модули автоматически включают строгий режим, поэтому в React компонентах нет
+нужды в 'use strict'.
+
+  В JavaScript есть два <b>ограничения, касающиеся имён переменных:</b>
+- имя переменной должно содержать только буквы, цифры или символы $ и _
+- первый символ не должен быть цифрой
+
+  Переменные в js должны быть camelCase
+        </pre><img src="images/js/ECMAScript-redactions.jpg" alt="ECMAScript redactions"></article><article class="section-info"><pre>
+  В браузере глобальные функции и переменные, объявленные с помощью
+<b>var</b> (не let/const!), становятся свойствами глобального объекта window !!
+
+'use strict'
+a = 'test'
+// ошибка, т.к. в 'use strict' <b>неявное присваивание</b> не работает (не создастся window.a)
+console.log(a)
+
+
+                <b>8 основных типов данных:</b>
+примитивные:
+  - number (любые числа)
+  - bigint (целые числа произвольной длины; создание: BigInt(123) или 123n)
+  - string
+  - boolean
+  - null (неизвестное значение)
+  - undefined (неприсвоеное значение)
+  - symbol (для уникальных идентификаторов в объектах)
+
+не примитивный:
+  - object
+
+
+typeof null возвращает 'object' (ошибка языка)
+typeof function() {} возвращает 'function'
+        </pre></article><article class="section-info"><b>приведение типов:</b><pre>
+  Виды преобразования:
+строковое
+численное
+логическое
+объект в примитив
+
+  Значения разных типов при сравнении приводятся к числу!
+
+<b>численное:</b>
+undefined становится NaN, не 0
+пустой [] преобразуется к 0
+любой {} преобразуется к NaN
+
+<b>логическое:</b>
+'', 0, null, undefined, NaN                                    - falthy values
+"0" и строки с одними пробелами " ", любые объекты и массивы   - truthly values
+
+
+null и undefined равны друг другу (и сами себе) и не равны любому другому значению
+alert(null == undefined)   // true
+
+
+console.log(false == [])    // true     - пустой массив преобразуется к 0
+console.log(false == {})    // false    - любой объект преобразуется к NaN
+console.log(0 == null)      // false    - null равно или undefined или само себе
+console.log(0 == undefined) // false    - undefined равно или null или само себе
+
+'' + 1 + 0                       '10'
+'' - 1 + 0                       -1
+true + false                     1
+6 / '3'                          2
+'2' * '3'                        6
+4 + 5 + 'px'                     '9px'
+'$' + 4 + 5                      '$45'
+'4' - 2                          2
+'4px' - 2                        NaN
+7 / 0                            Infinity
+'  -9\n' + 5                     '  -9\n5'
+'  -9\n' - 5                     -14
+5 && 2                           2
+2 && 5                           5
+5 || 0                           5
+0 || 5                           5
+null + 1                         1
+undefined + 1                    NaN
+null == '\n0\n'                  false
++null == +'\n0\n'                true
+
+
+<b>объект в примитив:</b>
+  3 варианта преобразования (3 хинта) объекта в примитив:
+- string (к строке)
+- number (к числу)
+- default
+
+алгоритм преобразования таков (эти методы должны возвращать примитив, если определены):
+1. Вызвать obj[Symbol.toPrimitive](hint) – метод с символьным ключом Symbol.toPrimitive,
+                                           если такой метод существует
+2. Иначе, если хинт равен 'string': попробовать вызвать obj.toString() или obj.valueOf(),
+                                    смотря какой из них существует.
+3. Иначе, если хинт равен 'number' или 'default': попробовать вызвать obj.valueOf() или
+                                                  obj.toString(), смотря какой существует
+
+* на практике часто бывает достаточно реализовать только obj.toString()
+        </pre></article><article class="section-info"><b>операторы:</b><pre>
+let a = 1, b = 2;
+let c = 3 - (a = b + 1);
+alert(a);  // 3
+alert(c);  // 0
+
+
+Такое присваивание работает справа налево (<b>присваивание по цепочке</b>).
+Сначала вычисляется самое правое выражение 2 + 2,
+и затем результат присваивается переменным слева: c, b и a
+a = b = c = 2 + 2;
+
+
+<b>Оператор взятия остатка %</b> (остаток от целочисленного деления a на b)
+8 % 3 == 2
+4 % 1 == 0
+3.5 % 1 == 0.5
+3 % 4 == 3
+
+
+<b>инкремент/декремент</b> можно применить только к переменной!
+
+i++    - инкрементирует i, но возвращает i до инкрементирования
+++i    - инкрементирует и возвращает инкрементированый i
+
+let counter = 1;
+let a = counter++;  // увеличивает counter, но возвращает старое значение
+alert(a);  // 1
+
+если результат оператора не используется, а нужно только
+увеличить переменную, тогда без разницы, какую форму использовать:
+let counter2 = 0;
+counter2++;
+++counter2;
+alert(counter2);  // 2
+
+
+?? -  (<b>оператор нулевого слияния</b>) если левый операнд имеет значение
+      null или undefined - возвращает правый операнд, а иначе - левый
+
+
+?. -  (<b>оператор optional chaining</b>) для исключения ошибок
+      при обращению к несуществующему свойству объекта, т.е. вместо
+      выброшеного исключения вернет undefined;
+      obj.method?.() – вызывает obj.method(), если obj.method
+      существует, в противном случае возвращает undefined
+
+const data = {
+  user: {}
+}
+console.log(data.user.address.street) // Uncaught TypeError: Cannot read
+                                         property 'street' of undefined
+чтобы не выкинуло ошибку, нужна проверка; можно ее сделать обычным способом:
+const street = data && data.user && data.user.address && data.user.address.street;
+console.log(street); // undefined
+но лучше с помощью optional chaining - короче и понятней
+console.log(data.user?.address?.street); // undefined
+        </pre></article><article class="section-info"><b>циклы:</b><pre>
+<b>общие:</b>
+- for (начало; условие; шаг)
+  <span>начало вполняется один раз при входе в цикл
+  если выполняется условие -> выполняется тело -> шаг...</span>
+
+- while (condition)
+
+- do { } while (condition)
+
+<span>используется в итерируемых объектах (с методом [Symbol.iterator](),
+возвращающим объект-итератор с методом next());
+в строках, массивах и коллекции Map изначально встроен, в объектах - нет</span>
+- for (let fruit of fruits)
+
+<b>для объектов:</b>
+- for (let key in object)
+
+
+<b>Метки для break/continue:</b>
+outer: for (let i = 0; i &lt; 3; i++) {
+  for (let j = 0; j &lt; 3; j++) {
+    let input = prompt(`Значение (${i},${j})`, '')
+    if (!input) break outer
+  }
+}
+        </pre></article><article class="section-info"><b>деструктуризация:</b><pre>
+let {prop : varName = default, ...rest} = object
+
+let [item1 = default, item2, ...rest] = array
+
+<b>пример:</b>
+let options = {
+  size: {
+    width: 100,
+    height: 200
+  },
+  items: ['Cake', 'Donut'],
+  extra: true
+}
+
+let {
+  size: {                   // положим size сюда
+    width,
+    height
+  },
+  items: [item1, item2],    // добавим элементы к items
+  title = 'Menu'            // отсутствует в объекте (=> будет значение по умолчанию - 'Menu')
+} = options;
+        </pre></article><article class="section-info"><b>switch/case:</b><pre>
+switch(x) {
+  case 'val1':  // if (x === 'val1')
+    ...
+    [break]
+  case 'val2':  // if (x === 'val2' || x === 'val3')
+  case 'val3':
+    ...
+    [break]     // если нет break или return - пойдет ниже
+  default:
+    ...
+    [break]
+}
+        </pre></article><ul class="section-refs"><li><a href="https://www.ecma-international.org/publications/standards/Ecma-262.htm" target="_blank">Спецификация ECMA-262 - самая глубокая информация о JavaScript</a></li><li><a href="https://kangax.github.io/compat-table" target="_blank">таблица с возможностями языка и движками, которые их поддерживают и не поддерживают</a></li></ul></div></section><!--props & methods--><section class="section" id="methods"><div class="section-container"><h2 class="section-title">props & methods</h2><article class="section-info"><b>numbers:</b><pre>
+alert( NaN === NaN )  // false
+
+num.toFixed(n) - округляет число до n знаков после запятой и возвращает строку,
+                 допускает неточность! ( 6.35.toFixed(1) == 6.3 )
+
+isNaN(value)      - преобразует в число и проверяет является ли оно NaN
+isFinite(value)   - преобразует в число и возвращает true, если оно
+                    является обычным числом - не NaN/Infinity/-Infinity
+
+parseInt('str')   - возвращает целое число из строки или NaN
+parseFloat('str') - возвращает дробное число из строки или NaN
+
+                                        <b>tricks:</b>
+
+способ устраняющий неточность:
+Math.round(6.35 * 10) / 10      ( 6.35 -> 63.5 -> 64(rounded) -> 6.4 )
+        </pre></article><article class="section-info"><b>strings:</b><pre>
+* все позиции начинаются с 0; полученные подстроки не меняют исходную строку
+
+str.indexOf(substr [, pos])    - [number or -1] - поиск первой совпавшей подстроки начиная
+                                 с позиции pos
+str.startsWith(substr [, pos]) - [boolean]
+str.includes(substr [, pos])   - [boolean]
+str.split(delim)               - разбивает строку на массив по заданному разделителю delim
+str.slice(start [, end])       - подстрока от start до {не включая} end; отриц значения
+                                 начинаются с конца
+str.substring(start, end)      - подстрока от start до {не включая} end, отриц значения
+                                 интерпретируются как 0
+str.substr(start [, length])   - подстрока от start длины length,
+                                 start может быть отрицательным
+str.trim()                     - убирает пробелы в начале и конце строки
+
+str.charAt(pos)                - возвращает символ на позиции pos
+str.codePointAt(pos)           - возвращает код символа на позиции pos
+String.fromCodePoint(code)     - создаёт символ по его коду code
+
+str.match(regex) - [arrayOfMatches or null] - если совпадений нет, то возвращается не пустой
+                                              массив, а null
+str.replace(regex|substr, newSubStr|func) - возвращает новую строку с некоторыми или всеми
+                                            сопоставлениями с шаблоном, заменёнными на заменитель.
+                                            Шаблон может быть строкой или регулярным выражением, а
+                                            заменитель может быть строкой или функцией, вызываемой
+                                            при каждом сопоставлении; если первый аргумент replace
+                                            является строкой, он заменяет только первое совпадение
+str.search(regex) - возвращает позицию первого совпадения с
+                    regex в строке str или -1, если совпадения нет
+regex.test(str) - [boolean] -  проверяет, есть ли хоть одно совпадение с regex в строке str
+        </pre></article><article class="section-info"><b>objects:</b><pre>
+Object.getOwnPropertySymbols()  - возвращает массив только символьных ключей
+
+Object.getOwnPropertyDescriptor(obj, propName) - возвращает объект, т.н. «дескриптор свойства»:
+                                                 он содержит значение свойства и все его флаги
+
+Object.defineProperty(obj, propName, descriptor) - чтобы изменить флаги; если св-ва нет то оно
+                                                   создается с указанными флагами; если какой то
+                                                   флаг не указан явно, ему присваивается false
+  пример дескриптора:
+{'value': 1, 'writable': false, 'enumerable': false, 'configurable': false}
+writable     – если true, свойство можно изменить, иначе оно только для чтения
+enumerable   – если true, свойство перечисляется в циклах, иначе циклы его игнорируют
+configurable – если true, свойство можно удалить, а флаги можно изменять
+
+Object.defineProperties(obj, { prop1: descriptor1, prop2: descriptor2 })
+
+Object.getOwnPropertyDescriptors(obj) - получить все дескрипторы свойств сразу
+
+* клонирование объекта вместе с его флагами (не глубокое):
+const clone = Object.defineProperties( {}, Object.getOwnPropertyDescriptors(obj) )
+
+                                        <b>tricks:</b>
+
+  <b>not-deep cloning:</b>
+
+   копирует св-ва (и строковые и символьные) всех объектов srcN в dest
+- Object.assign(dest, [src1, src2...])
+   клонирование объекта вместе с его флагами
+- let clone = Object.defineProperties( {}, Object.getOwnPropertyDescriptors(obj) )
+   точная копия obj c тем же прототипом - «продвинутое» клонирование объекта
+- let clone = Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDescriptors(obj))
+- let obj2 = {...obj1}
+
+  <b>deep cloning:</b>
+
+   этот прием нельзя использовать для копировани методов объекта (JSON не поддерживает функции)
+- let clone = JSON.parse(JSON.stringify(obj/arr))
+        </pre></article><article class="section-info"><b>arrays:</b><pre>
+* псевдомассивы – это объекты, у которых есть индексы и свойство length
+
+Array.isArray(value) - [boolean]
+Array.from()         - принимает итерируемый объект или псевдомассив
+                       и делает из него «настоящий»
+
+    <b>добавления/удаления элементов:</b>
+
+push(...items)    - добавляет items в конец массива
+pop()             - удаляет элемент в конце массива и возвращает его
+shift()           - удаляет элемент в начале массива и возвращает его
+unshift(...items) - добавляет items в начало массива
+
+arr.slice(start, end)     - возвращает новый подмассив, без вырезания; не изменяет
+                            исходный массив можно использовать arr.slice() без
+                            аргументов для не глубокого клонирования arr
+arr.concat(arg1, arg2...) - создаёт новый массив, состоящий из arr, arg1, arg2...;
+                            не изменяет исходные массивы можно использовать
+                            arr.concat() без аргументов для не глубокого клонирования arr
+
+arr.splice(index[, deleteCount, elem1, ..., elemN]) - начиная с позиции index, удаляет
+                                                      deleteCount элементов и вставляет
+                                                      elem1, ..., elemN на их место;
+                                                      возвращает новый массив из удалённых
+                                                      элементов, изменяет исходный
+
+    <b>поиск в массиве:</b>
+
+arr.indexOf(item, from)  - [number or -1] - поиск item
+arr.includes(item, from) - [boolean] - поиск item
+
+  возвращает значение первого найденного в массиве
+элемента, на котором функция-колбэк вернёт true
+arr.find( (item, index, array) => {
+  если возвращает true - возвращается текущий элемент и перебор
+  прерывается; если все итерации оказались ложными возвращается undefined
+})
+arr.findIndex( (item, index, array) => {
+  по сути, то же самое, что и arr.find, но возвращает индекс, на котором
+  был найден элемент, а не сам элемент, и -1, если ничего не найдено
+})
+
+  возвращает новый массив из всех подходящих элементов; не изменяет исходный
+arr.filter( (item, index, array) => {
+  если возвращает true - элемент добавляется к результату, и перебор
+  продолжается; если ничего не найдено, возвращается пустой массив
+})
+
+    <b>преобразование массива:</b>
+
+  создаёт новый массив с результатом вызова указанной
+функции для каждого элемента массива, не изменяет исходный
+arr.map( (item, index, array) => {
+  возвращается новое значение вместо элемента, например return item.length
+})
+
+  по умолчанию элементы сортируются как строки
+arr.sort() - сортирует массив на месте (без создания нового), меняя в нём порядок элементов
+  если возвращает положительное число - то большее значение, если отрицательное - меньшее
+arr.sort( compareFunc(a, b){} ) - собственный порядок сортировки
+
+arr.reverse()  - меняет порядок элементов на обратный на месте {без создания нового массива}
+arr.join(glue) - создаёт строку из элементов arr, вставляя glue между ними
+
+  возвращает единое значение на основе всего массива; не изменяет
+previousValue – результат предыдущего вызова,
+равен initial при первом вызове, если передан initial
+let value = arr.reduce( (previousValue, item, index, array) => {
+  возвращаемый результат на каждой итерации
+  становится первым аргументом при следующей итерации
+}, [initial])
+
+                                        <b>tricks:</b>
+
+arr.length = 0  <span>самый простой способ очистить массив</span>
+
+[1, 2, 3, 4, 5].length = 3  <span>превращает в [1, 2, 3]</span>
+
+  делаем массив с уникальными значениями:
+const array = [1, 1, 2, 3, 5, 5, 1]
+const uniqueArray = [...new Set(array)]  <span>[1, 2, 3, 5]</span>
+
+  делаем объект из массива:
+const users = [1, 2, 3, 4, 5]
+const usersObject = {...users}  <span>{'0':1, '1':2, '2':3, '3':4, '4':5 }</span>
+
+  Boolean(val) return only truthy values:
+[1, 0, 2, null].filter(Boolean)  <span>[1, 2]</span>
+
+  в point-free стиле написано без аргументов:
+tasks.filter((task) => isPriorityTask(task)).map((task) => toTaskView(task))
+tasks.filter(isPriorityTask).map(toTaskView)
+
+  <b>not-deep cloning:</b>
+
+- arr.slice()
+- arr.concat()
+- let arr2 = [...arr1]
+
+  <b>deep cloning:</b>
+
+- let clone = JSON.parse(JSON.stringify(arr))
+        </pre></article></div></section><!--Object--><section class="section" id="object"><div class="section-container"><h2 class="section-title">Object</h2><article class="section-info"><pre>
+  Глобальный объект предоставляет переменные и функции, доступные в любом месте программы.
+По умолчанию это те, что встроены в язык (Array, Error...) или среду исполнения (location...).
+  В браузере он называется <b>window, в Node.js — global</b>, в другой среде исполнения может
+называться иначе. Недавно <b>globalThis</b> был добавлен в JS как стандартизированное имя для
+глобального объекта, которое должно поддерживаться в любом окружении.
+
+  Окружение предоставляет свои объекты и дополнительные функции, в дополнение
+базовым языковым. Браузеры, например, дают средства для управления веб-страницами.
+Node.js делает доступными какие-то серверные возможности.
+  На схеме в общих чертах показано, что доступно для JS в браузерном окружении:
+
+                                      window (globalThis)
+
+               /                              |                               \
+              DOM                            BOM                            JavaScript
+
+document (window.document             navigator (window.navigator)       Object (window.Object)
+- экземпляр класса HTMLDocument)      screen                             Array
+...                                   location                           Function
+                                      frames                             Error
+                                      history                            ...
+                                      console
+                                      XMLHttpRequest
+
+
+'use strict'
+alert(this); <span>undefined  (без 'use strict' - window !!)</span>
+
+
+  оператор <b>in</b> (проверка существования свойства):
+"key" in object
+
+  оператор <b>delete</b> (удаление свойства):
+delete obj.prop
+
+
+  <b>динамическое свойство</b> (если имя свойства в переменной или задано выражением):
+{
+  [prop]: val
+}
+someObj[prop]
+
+  <b>lookup maps</b> (карта поиска):
+const sourceTypeLabel = {
+  vimeoUser: 'User',
+  ...
+}[sourceType]
+
+как альтернатива switch с IIFE:
+
+const sourceTypeLabel = (() => {
+  switch (sourceType) {
+    case 'vimeoUser':
+      return 'User'
+    ...
+  }
+})()
+
+
+  <b>мутирование</b> - изменение или удаление полей объекта
+
+
+  помимо обычных свойств-данных у объектов есть <b>свойства-аксессоры</b>;
+они представлены методами «геттер» и «сеттер». Эти специальные методы
+ведут себя как св-ва снаружи объекта/класса
+let obj = {
+   get propName() {
+      <span>геттер, срабатывает при чтении obj.propName</span>
+   },
+   set propName(value) {
+      <span>сеттер, срабатывает при записи obj.propName = value</span>
+   }
+}
+
+
+  в JS объекты имеют специальное скрытое свойство <b>[[Prototype]]</b>, которое
+либо равно null, либо ссылается на другой объект. Этот объект называется прототип;
+когда мы хотим прочитать свойство из object, а оно отсутствует, JS автоматически
+берёт его из прототипа - <b>прототипное наследование</b>
+
+  свойство <b>__proto__</b> у объектов ссылается на прототип объекта, оно <b>является
+геттером/сеттером для [[Prototype]]</b>
+
+  все встроенные объекты следуют одному шаблону:
+- методы хранятся в прототипах (Array.prototype, Object.prototype, Date.prototype и т.д.)
+- сами объекты хранят только данные (элементы массивов, свойства объектов, даты)
+
+  цикл <b>for..in проходит не только по собственным, но и по унаследованным свойствам объекта,
+кроме св-в объкта из «вершины иерархии» - Object.prototype</b>, так как эти св-ва с флагом
+"enumerable": false - не перечислимы.
+  Если унаследованные свойства не нужны, то мы можем отфильтровать их при помощи встроенного
+метода obj.hasOwnProperty(key), который наследуется от Object.prototype.hasOwnProperty
+
+  операции записи/удаления работают непосредственно с объектом, они не используют
+прототип, если это обычное свойство, а не сеттер.
+  Сеттер из прототипа используется для записи
+
+  Свойство функции-конструктора <b>F.prototype устанавливает [[Prototype]] для новых
+экземпляров при вызове new F()</b>.
+  <b>По умолчанию все функции имеют F.prototype = { constructor: F }</b>
+        </pre></article><article class="section-info"><b>iterator</b><pre>
+  Итерируемый объект (итератор) - объект, который можно перебрать с помощью цикла for of.
+Такой объект должен иметь <b>метод [Symbol.iterator]() </b>
+        </pre><pre>
+          <code class="language-js">
+const generateNumbers = {
+  start: 1,
+  end: 10
+}
+
+generateNumbers[Symbol.iterator] = function() {
+  let current = this.start
+  let last = this.end
+
+  return {
+    next() {
+      if (current &lt;= last) {
+        return {
+          done: false,
+          value: current++
+        }
+      } else {
+        return {
+          done: true
+        }
+      }
+    }
+  }
+}
+
+for (let number of generateNumbers) {
+  console.log(number)
+}
+          </code>
+        </pre></article></div></section><!--functions--><section class="section" id="functions"><div class="section-container"><h2 class="section-title">functions</h2><article class="section-info"><pre>
+  Функция – это объект. Изначально имеет свойства name и length (количество аргументов,
+остаточные параметры не считается)
+
+  <b>У каждой выполняемой функции / блока кода (например цикл) / скрипта есть</b> связанный с
+ними внутренний (скрытый) объект, называемый лексическим окружением - <b>LexicalEnvironment</b>,
+который <b>хранит все локальные переменные и this</b> + ссылку на внешнее LexicalEnvironment
+
+* новое лексическое окружение функции создаётся каждый раз, когда
+  функция выполняется  => один вызов – одно лексическое окружение
+* функция навсегда запоминает ссылку на лексическое окружение, где она была создана
+
+<b>контекст функции</b> - значение this внутри функции
+
+<b>область видимости (scope)</b> - часть программы, в пределах которой переменная доступна
+                            для использования; <b>виды scope</b>:
+                            <b>глобальная</b>         <span>область видимости целого файла</span>
+                            <b>функциональная</b>     <span>внутри функции</span>
+                            <b>блочная</b>            <span>блок из фигурных скобок { ... }</span>
+// первая область видимости
+let fruit = 'Banana'
+{
+  // вторая область видимости
+  let fruit = 'Apple'
+}
+
+if (true) { // область видимости условного оператора }
+for (let i = 0; i > 5; i++) { // область видимости цикла }
+function test() { // область видимости функции }
+
+<b>hoisting</b> - все объявления переменных <b>var «всплывают» в самый верх функции или
+           глобальной scope</b> со значением undefined (блочная scope не влияет на
+           hoisting для var, т.к. у var нет блочной scope);
+             так же <b>всплывают и объявления function declaration</b> (можно вызывать
+           до объявления), в отличае от FE
+
+<b>замыкание (closure)</b> - это когда функция имеет доступ до переменных из вышестоящего scope
+                      (функция внутри функции), то есть она замыкает в себе значения этих
+                      переменных; это значит что только эта функция имеет к ним доступ
+
+  <b>У стрелочной функций нет своего «собственного» this и переменной
+arguments</b> (они берутся из внешней не стрелочной). Полезно для создания
+декораторов, когда нам нужно пробросить вызов с текущими this и arguments:
+
+function defer(f, ms) {
+  return function() {   <span>контекст и аргументы при вызове f возьмутся от этой ф-ии</span>
+    setTimeout(() => f.apply(this, arguments), ms)
+  };
+}
+
+[].join.call(arr) - пример <b>заимствования метода</b>
+        </pre></article><article class="section-info"><pre>
+<b>IIFE</b> — (immediately-invoked function expressions) функция, запускаемая сразу
+       после объявления; использовалась в ES5- вместо модулей для создани
+       собственной области видимости
+<b>callback</b> — это функция, переданная в другую функцию в качестве аргумента,
+           которая затем вызывается по завершению какого-либо действия
+<b>сигнатура функции</b> - формальное описание типов параметров и типа возвращаемого
+                    значения функции:
+                    // length :: String → Number
+                    const length = s => s.length
+
+<b>listener (слушатель)</b> — функция-callback, срабатывающая на определенное событие
+<b>рекурсия</b> — вызов функцией самой себя. Когда функция вызывает саму себя, это
+           называется шагом рекурсии. Любая рекурсия может быть переделана в цикл.
+           И это иногда требуется для оптимизации работы.
+           В рекурсии обязательно должно быть условие прерывание этой рекурсии,
+           иначе произойдет зацикленность и stackOverflow
+<b>функция высшего порядка (hof)</b> — это функция, которая может принимать другую функцию
+                                в качестве аргумента или возвращать другую функцию в
+                                качестве результата
+<b>идемпотентность</b> — приминительно к ф-ии это значит что сколько ни передавай
+                  одни и те же аргументы, она всегда вернет один и тот же ответ
+<b>чистая функция</b> — функция, удовлетворяющяя 2 условиям:
+                 1. идемпотентная и не может ничего не вернуть
+                 2. нет side-effects (побочный эффект - любая работа, выполняемая
+                    функцией, не связаная с вычислением конечного результата), например:
+                    изменение входных ссылочных типов данных, console.log, HTTP
+                    запросы, изменение в файловой системе, запросы DOM...
+
+<b>декоратор</b> — это обёртка (hof) вокруг функции, которая изменяет поведение
+            последней; основная работа по-прежнему выполняется внутренней функцией
+<b>каррирование</b> — это трансформация, которая дает возможность частичного вызова
+               ф-ии: f(a)(b)(c) вместо обычного вызова f(a, b, c); это позволяет
+               создавать частично применённые ф-ии; возможна реализация методом bind()
+               function mul(a, b) {
+                return a * b
+               }
+               const double = mul.bind(null, 2)
+               alert( double(3) ) // 6
+        </pre></article><article class="section-info"><b>Примеры:</b><br><pre>
+<code class="language-js">
+let name = 'John'
+function sayHi() {
+  alert('Hi, ' + name)
+}
+name = 'Pete'
+sayHi()         // Pete, т.к. на момент вызова во внешнем LE name уже переопределена
+</code>
+        </pre><pre>
+<code class="language-js">
+let obj, method
+
+obj = {
+  go: function() { alert(this) }
+}
+
+(obj.go)()           // [object Object], доступ к методу через точку срабатывает первым
+(method = obj.go)()  // [object Window], потеря контекста, т.к. method только ссылается на go
+</code>
+        </pre><pre>
+<code class="language-js">
+function makeCounter() {
+  let count = 0
+
+  return function() {
+    return count++       // замыкание переменной count
+  }
+}
+let counter = makeCounter()     // при вызове создается LE
+alert( counter() ) // 0
+alert( counter() ) // 1
+let counter2 = makeCounter()    // создаем новый счетчик со своим LE
+alert( counter2() ) // 0
+</code>
+        </pre><pre>
+<code class="language-js">
+function Counter() {
+  let count = 0
+  this.up = function() {
+    return ++count
+  }
+}
+let counter = new Counter()     // в экземпляре нет св-ва count
+console.log( counter.up() )     // 1   ф-я запоминает ссылку на LE, где она была создана
+</code>
+        </pre><pre>
+<code class="language-js">
+function cachingDecorator(func) {
+  let cache = new Map()
+
+  return function(x) {
+    if (cache.has(x)) {
+      return cache.get(x)
+    }
+
+    let result = func(x)
+
+    cache.set(x, result)
+    return result
+  }
+}
+</code>
+        </pre><pre>
+
+      своя функция bind:
+<code class="language-js">
+Function.prototype.myBind = function (context, ...args) {
+  return (...rest) => {
+    return this.apply(context, [...args, ...rest])
+  }
+}
+
+function test(...args) {
+  console.log(this.name, ...args)
+}
+const person = {
+  name: 'Elon'
+}
+
+test.myBind(person, 33)(45)   // Elon 33 45
+</code>
+        </pre></article></div></section><!--constructors & classes--><section class="section" id="constructors&classes"><div class="section-container"><h2 class="section-title">constructors & classes</h2><article class="section-info"><pre>
+  <b class="center">constructors:</b>
+  в ES5 не было классов, объекты создавались конструкторами - обычными функциями, чье имя принято
+называть с большой буквы. Сама функция и есть конструктор (как метод constructor в классах), а
+this внутри конструктора - контекст, указывающий на создаваемый Конструктором экземпляр (объект)
+        </pre><pre>
+<code class="language-js">
+const Animal = function(options) {
+  this.name = options.name
+  this.color = options.color
+  // лучше задавать методы через прототип, т.к. мы можем изменить метод в прототипе далее
+  // в коде, а если мы задаем внутри конструктора, то больше мы не имеем доступа к методу
+  this.eat = function() {
+    console.log('dog eat meat, name:', this.name)
+  }
+}
+
+Animal.prototype.voice = function() {
+  console.log('gav from:', this.name)
+}
+
+// создание экземпляра:
+const dog = new Animal({name: 'Rex', color: '#fff'})
+
+// наследование (Cat от Animal) реализовывалось так:
+const Cat = function(options) {
+  Animal.apply(this, arguments) // вызываем родительский конструктор (обычную ф-ю)
+  this.hasTail = options.hasTail
+  this.size = 'big'
+}
+
+// указываем вручную (в отличае от классов) наследование прототипов:
+Cat.prototype = Object.create(Animal.prototype)
+Cat.prototype.constructor = Cat
+
+// переопределяем метод в прототипе:
+Animal.prototype.voice = function() {
+  console.log('this sound goes from:', this.name)
+}
+
+// расширяем метод voice у Cat родительским методом voice:
+Cat.prototype.voice = function(params) {
+  Animal.prototype.voice.apply(this, arguments)
+  console.log(this.name + ' says miay')
+}
+
+const cat = new Cat({name: 'Murzik', color: '#000', hasTail: true})
+</code>
+</pre><pre>
+
+  <b class="center">classes:</b>
+  Класс - продвинутый способ создания обектов, вместо обычного конструктора;
+Классы еще называют абстракциями; методы класса попадают в его свойство prototype,
+откуда наследуются; после свойств и методов запятая не ставится.
+  Вызоваяются классы как и конструкторы: new MyClass()
+        </pre><pre>
+<code class="language-js">
+class MyClass {
+  // при создании экземпляра вызывается метод constructor, если он есть
+  constructor(name, surname) { // свойства и методы присваиваются экземпляру
+    this._name = name;
+    this._surname = surname;
+    this.func = function() {} // методы из constructor не попадают в MyClass.prototype
+  }
+
+  // свойство не из constructor() так же присваивается экземпляру, но с фиксированным value
+  prop = value
+
+  // методы объявляются без ключевого слова function
+  method(...) {} // методы не из constructor() идут в prototype (в т.ч геттеры/сеттеры)
+
+  get fullName() {
+    // срабатывает при чтении obj.fullName
+    return `${this._name} ${this._surname}`
+  }
+  set fullName(value) {
+    // срабатывает при записи obj.fullName = val
+    [this._name, this._surname] = value.split(" ")
+  }
+
+  // не присваивается экземпляру, эквивалентен MyClass.propStatic = value
+  static propStatic = value
+  // не присваивается экземпляру, эквивалентен MyClass.methodStatic = function() {}
+  static methodStatic() {}
+
+  // инкапсуляция (отделение внутреннего интерфейса от внешнего) св-в или методов:
+  _method () {}   // защищённый метод
+  #method () {}   // приватный метод
+}
+</code>
+</pre><pre>
+  <span>неформальное правило - обращаться к полю, начинающемуся с _,
+  только из его класса и классов, унаследованных от него </span>
+<b>защищённые</b> поля имеют префикс _
+  <span>JS гарантирует, что мы можем получить доступ к таким
+  полям только внутри класса</span>
+<b>приватные</b> свойства и методы должны начинаться с #
+        </pre><pre>
+
+    пример класса:
+<code class="language-js">
+class Sidebar {
+  constructor(selector) {
+    this.$el = document.querySelector(selector)
+    this.init()   // в конструкторе можно выполнять какие то действия
+  }
+
+  init() {
+    this.$el.insertAdjacentHTML('after begin', this.template)
+  }
+
+  get template() {
+    return '&lt;h1>template&lt;/h1>'
+  }
+}
+</code>
+</pre><pre>
+
+
+  <b>наследование классов:</b>
+
+  Наследование классов имеет синтаксис <b>'class Child extends Parent'</b>.
+При этом Child.prototype.__proto__ будет равен Parent.prototype.
+  <b>При наследовании классов наследуются все свойства и методы (в т.ч. и не из
+конструктора)</b>.
+  <b>Если у Child не указан конструктор, то он унаследуется от Parent или от ближайшего
+родительского класса, у которого есть метод constructor (если есть)</b>.
+  Если необходимо переопределить конструктор у Child, то обязателен вызов конструктора
+родителя с помощью ключевого слова <b>super()</b> в конструкторе Child до обращения к this.
+  Можно вызвать super.method() в методе Child для обращения к методу родителя Parent.
+Так же можно вызвать метод родителя с помощью super.method() и у обычных объектов,
+наследующих друг от друга
+
+  Также можно присвоить свойство или метод самой функции-классу, а не её prototype.
+Для этого перед свойством или методом ставится слово static. Такие методы называются
+статическими. Эти свойства или методы не будут иметь отношения к создаваемым объектам.
+  <b>Статические свойства и методы наследуются между классами</b> при 'class Child extends Parent',
+так как <b>Child.prototype.__proto__ == Parent.prototype  и  Child.__proto__ == Parent
+(двойное наследование)</b>
+        </pre><pre>
+
+    пример наследования:
+<code class="language-js">
+class Parent {
+  constructor(name) {
+    this.name = name;
+  }
+  hello() {
+    alert(`hello ${this.name}`)
+  }
+  static run() {}
+}
+
+class Child extends Parent {
+  constructor(name, age) {
+    super(name); // вызываем родительский конструктор
+    this.age = age;
+  }
+  say(arg) {
+    super.hello();
+    this.age += arg;
+  }
+}
+</code>
+</pre><pre>
+
+
+  У встроенных классов есть собственные статические методы, например Object.keys,
+Array.isArray. Обычно, когда один класс наследует другому, то наследуются и статические
+методы. Но <b>встроенные классы</b> – исключение, они <b>не наследуют статические методы
+друг друга</b>.
+  Например, и Array, и Date наследуют от Object, так что в их экземплярах доступны методы
+из Object.prototype. Но Array.[[Prototype]] не ссылается на Object, поэтому нет методов
+Array.keys() или Date.keys()
+
+
+           Object     ->      Object.prototype
+                                   |
+                                   |
+                                   |     A.prototype.__proto__ === Object.prototype
+                                   |
+                                   |
+          class A     ->      A.prototype    (каждая функция (конструктор) и
+             |                     |         класс имеет свойство prototype)
+             |                     |
+             |                     |
+             |                     |     B.prototype.__proto__ === A.prototype
+             |                     |
+    class B extends A    ->   B.prototype
+   (B.__proto__ === A)           /
+             |                  /
+             |                 /
+             |                /
+             |               /
+             |              /   new B().__proto__ === B.prototype
+             |             /
+             |            /
+             |           /
+         const myObj = new B()           myObj получает свойства и методы из метода
+                                         constructor (свойства может получить и не из
+                                         constructor). Методы наследует от B.prototype
+        </pre></article></div></section><!--Symbol--><section class="section" id="symbol"><div class="section-container"><h2 class="section-title">Symbol</h2><article class="section-info"><pre>
+  В качестве ключей для свойств объекта могут использоваться только строки или символы.
+Символ представляет собой уникальный идентификатор в объекте.
+  Символы игнорируются циклом for…in. А вот Object.assign, в отличие от цикла for..in,
+копирует и строковые,и символьные свойства.
+
+
+Создаём новый символ id:
+let id = Symbol()
+
+при создании, символу можно дать описание (имя), в основном
+использующееся для отладки кода;
+для любых символов доступно свойство <b>description</b>, возвращее имя
+let id = Symbol('descr')
+
+
+  Даже если мы создадим множество символов с одинаковым описанием, это всё равно
+будут разные символы. Описание – это просто метка, которая ни на что не влияет.
+
+
+если мы хотим использовать символ при литеральном объявлении
+объекта {...}, его необходимо заключить в квадратные скобки:
+let id = Symbol('id')
+let user = {
+  name: 'Вася',
+  [id]: 123       // просто  id: 123  не сработает, т.к. нам нужно
+}                 // использовать значение переменной id в качестве ключа
+
+
+читаем глобальный символ из <b>глобального реестра (метод for)</b> и записываем
+его в переменную; если символ не существует, то он будет создан с именем;
+глобальный реестр нужен для обращения к одному и тому же символу
+let sym = Symbol.for('id')
+
+принимает глобальный символ и возвращает его имя (метод keyFor)
+Symbol.keyFor(sym) // id
+
+
+Существует множество <b>«системных» символов</b>, использующихся внутри самого JS,
+и мы можем использовать их, чтобы настраивать различные аспекты поведения объектов:
+Symbol.hasInstance
+Symbol.isConcatSpreadable
+Symbol.iterator
+Symbol.toPrimitive (позволяет описать правила преобразования к примитиву)
+…и т.д.
+          </pre></article></div></section><!--Map & Set--><section class="section" id="map&set"><div class="section-container"><h2 class="section-title">Map & Set</h2><article class="section-info"><pre>
+  Map и Set имеют тип object
+
+<b>Map</b> – это коллекция пар ключ-значение, как и Object. Но основное
+      отличие в том, что Map позволяет использовать <b>ключи любого типа</b>.
+
+<b>методы и свойства Map:</b>
+new Map([iterable]) – создаёт коллекцию, можно указать перебираемый объект
+                      (обычно массив) из пар [ключ,значение] для инициализации
+map.set(key, value) – записывает по ключу key значение value
+map.get(key)        – возвращает значение по ключу или undefined, если ключ key отсутствует
+map.has(key)        – возвращает true, если ключ key присутствует в коллекции, иначе false
+map.delete(key)     – удаляет элемент по ключу key
+map.clear()         – очищает коллекцию от всех элементов
+map.size            – возвращает текущее количество элементов
+<b>методы для перебора:</b>
+map.keys()          – возвращает итерируемый объект по ключам
+map.values()        – возвращает итерируемый объект по значениям
+map.entries()       – возвращает итерируемый объект по парам вида [ключ, значение],
+                      этот вариант используется по умолчанию в for..of
+
+
+
+<b>Set</b> – это особый вид коллекции - «множество» значений (без ключей), где
+      каждое значение может появляться только один раз
+
+<b>основные методы Set:</b>
+new Set(iterable)   – создаёт Set, и если в качестве аргумента был предоставлен итерируемый
+                      объект (обычно это массив), то копирует его значения в новый Set
+set.add(value)      – добавляет значение (если оно уже есть, то ничего не делает), возвращает
+                      тот же объект set
+set.delete(value)   – удаляет значение, возвращает true если value было в множестве на момент
+                      вызова, иначе false
+set.has(value)      – возвращает true, если значение присутствует в множестве, иначе false
+set.clear()         – удаляет все имеющиеся значения
+set.size            – возвращает количество элементов в множестве
+<b>методы для перебора:</b>
+map.keys()          – возвращает итерируемый объект для значений
+map.values()        – то же самое, что и set.keys()
+map.entries()       – возвращает перебираемый объект для пар вида [значение, значение]
+
+* Мы можем перебрать содержимое объекта Set как с помощью  метода for..of, так и используя
+set.forEach((value, valueAgain, set) => {}    -   value и valueAgain одно и то же значение
+
+
+
+  <b>WeakMap</b> – это Map-подобная коллекция, позволяющая использовать в качестве ключей
+            только объекты, и автоматически удаляющая их вместе с соответствующими
+            значениями, как только они становятся недостижимыми иными путями.
+  <b>WeakSet</b> – это Set-подобная коллекция, которая хранит только объекты и удаляет их,
+            как только они становятся недостижимыми иными путями.
+
+  WeakMap и WeakSet используются как вспомогательные структуры данных в дополнение к «основному»
+месту хранения объекта. Если объект удаляется из основного хранилища и нигде не используется,
+кроме как в качестве ключа в WeakMap или в WeakSet, то он будет удалён автоматически.
+        </pre></article></div></section><!--Date--><section class="section" id="date"><div class="section-container"><h2 class="section-title">Date</h2><article class="section-info"><pre>
+<b>UTC</b>            — стандарт времени
+<b>GMT</b>            — часовой пояс UTC+0
+<b>ISO</b> (ISO 8601) — формат даты и времени: <b>YYYY-MM-DDTHH:mm:ss.sssZ</b>
+
+<b>* месяцы и дни недели начинаются с 0 (январь/воскресенье - 0)</b>
+
+создать объект Date с временем, равным количеству миллисекунд, прошедших с 1 января 1970 года UTC+0
+или
+создать объект Date с временем из строки, формат строки может быть любой:
+'2020-04-28T13:43:20.000Z' или 'Tue Apr 28 2020 16:43:20 GMT+0300 (Восточная Европа, летнее время)')
+<b>new Date(milliseconds or dateString)</b>
+
+
+getFullYear() - получить год (4 цифры)
+getMonth()    - получить месяц, от 0 до 11
+getDate()     - получить день месяца, от 1 до 31
+getHours(), getMinutes(), getSeconds(), getMilliseconds()
+getDay()      - получить день недели от 0 (воскресенье) до 6 (суббота)
+getTime()     - получить <b>timestamp</b> – количество миллисекунд, прошедших с 1 января 1970 года UTC+0
+getTimezoneOffset() - возвращает разницу в минутах между местным часовым поясом и UTC
+
+* у всех этих методов, кроме setTime(), есть UTC-вариант, например: setUTCHours()
+setFullYear(year, [month], [date])
+setMonth(month, [date])
+setDate(date)
+setHours(hour, [min], [sec], [ms])
+setMinutes(min, [sec], [ms])
+setSeconds(sec, [ms])
+setMilliseconds(ms)
+setTime(ms)   - установить timestamp
+
+
+<b>автоисправление</b> – это очень полезная особенность объектов Date. Можно устанавливать
+                  компоненты даты вне обычного диапазона значений, а объект сам себя
+                  исправит: let date = new Date(2013, 0, 32)  // 1st Feb 2013
+
+
+dateObj<b>.toString()</b>        // Wed Jul 28 1993 14:39:07 GMT-0600 (PDT)
+
+возвращает часть, содержащую только дату объекта Date
+в виде человеко-читаемой строки на американском английском
+dateObj<b>.toDateString()</b>    // Wed Jul 28 1993 - в американском формате
+
+что бы вывести строку из инстенса класса Date в формате местного времени (16.05.2020)
+dateObj<b>.toLocaleDateString([locales [, options]])</b> - возвращает строку с
+                                                    языко-зависимым представлением
+
+возвращает представление объекта в виде JSОN  ( эквивалентен JSON.stringify(dateObj) )
+dateObj<b>.toJSON()</b>
+
+
+  Если объект Date преобразовать в число, то получим timestamp по аналогии с date.getTime().
+Важный побочный эффект - <b>даты можно вычитать</b>, в результате получаем разность в миллисекундах:
+new Date() - new Date('2020-04-28T13:43:20.000Z')
+
+это менее затратный эквивалентен new Date().getTime()
+<b>Date.now()</b> - получить timestamp (если нужно измерить время - <b>бенчмаркинг</b>)
+
+считывает дату из строки, возвращает timestamp or NaN. Формат строки может быть любой
+<b>Date.parse(str)</b>
+
+в браузерах есть метод performance.now()
+<b>performance.now()</b> - возвращает количество миллисекунд с начала
+                    загрузки страницы с точностью до микросекунд
+
+
+<b>Date.UTC</b>(year[, month[, day[, hour[, minute[, second[, millisecond]]]]]]) - возвращает
+                количество миллисекунд, прошедших с 1 января 1970 года 00:00:00 по UTC
+
+const utcDate = new Date( Date.UTC(0, 0, 0, 0, 0, 0) )
+console.log( <b>utcDate.toUTCString()</b> )    // Sun, 31 Dec 1899 00:00:00 GMT
+        </pre></article></div></section><!--JSON--><section class="section" id="json"><div class="section-container"><h2 class="section-title">JSON</h2><article class="section-info"><pre>
+<b>JSON поддерживает</b>: объекты, массивы, строки, числа, true/false и null
+
+для преобразования (сериализации)
+поддерживаемых значений в JSON (становится строкой)
+<b>JSON.stringify()</b>
+
+для преобразования (декодирования) JSON обратно в объект/примитив
+<b>JSON.parse()</b>
+
+* если объект имеет метод toJSON(), то он
+вызывается при вызове JSON.stringify для этого объекта
+
+* при сериализации объекта JSON пропускает: cвойства-функции (методы),
+cимвольные свойства и свойства с undefined.
+Т.е. ошибки не будет, просто пропустит, как будто их нет
+
+* вложенные объекты поддерживаются и конвертируются автоматически
+        </pre></article></div></section><!--Errors--><section class="section" id="errors"><div class="section-container"><h2 class="section-title">Errors & try / catch</h2><article class="section-info"><pre>
+  Кроме общего конструктора Error, в JS существует
+ещё <b>семь других основных конструкторов ошибок:</b>
+
+<b>ReferenceError</b>   - при обращении к несуществующей переменной
+<b>SyntaxError</b>      - при попытке интерпретировать синтаксически неправильный код
+<b>TypeError</b>        - при недопустимом типе для переменной или параметра
+                   (Uncaught TypeError: Cannot read property 'street' of undefined)
+                   * при этом если обратиться к, например, несуществующему полю
+                     объекта - ошибки не будет, будет undefined
+<b>URIError</b>         - при передаче в функции encodeURI() или decodeURI() недопустимых параметров
+<b>EvalError</b>        - при ошибке в глобальной функции eval()
+<b>InternalError</b>    - при ошибке в движке JS (слишком глубокая рекурсия...)
+<b>RangeError</b>       - при выходе числовой переменной или параметра за пределы допустимого диапазона
+
+  <b>Ошибка может создаваться так</b>: new Error(message) или Error(message).
+Для встроенных ошибок свойство name – это в точности имя конструктора,
+а свойство message берётся из аргумента
+
+
+
+  <b>Обычно скрипт в случае ошибки «падает» (сразу же останавливается) с выводом ошибки в
+консоль</b> (ошибка в одном из скриптов, т.е. js файлов, не положит другой скрипт; но, при
+импорте одного модуля в другой, ошибка естественно положит оба модуля и код после
+ошибки не исполнится).
+ Но есть синтаксическая конструкция <b>try..catch, которая позволяет «ловить» ошибки и
+вместо падения делать что-то более осмысленное.</b>
+ То есть <b>если ошибка отловлена, то код за конструкцией продолжает выполняться</b>
+        </pre><pre>
+        <code class="language-js">
+try {
+  // Если в коде нет ошибок, то блок catch(err) игнорируется: выполнение доходит
+  // до конца try и потом далее полностью пропуская catch. Если ошибка - то выполнение
+  // try прерывается, и поток управления переходит в начало catch(errObj)
+
+  // Если ошибки нет, но, например, не выполняется какое то наше условие, то можно
+  // "кинуть" свою ошибку с помощью оператора throw. Синтаксис: throw [объект ошибки]
+} catch (errObj) {
+  // обработка ошибки
+  // errObj - объект ошибки содержащий основные св-ва: name, message и stack (текущий
+  // стек вызова)
+
+  // Проброс исключения (ошибки); например если мы хотим обрабатывать только
+  // определенные ошибки:
+  if (errObj.name == 'SyntaxError') {
+    alert('My Error: ' + errObj.message)
+  } else {
+    throw errObj // проброс
+  }
+  // проброшенная ошибка «выпадает наружу» и может быть поймана другой внешней
+  // конструкцией try..catch, или «убьёт» скрипт
+}
+// Конструкция try..catch может содержать ещё одну секцию: finally, она выполняется в
+// любом случае: после try, если не было ошибок, или после catch, если ошибки были.
+// Конструкция try..finally без секции catch также полезна. Мы применяем её, когда не
+// хотим здесь обрабатывать ошибки (пусть выпадут наружу), но хотим быть уверены, что
+// начатое завершилось
+finally {
+  // выполняем всегда; даже если в try есть return, то сначала выполнится finally
+}
+        </code>
+        </pre></article></div></section><!--Promise--><section class="section" id="promise"><div class="section-container"><h2 class="section-title">Promise</h2><article class="section-info"><pre>
+У объекта promise, возвращаемого конструктором new Promise(), есть внутренние свойства:
+- state («состояние») — вначале "pending" («ожидание»), потом меняется на
+	"fulfilled" («выполнено успешно») при вызове resolve или на "rejected" («выполнено
+	с ошибкой») при вызове reject.
+- result («результат») — вначале undefined, далее изменяется на value при
+	вызове resolve(value) или на error при вызове reject(error)
+
+const promise = <b>new Promise( function(resolve, reject) {</b>
+  <span>эта функция-исполнитель (executor) вызывается автоматически; она должна вызвать
+  один из этих колбэков сразу или с задержкой (сработает первый вызванный):
+  resolve(value) — если работа завершилась успешно, с результатом value.
+  reject(error) — если произошла ошибка, error – объект ошибки.
+
+  value и error могут быть любым типом данных</span>
+<b>})</b>
+
+
+  Потребители (подписчики) завершенного промиса могут использовать его результат или
+ошибку с помощью таких методов обработчиков: then, catch, finally. Они находятся в
+прототипе встроенного класса Promise.
+<b>then, catch и finally возвращают промис</b>.
+  Т.к обработчики промисов then, catch, finally асинхронны, то они выполняются после
+синхронных скриптов и в порядке очереди
+
+promise.then(
+  function(result) { <span>обработает успешное выполнение</span> },
+  function(error) { <span>обработает ошибку</span> }
+)
+
+promise.catch( function(error) { <span>обработает ошибку</span> } )
+
+promise.finally( () => {
+   console.log(`<span>не имеет аргументов, не предназначен для обработки результата промиса.
+                Его задача выполнить какое то действие (например остановки индикатора
+                загрузки). Обработчик finally «пропускает» результат или ошибку дальше,
+                к последующим обработчикам</span>`)
+   }
+)
+
+  * если мы бросим ошибку (throw) в промисе или обработчике (.then), то промис будет
+считаться отклонённым, и управление перейдёт к ближайшему обработчику ошибок
+
+
+
+<span>после завершения самого долгого промиса возвращает массив результатов переданных
+промисов в той же последовательности. Если в перданном промисе ошибка, то остальные
+игнорятся и возвращается ошибка. в массив могут передаваться не обязательно промисы</span>
+Promise.all([...промисы...])
+
+<span>всегда ждёт завершения всех промисов (даже завершенных с ошибкой);
+В массиве результатов будет:
+{status:"fulfilled", value:результат} для успешных завершений,
+{status:"rejected", reason:ошибка} для ошибок</span>
+Promise.allSettled([...промисы...])
+
+<span>похож на Promise.all, но ждёт только первый (самый быстрый) промис,
+из которого возвращает результат (или ошибку)</span>
+Promise.race([...промисы...]);
+
+<span>возвращает успешно выполненный промис с результатом value (редко используется)
+То же самое, что: let promise = new Promise(resolve => resolve(value));</span>
+Promise.resolve(value)
+
+<span>возвращает промис, завершённый с ошибкой error (редко используется)</span>
+Promise.reject(error)
+        </pre></article></div></section><!--animation--><section class="section" id="animation"><div class="section-container"><h2 class="section-title">animation</h2><article class="section-info"><pre>
+  Есть несколько известных способов работать с анимацией в JS. Например, можно
+использовать функцию таймера — setTimeout или setInterval — и обновлять стили каждые
+несколько миллисекунд.
+  Другой подход — создать цикл, который изменяет стили насколько возможно часто в
+тот период, пока анимация продолжается. <b>Логика обоих подходов такая</b>: дать браузеру
+большое количество кадров анимации и надеяться на то, что он выдаст плавное движение.
+  Однако на практике эти решения оставляют желать лучшего. Движок рендеринга часто
+захлебывается на большом количестве задач рендеринга — и зачастую еще не может отобразить
+кадр, когда уже получает инструкции на отображение следующего. Так что даже если браузер и
+рендерит столько кадров анимации, сколько может, из-за выпавших кадров анимация все равно
+получается рваной, не говоря уже о проблемах с производительностью, к которым приводит
+решение нагрузить процессор слишком большим количеством задач.
+
+  В действительности лучше отображать меньшее количество кадров в секунду, но сделать это
+количество постоянным. Дело в том, что наш глаз воспринимает небольшие отклонения в частоте,
+и несколько выпавших кадров режут глаз больше, чем более низкое количество кадров в секунду.
+Вот здесь на помощь приходит встроенный в HTML5 API <b>requestAnimationFrame</b>.
+  Анимация реализуется через последовательность кадров, каждый из которых немного меняет
+HTML/CSS-свойства. requestAnimationFrame выполняет передаваемый в нее callback примерно
+каждые 16,7ms - 60fps ( 1000ms / 60frames = 16.7ms ).
+  Стандарт обновления монитора 60 Герц, то есть 60 раз/секунду; requestAnimationFrame не
+ривязана ко времени, она привязана к частоте обновления экрана
+
+let requestId = requestAnimationFrame(callback) - выполнить callback при первой
+                                                  возможности, а не с заданным интервалом
+callback имеет один аргумент – время прошедшее с момента начала загрузки страницы в
+                               миллисекундах (timestamp); такой вызов планирует запуск
+                               функции callback на ближайшее время, когда браузер сочтёт
+                               возможным осуществить анимацию
+
+  если в callback происходит изменение элемента, тогда оно будет сгруппировано с другими
+requestAnimationFrame и CSS-анимациями. Таким образом браузер выполнит один геометрический
+пересчёт и отрисовку, вместо нескольких
+
+                                  <b>пример requestAnimationFrame:</b>
+animateBar(bar) {
+  const animate = () => {
+    if (this.start &lt; this.end) {
+      this.start++;
+      bar.style.width = `${this.start}%`
+      requestAnimationFrame(animate)
+    }
+  }
+
+  requestAnimationFrame(animate)
+}
+
+
+  значение requestId может быть использовано для отмены анимации:
+<b>cancelAnimationFrame(requestId)</b>
+
+  Когда завершается анимация, срабатывает событие <b>transitionend</b>.
+Объект события transitionend содержит ряд полезных свойств:
+event.propertyName - имя свойства, анимация которого завершилась.
+                     Может быть полезным, если мы анимируем несколько свойств
+event.elapsedTime  - время (в сек), которое заняла анимация, без учёта transition-delay
+        </pre></article></div></section><!--modules--><section class="section" id="modules"><div class="section-container"><h2 class="section-title">modules</h2><article class="section-info"><pre>
+  <b>Модуль – это js файл</b>. С помощью модулей код разбивается на несколько отдельных файлов.
+Чтобы работал import/export в браузере, <b>нужно указывать атрибут &lt;script type="module"></b>.
+  Когда мы используем модули, каждый модуль реализует свою функциональность и экспортирует её.
+Затем мы используем import, чтобы напрямую импортировать её туда, куда необходимо
+
+<span>можно использовать и атрибут src='./path/some.js и в него импортировать'</span>
+&lt;script type='module'>
+   import { sayHi } from './say.js'
+&lt;/script>
+
+<b>* модули работают только на сервере (live server, browser-sync...)</b>
+<b>* в модулях всегда включена директива 'use strict'</b>
+* в React все компоненты являются модулями, поэтому не требуют приписывания 'use strict'
+
+
+       <b>Экспорт:</b>
+
+Перед объявлением переменной/функции/класса:
+ - export [default] class/function/variable ...
+Отдельный экспорт:
+ - export {x [as y], ...}
+Реэкспорт (импорт и затем экспорт):
+ - export {x [as y], ...} from "module"
+ - export * from "module" (не реэкспортирует export default)
+ - export {default [as y]} from "module" (реэкспортирует только export default)
+
+       <b>Импорт:</b>
+
+Именованные экспорты из модуля (имя должно быть как у экспорта):
+ - import {x [as y], ...} from "module"
+Экспорт по умолчанию:
+ - import x from "module"
+ - import {default as x} from "module"
+Всё сразу:
+ - import * as obj from "module"
+Только подключить модуль (его код запустится), но не присваивать его переменной:
+ - import "module"
+
+* экспорт по умолчанию может быть без имени переменной/функции/класса.
+  При импорте в таком случае имя может быть любое
+
+
+       <b>Динамический импорт:</b>
+
+Динамический импорт работает и в обычных скриптах, он не требует указания type='module'
+
+<b>Выражение import(module) загружает модуль и возвращает промис</b>, результатом которого
+становится объект модуля, содержащий все его экспорты
+
+let question = confirm('загрузить скрипт?')
+if (question) {
+  import('./say.js')
+    .then(obj => obj.hi())
+    .catch(err => console.log(err.name) )
+}
+        </pre></article></div></section><!--network--><section class="section" id="network"><div class="section-container"><h2 class="section-title">network</h2><article class="section-info"><pre>
+  <b>интернет</b> - очень большая сеть компьютеров, которые могут взаимодействовать друг с другом
+
+  <b>сервер</b> - мощный вычислительный компьютер, постоянно подключенный к сети интернет
+           и к электропитанию 24/7, который хранит веб-страницы, сайты или приложения
+
+  Каждый компьютер (включая сервер), подключённый к сети, имеет свой уникальный адрес
+для связи: этот адрес называют <b>IP-адресом</b> (например 192.168.2.10).
+  Чтобы упростить себе жизнь, мы можем присвоить каждому IP-адресу псевдоним с понятным
+для человека именем. Такой псевдоним называют <b>доменным именем</b>.
+  <b>DNS</b> хранит доменные имена связанные с IP-адресами.
+  Когда вы вводите веб-адрес в своём браузере, браузер обращается кближайшему DNS-серверу,
+чтобы найти реальный адрес сервера (меняем домен на IP), на котором находится сайт, и
+отправить на него запрос через 80 порт.
+  <b>HTTP</b> — это протокол (система правил) клиент-серверного взаимодействия, позволяющий
+получать различные ресурсы, например HTML-документы, и инициировать запросы к серверу.
+
+
+
+.com                    – домены первого уровня (доменные зоны)
+example.com             - домен второго уровня (example.com - поддоменом домена .com)
+subdomain.example.com   - домены третье уровня
+
+  Обычно сайты лежат на сервере хостинг-провайдера (хостера) и к ним есть <b>ftp доступ</b>.
+Самый простой способ определить хостинг сайта по домену:
+- открываем консоль (Win + R: ввести 'cmd')
+- вводим 'ping [domainName]' (ping anton-byshok.web.app). Видим IP (199.36.158.100)
+- на сервисе https://sweb.ru/whois/, позволяющему определить какому провайдеру
+  принадлежит тот или иной IP-адрес вводим наш IP
+        </pre></article><article class="section-info"><b>URL, URI methods</b><pre>
+  У любого ресурса (HTML-страница, CSS-файл, изображение и т.д.) в интернете есть адрес,
+называемый URL
+
+<b>URI</b> (Uniform Resource Identifier) - универсальный id ресурса ( <b>URI = URL + URN</b> )
+<b>URN</b> (Uniform Resource Name)       - универсальное имя ресурса; почти не используется в web
+<b>URL</b> (Uniform Resource Locator)    - универсальный локатор ресурса (web address, link)
+
+
+
+   <b>компонены URL (URI):</b>
+<svg xmlns="http://www.w3.org/2000/svg" width="567" height="200" viewBox="0 0 698 246"><defs><style>@import url(https://fonts.googleapis.com/css?family=Open+Sans:bold,italic,bolditalic%7CPT+Mono);
+
+@font-face {
+  font-family: 'PT Mono';
+  font-weight: 700;
+  font-style: normal;
+  src: local('PT MonoBold'), url(/font/PTMonoBold.woff2) format('woff2'), url(/font/PTMonoBold.woff) format('woff'), url(/font/PTMonoBold.ttf) format('truetype')
+}</style></defs><g id="network" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="url-object.svg"><path id="Line-Copy" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M27 38v180"/><path id="Line-Copy-2" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M109 132v86"/><path id="Line-Copy-6" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M136 112v106"/><path id="Line-Copy-10" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M27 38l665 .5"/><path id="Line-Copy-11" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M27 74.5h280"/><path id="Line-Copy-7" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M254 132v86"/><path id="Line-Copy-8" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M243 132v86"/><path id="Line-Copy-9" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M308 38v180"/><path id="Line-Copy-13" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M439 132v86"/><path id="Line-Copy-14" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M622 132v86"/><path id="Line-Copy-15" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M692 39v179"/><text id="href" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="270" y="30">href (полный URL-адрес)</tspan></text><text id="origin" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="135" y="68">origin</tspan></text><path id="Line-Copy-12" fill="#C06334" stroke="#C06334" stroke-dasharray="1" stroke-linecap="square" stroke-width="2" d="M136 112.5h170"/><text id="host" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="202" y="106">host</tspan></text><text id="protocol" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="30.6" y="152">protocol</tspan></text><path id="https://site.com:8080/path/page?p1=v1&amp;p2=v2…#hash" fill="#181717" fill-rule="nonzero" d="M31.772 196.4h2.808v4.716h.09a4.03 4.03 0 011.296-.981c.492-.234 1.104-.351 1.836-.351.576 0 1.077.06 1.503.18.426.12.774.33 1.044.63s.471.711.603 1.233c.132.522.198 1.185.198 1.989V209h-1.404v-4.914c0-.516-.03-.966-.09-1.35-.06-.384-.177-.705-.351-.963a1.626 1.626 0 00-.711-.585c-.3-.132-.684-.198-1.152-.198a2.76 2.76 0 00-.954.171c-.312.114-.597.27-.855.468s-.48.438-.666.72a2.693 2.693 0 00-.387.927V209h-1.386v-11.394h-1.422V196.4zm13.686 3.6H47.6v-1.782l1.404-.396V200h4.806v1.206h-4.806v4.248c0 .876.213 1.524.639 1.944.426.42 1.035.63 1.827.63.54 0 1.011-.102 1.413-.306a7.614 7.614 0 001.089-.666l.468 1.062c-.42.336-.921.606-1.503.81a5.377 5.377 0 01-1.791.306c-.48 0-.933-.069-1.359-.207a3.12 3.12 0 01-1.125-.639 3.06 3.06 0 01-.774-1.107c-.192-.45-.288-.987-.288-1.611v-4.464h-2.142V200zm13.2 0H60.8v-1.782l1.404-.396V200h4.806v1.206h-4.806v4.248c0 .876.213 1.524.639 1.944.426.42 1.035.63 1.827.63.54 0 1.011-.102 1.413-.306a7.614 7.614 0 001.089-.666l.468 1.062c-.42.336-.921.606-1.503.81a5.377 5.377 0 01-1.791.306c-.48 0-.933-.069-1.359-.207a3.12 3.12 0 01-1.125-.639 3.06 3.06 0 01-.774-1.107c-.192-.45-.288-.987-.288-1.611v-4.464h-2.142V200zm14.37 3.15a18.063 18.063 0 00-.081-1.512 5.988 5.988 0 00-.063-.468h-1.206V200h2.394l.18 1.26h.09a4.06 4.06 0 011.233-1.053c.498-.282 1.107-.423 1.827-.423 1.284 0 2.25.354 2.898 1.062.648.708.972 1.866.972 3.474 0 .756-.111 1.437-.333 2.043a4.295 4.295 0 01-.945 1.539c-.408.42-.9.744-1.476.972a5.141 5.141 0 01-1.908.342c-.252 0-.477-.009-.675-.027a5.93 5.93 0 01-.54-.072 4.255 4.255 0 01-.477-.117 6.561 6.561 0 01-.504-.18v3.78h-1.386v-9.45zm4.14-2.052c-.36 0-.699.066-1.017.198a3.034 3.034 0 00-1.449 1.242 2.118 2.118 0 00-.288.792v4.104a3.3 3.3 0 00.891.423c.33.102.765.153 1.305.153.96 0 1.728-.315 2.304-.945.576-.63.864-1.551.864-2.763 0-1.02-.201-1.809-.603-2.367-.402-.558-1.071-.837-2.007-.837zm15.216 5.472c0-.384-.15-.681-.45-.891-.3-.21-.672-.378-1.116-.504a20.643 20.643 0 00-1.449-.351 8.36 8.36 0 01-1.449-.432 3.247 3.247 0 01-1.116-.729c-.3-.306-.45-.735-.45-1.287 0-.456.099-.846.297-1.17.198-.324.459-.591.783-.801.324-.21.702-.366 1.134-.468a5.856 5.856 0 011.35-.153c.84 0 1.563.105 2.169.315.606.21 1.089.429 1.449.657l-.576 1.134a15.16 15.16 0 00-1.287-.621c-.462-.198-1.041-.297-1.737-.297-.264 0-.525.027-.783.081a2.767 2.767 0 00-.702.243c-.21.108-.378.249-.504.423a1.06 1.06 0 00-.189.639c0 .312.15.552.45.72.3.168.672.309 1.116.423.444.114.927.222 1.449.324a7.044 7.044 0 011.449.441c.444.192.816.45 1.116.774.3.324.45.762.45 1.314 0 .828-.327 1.512-.981 2.052-.654.54-1.635.81-2.943.81-.396 0-.786-.036-1.17-.108a7.096 7.096 0 01-1.08-.288 6.498 6.498 0 01-.918-.405 3.86 3.86 0 01-.684-.459l.72-1.17c.144.144.336.291.576.441a5.437 5.437 0 001.719.693 4.833 4.833 0 001.908.027c.282-.054.531-.138.747-.252.216-.114.387-.264.513-.45s.189-.411.189-.675zm9.51-5.634c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm0 7.074c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm17.124-11.826l1.134.504-6.57 14.832-1.134-.504 6.57-14.832zm13.2 0l1.134.504-6.57 14.832-1.134-.504 6.57-14.832zm12.966 10.386c0-.384-.15-.681-.45-.891-.3-.21-.672-.378-1.116-.504a20.643 20.643 0 00-1.449-.351 8.36 8.36 0 01-1.449-.432 3.247 3.247 0 01-1.116-.729c-.3-.306-.45-.735-.45-1.287 0-.456.099-.846.297-1.17.198-.324.459-.591.783-.801.324-.21.702-.366 1.134-.468a5.856 5.856 0 011.35-.153c.84 0 1.563.105 2.169.315.606.21 1.089.429 1.449.657l-.576 1.134a15.16 15.16 0 00-1.287-.621c-.462-.198-1.041-.297-1.737-.297-.264 0-.525.027-.783.081a2.767 2.767 0 00-.702.243c-.21.108-.378.249-.504.423a1.06 1.06 0 00-.189.639c0 .312.15.552.45.72.3.168.672.309 1.116.423.444.114.927.222 1.449.324a7.044 7.044 0 011.449.441c.444.192.816.45 1.116.774.3.324.45.762.45 1.314 0 .828-.327 1.512-.981 2.052-.654.54-1.635.81-2.943.81-.396 0-.786-.036-1.17-.108a7.096 7.096 0 01-1.08-.288 6.498 6.498 0 01-.918-.405 3.86 3.86 0 01-.684-.459l.72-1.17c.144.144.336.291.576.441a5.437 5.437 0 001.719.693 4.833 4.833 0 001.908.027c.282-.054.531-.138.747-.252.216-.114.387-.264.513-.45s.189-.411.189-.675zm7.206 2.43v-1.206h3.132v-6.588h-3.132V200h4.572v7.794h3.06V209h-7.632zm2.646-11.556c0-.324.108-.603.324-.837.216-.234.492-.351.828-.351.348 0 .639.117.873.351.234.234.351.513.351.837 0 .312-.117.576-.351.792a1.238 1.238 0 01-.873.324c-.336 0-.612-.108-.828-.324a1.077 1.077 0 01-.324-.792zm9.222 2.556h2.142v-1.782l1.404-.396V200h4.806v1.206h-4.806v4.248c0 .876.213 1.524.639 1.944.426.42 1.035.63 1.827.63.54 0 1.011-.102 1.413-.306a7.614 7.614 0 001.089-.666l.468 1.062c-.42.336-.921.606-1.503.81a5.377 5.377 0 01-1.791.306c-.48 0-.933-.069-1.359-.207a3.12 3.12 0 01-1.125-.639 3.06 3.06 0 01-.774-1.107c-.192-.45-.288-.987-.288-1.611v-4.464h-2.142V200zm22.164 7.866a4.53 4.53 0 01-.765.54 5.645 5.645 0 01-.963.432 7.06 7.06 0 01-1.089.279 6.633 6.633 0 01-1.143.099c-.72 0-1.356-.111-1.908-.333a3.674 3.674 0 01-1.386-.954 4.158 4.158 0 01-.846-1.485c-.192-.576-.288-1.224-.288-1.944 0-.756.105-1.428.315-2.016.21-.588.513-1.08.909-1.476a3.959 3.959 0 011.44-.909c.564-.21 1.194-.315 1.89-.315.504 0 1.002.066 1.494.198a2.95 2.95 0 011.305.747c.378.366.669.87.873 1.512.204.642.276 1.473.216 2.493h-6.966c0 1.08.291 1.887.873 2.421.582.534 1.359.801 2.331.801.324 0 .645-.039.963-.117.318-.078.621-.171.909-.279.288-.108.543-.228.765-.36.222-.132.393-.252.513-.36l.558 1.026zm-3.798-6.894a4.86 4.86 0 00-1.125.126 2.564 2.564 0 00-.936.423c-.27.198-.492.456-.666.774-.174.318-.285.711-.333 1.179h5.598c-.06-.792-.315-1.407-.765-1.845-.45-.438-1.041-.657-1.773-.657zm11.67 7.038c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm16.908-6.624a7.111 7.111 0 00-.891-.243 4.64 4.64 0 00-.945-.099c-1.176 0-2.052.276-2.628.828-.576.552-.864 1.428-.864 2.628 0 .528.084.999.252 1.413.168.414.408.765.72 1.053.312.288.687.51 1.125.666.438.156.921.234 1.449.234.564 0 1.113-.096 1.647-.288.534-.192.981-.444 1.341-.756l.63 1.044a5.095 5.095 0 01-.63.45 6.053 6.053 0 01-1.971.774 6.38 6.38 0 01-1.305.126c-.78 0-1.467-.111-2.061-.333a3.914 3.914 0 01-1.485-.954 4.083 4.083 0 01-.9-1.494 5.818 5.818 0 01-.306-1.935c0-.756.105-1.428.315-2.016.21-.588.513-1.08.909-1.476a3.959 3.959 0 011.44-.909c.564-.21 1.194-.315 1.89-.315.888 0 1.611.078 2.169.234.558.156 1.029.33 1.413.522l-.018.054v2.502h-1.296v-1.71zm6.324 3.114c0-1.452.378-2.601 1.134-3.447.756-.846 1.836-1.269 3.24-1.269.756 0 1.407.123 1.953.369s.999.579 1.359.999c.36.42.627.918.801 1.494.174.576.261 1.194.261 1.854 0 .72-.096 1.371-.288 1.953a4.057 4.057 0 01-.846 1.485 3.738 3.738 0 01-1.377.945c-.546.222-1.167.333-1.863.333-.744 0-1.392-.123-1.944-.369a3.815 3.815 0 01-1.368-.999 4.073 4.073 0 01-.801-1.494 6.381 6.381 0 01-.261-1.854zm1.494 0c0 .42.051.84.153 1.26.102.42.267.798.495 1.134.228.336.525.606.891.81.366.204.813.306 1.341.306.96 0 1.683-.297 2.169-.891.486-.594.729-1.467.729-2.619 0-.432-.051-.855-.153-1.269a3.353 3.353 0 00-.504-1.125 2.656 2.656 0 00-.9-.81c-.366-.204-.813-.306-1.341-.306-.96 0-1.68.294-2.16.882-.48.588-.72 1.464-.72 2.628zm15.396 4.5v-5.994a9.51 9.51 0 00-.027-.729 2.442 2.442 0 00-.126-.63 1.01 1.01 0 00-.288-.441.734.734 0 00-.495-.162c-.408 0-.753.168-1.035.504-.282.336-.495.756-.639 1.26V209h-1.368v-9h.936l.27 1.098h.072c.12-.18.237-.351.351-.513.114-.162.246-.303.396-.423.15-.12.327-.213.531-.279.204-.066.462-.099.774-.099.18 0 .366.027.558.081.192.054.369.138.531.252.162.114.303.267.423.459s.198.426.234.702c.276-.468.585-.834.927-1.098.342-.264.813-.396 1.413-.396.396 0 .717.066.963.198s.438.321.576.567c.138.246.234.54.288.882.054.342.081.723.081 1.143V209h-1.368v-6.12c0-.252-.012-.489-.036-.711a2.268 2.268 0 00-.135-.585.967.967 0 00-.27-.396c-.114-.096-.267-.144-.459-.144-.42 0-.774.168-1.062.504-.288.336-.504.816-.648 1.44V209h-1.368zm12.678-8.064c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm0 7.074c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm10.356-2.07c0-1.452.882-2.622 2.646-3.51-.336-.18-.648-.366-.936-.558a3.746 3.746 0 01-.747-.648 2.737 2.737 0 01-.495-.828 2.996 2.996 0 01-.18-1.08c0-.444.09-.858.27-1.242.18-.384.438-.714.774-.99a3.842 3.842 0 011.224-.657 4.988 4.988 0 011.602-.243c.552 0 1.053.072 1.503.216a3.5 3.5 0 011.152.603c.318.258.561.561.729.909.168.348.252.72.252 1.116 0 .684-.171 1.311-.513 1.881-.342.57-.891 1.089-1.647 1.557.348.18.672.372.972.576.3.204.561.432.783.684.222.252.396.537.522.855.126.318.189.681.189 1.089 0 .504-.09.975-.27 1.413a3 3 0 01-.801 1.125 3.88 3.88 0 01-1.305.738c-.516.18-1.116.27-1.8.27-.636 0-1.2-.09-1.692-.27a3.696 3.696 0 01-1.233-.72c-.33-.3-.579-.648-.747-1.044a3.148 3.148 0 01-.252-1.242zm6.678-.18c0-.348-.081-.657-.243-.927a2.74 2.74 0 00-.648-.729 5.59 5.59 0 00-.927-.594c-.348-.18-.708-.36-1.08-.54-.864.42-1.479.882-1.845 1.386-.366.504-.549.978-.549 1.422 0 .3.057.585.171.855.114.27.282.507.504.711.222.204.498.366.828.486.33.12.711.18 1.143.18.348 0 .681-.048.999-.144.318-.096.6-.237.846-.423s.441-.42.585-.702c.144-.282.216-.609.216-.981zm-4.986-6.498c0 .336.078.636.234.9.156.264.363.501.621.711.258.21.555.402.891.576.336.174.69.345 1.062.513.636-.42 1.113-.84 1.431-1.26.318-.42.477-.882.477-1.386 0-.3-.063-.567-.189-.801a1.948 1.948 0 00-.504-.603 2.292 2.292 0 00-.729-.387 2.77 2.77 0 00-.864-.135c-.384 0-.726.054-1.026.162-.3.108-.552.252-.756.432-.204.18-.363.381-.477.603a1.463 1.463 0 00-.171.675zm11.148 3.438c0-1.02.09-1.935.27-2.745.18-.81.45-1.494.81-2.052.36-.558.816-.984 1.368-1.278.552-.294 1.206-.441 1.962-.441.804 0 1.485.144 2.043.432a3.466 3.466 0 011.359 1.26c.348.552.6 1.233.756 2.043.156.81.234 1.737.234 2.781 0 1.02-.09 1.935-.27 2.745-.18.81-.45 1.494-.81 2.052-.36.558-.816.984-1.368 1.278-.552.294-1.206.441-1.962.441-.792 0-1.467-.159-2.025-.477a3.8 3.8 0 01-1.368-1.341c-.354-.576-.609-1.263-.765-2.061a13.774 13.774 0 01-.234-2.637zm7.326 0c0-.636-.036-1.242-.108-1.818l-5.346 4.878c.204.684.51 1.23.918 1.638.408.408.942.612 1.602.612 1.056 0 1.809-.438 2.259-1.314.45-.876.675-2.208.675-3.996zm-5.832 0c0 .3.009.588.027.864.018.276.039.546.063.81l5.364-4.86c-.204-.648-.507-1.164-.909-1.548-.402-.384-.945-.576-1.629-.576-1.068 0-1.821.441-2.259 1.323-.438.882-.657 2.211-.657 3.987zm12.066 3.24c0-1.452.882-2.622 2.646-3.51-.336-.18-.648-.366-.936-.558a3.746 3.746 0 01-.747-.648 2.737 2.737 0 01-.495-.828 2.996 2.996 0 01-.18-1.08c0-.444.09-.858.27-1.242.18-.384.438-.714.774-.99a3.842 3.842 0 011.224-.657 4.988 4.988 0 011.602-.243c.552 0 1.053.072 1.503.216a3.5 3.5 0 011.152.603c.318.258.561.561.729.909.168.348.252.72.252 1.116 0 .684-.171 1.311-.513 1.881-.342.57-.891 1.089-1.647 1.557.348.18.672.372.972.576.3.204.561.432.783.684.222.252.396.537.522.855.126.318.189.681.189 1.089 0 .504-.09.975-.27 1.413a3 3 0 01-.801 1.125 3.88 3.88 0 01-1.305.738c-.516.18-1.116.27-1.8.27-.636 0-1.2-.09-1.692-.27a3.696 3.696 0 01-1.233-.72c-.33-.3-.579-.648-.747-1.044a3.148 3.148 0 01-.252-1.242zm6.678-.18c0-.348-.081-.657-.243-.927a2.74 2.74 0 00-.648-.729 5.59 5.59 0 00-.927-.594c-.348-.18-.708-.36-1.08-.54-.864.42-1.479.882-1.845 1.386-.366.504-.549.978-.549 1.422 0 .3.057.585.171.855.114.27.282.507.504.711.222.204.498.366.828.486.33.12.711.18 1.143.18.348 0 .681-.048.999-.144.318-.096.6-.237.846-.423s.441-.42.585-.702c.144-.282.216-.609.216-.981zm-4.986-6.498c0 .336.078.636.234.9.156.264.363.501.621.711.258.21.555.402.891.576.336.174.69.345 1.062.513.636-.42 1.113-.84 1.431-1.26.318-.42.477-.882.477-1.386 0-.3-.063-.567-.189-.801a1.948 1.948 0 00-.504-.603 2.292 2.292 0 00-.729-.387 2.77 2.77 0 00-.864-.135c-.384 0-.726.054-1.026.162-.3.108-.552.252-.756.432-.204.18-.363.381-.477.603a1.463 1.463 0 00-.171.675zm11.148 3.438c0-1.02.09-1.935.27-2.745.18-.81.45-1.494.81-2.052.36-.558.816-.984 1.368-1.278.552-.294 1.206-.441 1.962-.441.804 0 1.485.144 2.043.432a3.466 3.466 0 011.359 1.26c.348.552.6 1.233.756 2.043.156.81.234 1.737.234 2.781 0 1.02-.09 1.935-.27 2.745-.18.81-.45 1.494-.81 2.052-.36.558-.816.984-1.368 1.278-.552.294-1.206.441-1.962.441-.792 0-1.467-.159-2.025-.477a3.8 3.8 0 01-1.368-1.341c-.354-.576-.609-1.263-.765-2.061a13.774 13.774 0 01-.234-2.637zm7.326 0c0-.636-.036-1.242-.108-1.818l-5.346 4.878c.204.684.51 1.23.918 1.638.408.408.942.612 1.602.612 1.056 0 1.809-.438 2.259-1.314.45-.876.675-2.208.675-3.996zm-5.832 0c0 .3.009.588.027.864.018.276.039.546.063.81l5.364-4.86c-.204-.648-.507-1.164-.909-1.548-.402-.384-.945-.576-1.629-.576-1.068 0-1.821.441-2.259 1.323-.438.882-.657 2.211-.657 3.987zm18.834-6.516l1.134.504-6.57 14.832-1.134-.504 6.57-14.832zm6.81 6.966a18.063 18.063 0 00-.081-1.512 5.988 5.988 0 00-.063-.468h-1.206V200h2.394l.18 1.26h.09a4.06 4.06 0 011.233-1.053c.498-.282 1.107-.423 1.827-.423 1.284 0 2.25.354 2.898 1.062.648.708.972 1.866.972 3.474 0 .756-.111 1.437-.333 2.043a4.295 4.295 0 01-.945 1.539c-.408.42-.9.744-1.476.972a5.141 5.141 0 01-1.908.342c-.252 0-.477-.009-.675-.027a5.93 5.93 0 01-.54-.072 4.255 4.255 0 01-.477-.117 6.561 6.561 0 01-.504-.18v3.78h-1.386v-9.45zm4.14-2.052c-.36 0-.699.066-1.017.198a3.034 3.034 0 00-1.449 1.242 2.118 2.118 0 00-.288.792v4.104a3.3 3.3 0 00.891.423c.33.102.765.153 1.305.153.96 0 1.728-.315 2.304-.945.576-.63.864-1.551.864-2.763 0-1.02-.201-1.809-.603-2.367-.402-.558-1.071-.837-2.007-.837zm9.276-.396a5.717 5.717 0 011.746-.648 9.544 9.544 0 011.908-.198c.612 0 1.113.096 1.503.288.39.192.696.441.918.747.222.306.372.654.45 1.044.078.39.117.783.117 1.179 0 .456-.012.942-.036 1.458a66.688 66.688 0 00-.054 1.548c0 .6.036 1.17.108 1.71h1.206V209h-2.394l-.162-1.35h-.09c-.072.108-.18.246-.324.414a2.964 2.964 0 01-.567.495 3.664 3.664 0 01-.855.423c-.336.12-.732.18-1.188.18-.888 0-1.59-.228-2.106-.684-.516-.456-.774-1.08-.774-1.872 0-.612.135-1.122.405-1.53.27-.408.657-.72 1.161-.936.504-.216 1.113-.342 1.827-.378.714-.036 1.515.012 2.403.144.06-.552.069-1.011.027-1.377-.042-.366-.138-.657-.288-.873a1.206 1.206 0 00-.63-.459c-.27-.09-.603-.135-.999-.135-.54 0-1.056.075-1.548.225-.492.15-.93.303-1.314.459l-.45-1.044zm2.646 7.254c.336 0 .648-.054.936-.162.288-.108.54-.246.756-.414a2.743 2.743 0 00.864-1.116v-1.26c-.624-.108-1.2-.162-1.728-.162s-.984.057-1.368.171c-.384.114-.684.291-.9.531-.216.24-.324.552-.324.936 0 .396.135.741.405 1.035.27.294.723.441 1.359.441zm9.168-7.956h2.142v-1.782l1.404-.396V200h4.806v1.206h-4.806v4.248c0 .876.213 1.524.639 1.944.426.42 1.035.63 1.827.63.54 0 1.011-.102 1.413-.306a7.614 7.614 0 001.089-.666l.468 1.062c-.42.336-.921.606-1.503.81a5.377 5.377 0 01-1.791.306c-.48 0-.933-.069-1.359-.207a3.12 3.12 0 01-1.125-.639 3.06 3.06 0 01-.774-1.107c-.192-.45-.288-.987-.288-1.611v-4.464h-2.142V200zm12.714-3.6h2.808v4.716h.09a4.03 4.03 0 011.296-.981c.492-.234 1.104-.351 1.836-.351.576 0 1.077.06 1.503.18.426.12.774.33 1.044.63s.471.711.603 1.233c.132.522.198 1.185.198 1.989V209h-1.404v-4.914c0-.516-.03-.966-.09-1.35-.06-.384-.177-.705-.351-.963a1.626 1.626 0 00-.711-.585c-.3-.132-.684-.198-1.152-.198a2.76 2.76 0 00-.954.171c-.312.114-.597.27-.855.468s-.48.438-.666.72a2.693 2.693 0 00-.387.927V209h-1.386v-11.394h-1.422V196.4zm21.246-.216l1.134.504-6.57 14.832-1.134-.504 6.57-14.832zm6.81 6.966a18.063 18.063 0 00-.081-1.512 5.988 5.988 0 00-.063-.468h-1.206V200h2.394l.18 1.26h.09a4.06 4.06 0 011.233-1.053c.498-.282 1.107-.423 1.827-.423 1.284 0 2.25.354 2.898 1.062.648.708.972 1.866.972 3.474 0 .756-.111 1.437-.333 2.043a4.295 4.295 0 01-.945 1.539c-.408.42-.9.744-1.476.972a5.141 5.141 0 01-1.908.342c-.252 0-.477-.009-.675-.027a5.93 5.93 0 01-.54-.072 4.255 4.255 0 01-.477-.117 6.561 6.561 0 01-.504-.18v3.78h-1.386v-9.45zm4.14-2.052c-.36 0-.699.066-1.017.198a3.034 3.034 0 00-1.449 1.242 2.118 2.118 0 00-.288.792v4.104a3.3 3.3 0 00.891.423c.33.102.765.153 1.305.153.96 0 1.728-.315 2.304-.945.576-.63.864-1.551.864-2.763 0-1.02-.201-1.809-.603-2.367-.402-.558-1.071-.837-2.007-.837zm9.276-.396a5.717 5.717 0 011.746-.648 9.544 9.544 0 011.908-.198c.612 0 1.113.096 1.503.288.39.192.696.441.918.747.222.306.372.654.45 1.044.078.39.117.783.117 1.179 0 .456-.012.942-.036 1.458a66.688 66.688 0 00-.054 1.548c0 .6.036 1.17.108 1.71h1.206V209h-2.394l-.162-1.35h-.09c-.072.108-.18.246-.324.414a2.964 2.964 0 01-.567.495 3.664 3.664 0 01-.855.423c-.336.12-.732.18-1.188.18-.888 0-1.59-.228-2.106-.684-.516-.456-.774-1.08-.774-1.872 0-.612.135-1.122.405-1.53.27-.408.657-.72 1.161-.936.504-.216 1.113-.342 1.827-.378.714-.036 1.515.012 2.403.144.06-.552.069-1.011.027-1.377-.042-.366-.138-.657-.288-.873a1.206 1.206 0 00-.63-.459c-.27-.09-.603-.135-.999-.135-.54 0-1.056.075-1.548.225-.492.15-.93.303-1.314.459l-.45-1.044zm2.646 7.254c.336 0 .648-.054.936-.162.288-.108.54-.246.756-.414a2.743 2.743 0 00.864-1.116v-1.26c-.624-.108-1.2-.162-1.728-.162s-.984.057-1.368.171c-.384.114-.684.291-.9.531-.216.24-.324.552-.324.936 0 .396.135.741.405 1.035.27.294.723.441 1.359.441zm18.042 1.494c0 .564-.108 1.059-.324 1.485a2.917 2.917 0 01-.891 1.053 4.02 4.02 0 01-1.323.621 6.185 6.185 0 01-1.638.207c-.708 0-1.326-.072-1.854-.216a5.515 5.515 0 01-1.368-.558l.684-1.278c.108.096.249.189.423.279.174.09.375.174.603.252.228.078.471.141.729.189.258.048.513.072.765.072.528 0 .969-.048 1.323-.144.354-.096.639-.246.855-.45.216-.204.372-.468.468-.792.096-.324.144-.72.144-1.188v-1.008h-.072c-.276.396-.63.702-1.062.918-.432.216-.99.324-1.674.324-1.368 0-2.373-.381-3.015-1.143-.642-.762-.963-1.947-.963-3.555 0-1.536.408-2.697 1.224-3.483.816-.786 2.028-1.179 3.636-1.179.744 0 1.377.051 1.899.153.522.102.999.231 1.431.387v9.054zm-4.014-1.44c.732 0 1.308-.189 1.728-.567.42-.378.714-.957.882-1.737v-4.266c-.528-.252-1.266-.378-2.214-.378-.96 0-1.716.282-2.268.846-.552.564-.828 1.428-.828 2.592 0 .516.048.987.144 1.413.096.426.249.795.459 1.107.21.312.486.555.828.729.342.174.765.261 1.269.261zm17.304-.144a4.53 4.53 0 01-.765.54 5.645 5.645 0 01-.963.432 7.06 7.06 0 01-1.089.279 6.633 6.633 0 01-1.143.099c-.72 0-1.356-.111-1.908-.333a3.674 3.674 0 01-1.386-.954 4.158 4.158 0 01-.846-1.485c-.192-.576-.288-1.224-.288-1.944 0-.756.105-1.428.315-2.016.21-.588.513-1.08.909-1.476a3.959 3.959 0 011.44-.909c.564-.21 1.194-.315 1.89-.315.504 0 1.002.066 1.494.198a2.95 2.95 0 011.305.747c.378.366.669.87.873 1.512.204.642.276 1.473.216 2.493h-6.966c0 1.08.291 1.887.873 2.421.582.534 1.359.801 2.331.801.324 0 .645-.039.963-.117.318-.078.621-.171.909-.279.288-.108.543-.228.765-.36.222-.132.393-.252.513-.36l.558 1.026zm-3.798-6.894a4.86 4.86 0 00-1.125.126 2.564 2.564 0 00-.936.423c-.27.198-.492.456-.666.774-.174.318-.285.711-.333 1.179h5.598c-.06-.792-.315-1.407-.765-1.845-.45-.438-1.041-.657-1.773-.657zm11.652 4.842a1.011 1.011 0 01-.018-.198v-.198c0-.504.093-.936.279-1.296.186-.36.417-.681.693-.963a6.74 6.74 0 01.891-.765c.318-.228.615-.471.891-.729s.507-.543.693-.855c.186-.312.279-.684.279-1.116 0-.228-.054-.474-.162-.738a2.314 2.314 0 00-.495-.738 2.501 2.501 0 00-.864-.558c-.354-.144-.777-.216-1.269-.216a3.7 3.7 0 00-1.071.144 4.343 4.343 0 00-.864.36 4.644 4.644 0 00-.702.477c-.21.174-.399.339-.567.495l-.918-.828a4.62 4.62 0 011.953-1.431c.798-.318 1.713-.477 2.745-.477.624 0 1.17.102 1.638.306.468.204.855.465 1.161.783.306.318.534.672.684 1.062.15.39.225.771.225 1.143 0 .576-.099 1.059-.297 1.449-.198.39-.447.738-.747 1.044-.3.306-.621.582-.963.828-.342.246-.663.51-.963.792-.3.282-.549.597-.747.945-.198.348-.297.774-.297 1.278h-1.188zm-.36 2.358c0-.324.093-.579.279-.765.186-.186.435-.279.747-.279.324 0 .582.093.774.279.192.186.288.441.288.765 0 .312-.096.564-.288.756-.192.192-.45.288-.774.288-.312 0-.561-.096-.747-.288-.186-.192-.279-.444-.279-.756zm11.112-5.022a18.063 18.063 0 00-.081-1.512 5.988 5.988 0 00-.063-.468h-1.206V200h2.394l.18 1.26h.09a4.06 4.06 0 011.233-1.053c.498-.282 1.107-.423 1.827-.423 1.284 0 2.25.354 2.898 1.062.648.708.972 1.866.972 3.474 0 .756-.111 1.437-.333 2.043a4.295 4.295 0 01-.945 1.539c-.408.42-.9.744-1.476.972a5.141 5.141 0 01-1.908.342c-.252 0-.477-.009-.675-.027a5.93 5.93 0 01-.54-.072 4.255 4.255 0 01-.477-.117 6.561 6.561 0 01-.504-.18v3.78h-1.386v-9.45zm4.14-2.052c-.36 0-.699.066-1.017.198a3.034 3.034 0 00-1.449 1.242 2.118 2.118 0 00-.288.792v4.104a3.3 3.3 0 00.891.423c.33.102.765.153 1.305.153.96 0 1.728-.315 2.304-.945.576-.63.864-1.551.864-2.763 0-1.02-.201-1.809-.603-2.367-.402-.558-1.071-.837-2.007-.837zm9.618 6.606h2.826v-9.468l-2.88 2.016-.702-1.026 3.96-2.826h1.008v11.304h2.772V209h-6.984v-1.296zm12.138-6.93h8.352v1.296h-8.352v-1.296zm0 2.952h8.352v1.296h-8.352v-1.296zm17.412 3.528h.198L502.16 200h1.566l-3.798 9h-1.584l-3.87-9h1.656l3.006 7.254zm10.05.45h2.826v-9.468l-2.88 2.016-.702-1.026 3.96-2.826h1.008v11.304h2.772V209h-6.984v-1.296zm11.454-2.43c0-.792.222-1.548.666-2.268.444-.72 1.062-1.326 1.854-1.818a11.046 11.046 0 01-.747-1.296c-.21-.432-.315-.9-.315-1.404 0-.288.048-.57.144-.846.096-.276.249-.522.459-.738.21-.216.48-.39.81-.522.33-.132.729-.198 1.197-.198.492 0 .906.063 1.242.189.336.126.606.291.81.495.204.204.351.432.441.684.09.252.135.51.135.774 0 .504-.195 1.023-.585 1.557-.39.534-1.005 1.047-1.845 1.539.192.348.417.705.675 1.071.258.366.531.729.819 1.089.288.36.582.717.882 1.071.3.354.6.681.9.981a3.19 3.19 0 00.351-.702c.102-.276.186-.564.252-.864a8.368 8.368 0 00.189-1.728h1.278a10.485 10.485 0 01-.36 2.259c-.204.75-.504 1.383-.9 1.899a5.657 5.657 0 001.35 1.188v1.53c-.636-.312-1.362-.87-2.178-1.674-.216.216-.435.423-.657.621a4.088 4.088 0 01-1.692.909 4.734 4.734 0 01-1.233.144c-.492 0-.972-.081-1.44-.243a3.787 3.787 0 01-1.26-.729 3.608 3.608 0 01-.9-1.224c-.228-.492-.342-1.074-.342-1.746zm6.678 1.368c-.348-.348-.69-.726-1.026-1.134a34.295 34.295 0 01-1.809-2.403 30.16 30.16 0 01-.657-.999c-.648.492-1.101.99-1.359 1.494a3.505 3.505 0 00-.387 1.62c0 .468.087.873.261 1.215.174.342.393.627.657.855.264.228.555.396.873.504.318.108.627.162.927.162.6 0 1.101-.135 1.503-.405.402-.27.741-.573 1.017-.909zm-3.816-8.154c0 .36.075.717.225 1.071.15.354.345.705.585 1.053.636-.408 1.077-.78 1.323-1.116.246-.336.369-.63.369-.882 0-.384-.093-.696-.279-.936-.186-.24-.507-.36-.963-.36-.432 0-.75.108-.954.324-.204.216-.306.498-.306.846zm11.526 4.662a18.063 18.063 0 00-.081-1.512 5.988 5.988 0 00-.063-.468h-1.206V200h2.394l.18 1.26h.09a4.06 4.06 0 011.233-1.053c.498-.282 1.107-.423 1.827-.423 1.284 0 2.25.354 2.898 1.062.648.708.972 1.866.972 3.474 0 .756-.111 1.437-.333 2.043a4.295 4.295 0 01-.945 1.539c-.408.42-.9.744-1.476.972a5.141 5.141 0 01-1.908.342c-.252 0-.477-.009-.675-.027a5.93 5.93 0 01-.54-.072 4.255 4.255 0 01-.477-.117 6.562 6.562 0 01-.504-.18v3.78h-1.386v-9.45zm4.14-2.052c-.36 0-.699.066-1.017.198a3.034 3.034 0 00-1.449 1.242 2.118 2.118 0 00-.288.792v4.104a3.3 3.3 0 00.891.423c.33.102.765.153 1.305.153.96 0 1.728-.315 2.304-.945.576-.63.864-1.551.864-2.763 0-1.02-.201-1.809-.603-2.367-.402-.558-1.071-.837-2.007-.837zm16.332-1.512c0 1.104-.522 2.334-1.566 3.69-1.044 1.356-2.502 2.832-4.374 4.428h6.336V209h-7.992v-1.296c.228-.216.54-.498.936-.846a57.05 57.05 0 001.278-1.161c.456-.426.921-.885 1.395-1.377a15.64 15.64 0 001.287-1.512 8.867 8.867 0 00.936-1.548c.24-.516.36-1.014.36-1.494 0-.72-.189-1.287-.567-1.701-.378-.414-.945-.621-1.701-.621-.648 0-1.194.072-1.638.216a3.988 3.988 0 00-1.206.63l-.612-.99a5.806 5.806 0 011.719-.846 6.962 6.962 0 011.989-.27c1.128 0 1.98.306 2.556.918.576.612.864 1.44.864 2.484zm5.424 1.188h8.352v1.296h-8.352v-1.296zm0 2.952h8.352v1.296h-8.352v-1.296zm17.412 3.528h.198L581.36 200h1.566l-3.798 9h-1.584l-3.87-9h1.656l3.006 7.254zm16.764-7.668c0 1.104-.522 2.334-1.566 3.69-1.044 1.356-2.502 2.832-4.374 4.428h6.336V209h-7.992v-1.296c.228-.216.54-.498.936-.846s.822-.735 1.278-1.161c.456-.426.921-.885 1.395-1.377a15.64 15.64 0 001.287-1.512 8.867 8.867 0 00.936-1.548c.24-.516.36-1.014.36-1.494 0-.72-.189-1.287-.567-1.701-.378-.414-.945-.621-1.701-.621-.648 0-1.194.072-1.638.216a3.988 3.988 0 00-1.206.63l-.612-.99a5.806 5.806 0 011.719-.846 6.962 6.962 0 011.989-.27c1.128 0 1.98.306 2.556.918.576.612.864 1.44.864 2.484zm12.966 8.424c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm-4.572 0c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm-4.536 0c0-.384.108-.681.324-.891.216-.21.504-.315.864-.315.384 0 .684.105.9.315.216.21.324.507.324.891 0 .348-.108.636-.324.864-.216.228-.516.342-.9.342-.36 0-.648-.114-.864-.342-.216-.228-.324-.516-.324-.864zm32.898-3.06h-2.61l-.702 3.006h-1.242l.702-3.006h-1.764l.252-1.152h1.782l.558-2.358h-1.692l.252-1.152h1.71l.684-2.844h1.242l-.684 2.844h2.61l.684-2.844h1.242l-.684 2.844h1.746l-.288 1.152h-1.728l-.558 2.358h1.674l-.288 1.152h-1.656l-.702 3.006h-1.242l.702-3.006zm-2.34-1.152h2.61l.558-2.358h-2.61l-.558 2.358zm9.456-7.398h2.808v4.716h.09a4.03 4.03 0 011.296-.981c.492-.234 1.104-.351 1.836-.351.576 0 1.077.06 1.503.18.426.12.774.33 1.044.63s.471.711.603 1.233c.132.522.198 1.185.198 1.989V209h-1.404v-4.914c0-.516-.03-.966-.09-1.35-.06-.384-.177-.705-.351-.963a1.626 1.626 0 00-.711-.585c-.3-.132-.684-.198-1.152-.198a2.76 2.76 0 00-.954.171c-.312.114-.597.27-.855.468s-.48.438-.666.72a2.693 2.693 0 00-.387.927V209h-1.386v-11.394h-1.422V196.4zm15.072 4.302a5.717 5.717 0 011.746-.648 9.544 9.544 0 011.908-.198c.612 0 1.113.096 1.503.288.39.192.696.441.918.747.222.306.372.654.45 1.044.078.39.117.783.117 1.179 0 .456-.012.942-.036 1.458a66.688 66.688 0 00-.054 1.548c0 .6.036 1.17.108 1.71h1.206V209h-2.394l-.162-1.35h-.09c-.072.108-.18.246-.324.414a2.964 2.964 0 01-.567.495 3.664 3.664 0 01-.855.423c-.336.12-.732.18-1.188.18-.888 0-1.59-.228-2.106-.684-.516-.456-.774-1.08-.774-1.872 0-.612.135-1.122.405-1.53.27-.408.657-.72 1.161-.936.504-.216 1.113-.342 1.827-.378.714-.036 1.515.012 2.403.144.06-.552.069-1.011.027-1.377-.042-.366-.138-.657-.288-.873a1.206 1.206 0 00-.63-.459c-.27-.09-.603-.135-.999-.135-.54 0-1.056.075-1.548.225-.492.15-.93.303-1.314.459l-.45-1.044zm2.646 7.254c.336 0 .648-.054.936-.162.288-.108.54-.246.756-.414a2.743 2.743 0 00.864-1.116v-1.26c-.624-.108-1.2-.162-1.728-.162s-.984.057-1.368.171c-.384.114-.684.291-.9.531-.216.24-.324.552-.324.936 0 .396.135.741.405 1.035.27.294.723.441 1.359.441zm16.494-1.386c0-.384-.15-.681-.45-.891-.3-.21-.672-.378-1.116-.504a20.643 20.643 0 00-1.449-.351 8.36 8.36 0 01-1.449-.432 3.247 3.247 0 01-1.116-.729c-.3-.306-.45-.735-.45-1.287 0-.456.099-.846.297-1.17.198-.324.459-.591.783-.801.324-.21.702-.366 1.134-.468a5.856 5.856 0 011.35-.153c.84 0 1.563.105 2.169.315.606.21 1.089.429 1.449.657l-.576 1.134a15.16 15.16 0 00-1.287-.621c-.462-.198-1.041-.297-1.737-.297-.264 0-.525.027-.783.081a2.767 2.767 0 00-.702.243c-.21.108-.378.249-.504.423a1.06 1.06 0 00-.189.639c0 .312.15.552.45.72.3.168.672.309 1.116.423.444.114.927.222 1.449.324a7.044 7.044 0 011.449.441c.444.192.816.45 1.116.774.3.324.45.762.45 1.314 0 .828-.327 1.512-.981 2.052-.654.54-1.635.81-2.943.81-.396 0-.786-.036-1.17-.108a7.096 7.096 0 01-1.08-.288 6.498 6.498 0 01-.918-.405 3.86 3.86 0 01-.684-.459l.72-1.17c.144.144.336.291.576.441a5.437 5.437 0 001.719.693 4.833 4.833 0 001.908.027c.282-.054.531-.138.747-.252.216-.114.387-.264.513-.45s.189-.411.189-.675zm5.388-10.17h2.808v4.716h.09a4.03 4.03 0 011.296-.981c.492-.234 1.104-.351 1.836-.351.576 0 1.077.06 1.503.18.426.12.774.33 1.044.63s.471.711.603 1.233c.132.522.198 1.185.198 1.989V209h-1.404v-4.914c0-.516-.03-.966-.09-1.35-.06-.384-.177-.705-.351-.963a1.626 1.626 0 00-.711-.585c-.3-.132-.684-.198-1.152-.198a2.76 2.76 0 00-.954.171c-.312.114-.597.27-.855.468s-.48.438-.666.72a2.693 2.693 0 00-.387.927V209h-1.386v-11.394h-1.422V196.4z"/><text id="hostname" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="147" y="152">hostname</tspan></text><text id="port" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="261" y="152">port</tspan></text><text id="pathname" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="334" y="152">pathname</tspan></text><text id="search" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="458" y="152">search (params)</tspan></text><text id="hash" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="16" font-weight="normal"><tspan x="637" y="152">hash</tspan></text></g></g></svg>
+
+
+  <b>Класс URL</b> предоставляет интерфейс для создания и разбора URL-адресов. Существует
+стандарт, который определяет список разрешённых и запрещённых символов в URL.
+К счастью, URL кодирует запрещённые символы автоматически:
+const url = new URL('https://ru.wikipedia.org/wiki/Тест')
+url.searchParams.set('key', 'ъ')    <span>у экземпляра URL есть св-во <b>searchParams</b></span>
+alert(url)    <span>https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D1%81%D1%82?key=%D1%8A</span>
+
+
+
+  <b>Нет сетевых методов, которые требуют именно объект URL, обычные строки тоже подходят.</b>
+Но, <b>если мы используем строку, надо самим позаботиться о кодировании специальных символов,</b>
+в отличае от использования класса URL, где кодируется автоматически.
+  Для кодирования строк есть встроенные функции:
+
+encodeURI           – кодирует URL-адрес целиком
+decodeURI           – декодирует URL-адрес целиком
+encodeURIComponent  – кодирует компонент URL, например, параметр, хеш, имя пути и т.п.
+decodeURIComponent  – декодирует компонент URL
+
+* <b>URL считается устаревшим термином, более новый - URI</b>, поэтому и нет метода encodeURL
+
+
+  Разница между encodeURIComponent() и encodeURI() в том, что <b>encodeURIComponent()
+кодирует больше символов.</b>
+  encodeURI не кодирует значения queryString или hash, а encodeURIComponent кодирует
+
+<b>encodeURI не кодирует</b>:               цифры, латинские буквы, #-_.!~*'(),;,/?:@&=+$
+<b>encodeURIComponent не кодирует</b>:      цифры, латинские буквы, -_.!~*'()
+        </pre><pre>
+          <code class="language-js">
+   Пример 1
+
+encodeURI('http://www.yourdomain.com/a file.html')  // http://www.yourdomain.com/a%20file.html
+
+
+
+   Пример 2
+
+const music = encodeURIComponent('Rock&Roll')
+const url = `https://google.com/search?q=${music}`
+alert(url)   // https://google.com/search?q=Rock%26Roll
+
+
+
+   Пример 3
+
+const link = `mailto:?subject=${encodeURIComponent(name)}
+                &body=${encodeURIComponent(`Event Name: ${name}
+                  Event Link: ${currentUrl}
+                `)}
+             `
+
+
+   Пример 4
+
+function buildNextPageURL(request, token) {
+  const url = new URL(request)
+  const { search } = url  // св-во search инстенса URL отдает компонент поиска (?p1=v1&p2=v2)
+
+  url.search = search + encodeURIComponent(`&pageToken=${token}`)  // добавляем pageToken
+
+  return url.toString()
+}
+          </code>
+        </pre></article><article class="section-info"><b>Punycode</b><pre>
+
+  Изначально стандартом DNS была разрешена регистрация доменов, содержащих только
+символы в кодировке <b>ASCII</b> — 26 букв латинского алфавита (a-z), цифры (0-9) и символ
+дефиса (всего 37 символов)
+
+  Однако с ростом количества пользователей, языки которых основаны на алфавитах отличающихся
+от латинского, было решено ввести регистрацию доменов в кодировке Unicode, которая включает
+символы всех национальных алфавитов. В результате этого решения появились многоязычные доменные
+имена — Internationalized Domain Names (<b>IDN-домены</b>)
+
+  <b>Punycode</b> — это стандартизированный метод преобразования символов, относящихся
+к стандарту Unicode, в формат ASCII, поддерживаемый инфраструктурой DNS.
+  Чтобы IDN-домен после преобразования нельзя было спутать с обычным доменом, <b>все IDN-домены
+начинаются со специального префикса «XN--»</b>.
+  Например, домен «домен.com.ua» в формате punycode будет выглядеть следующим образом:
+xn--d1acufc.com.ua
+
+  Преобразование домена в Punycode и обратно производится на стороне браузера, поэтому
+при введении в адресную строку IDN-домена браузер сам конвертирует введенное значение для
+взаимодействия с DNS
+
+  <span>кодирует/декодирует разные форматы, например toASCII кодирует
+  доменные имена на разных языках в латиницу (в кодировку ASCII):
+  punycode.toASCII('mañana.com') → 'xn--maana-pta.com'</span>
+  import { toASCII } from 'punycode'
+        </pre></article><article class="section-info"><pre>
+  <b>Данные передаются по сети в формате строки! Поэтому для обработки ее нужно распарсить</b>
+
+  <b>некоторые методы запроса:</b>
+
+<b>GET</b>      - для скачивания содержимого ресурса по url
+<b>HEAD</b>     - запрашивает ресурс как и GET, но без тела ответа
+<b>POST</b>     - для отправки сущностей к определённому ресурсу
+<b>PUT</b>      - для полного обновления ресурса
+<b>DELETE</b>   - для удаления ресурса
+<b>PATCH</b>    - для частичного изменения ресурса
+
+
+  Если мы отправляем форму, то это POST запрос; обычно с методом POST принимаются
+дополнительные параметры, так называемый <b>body (тело запроса)</b>, то есть то с
+чем отправляется запрос. body должно быть JSON строкой
+
+  Для сетевых запросов из JS есть широко известный термин <b>AJAX</b> - подход, позволяющий
+отправлять сетевые запросы и получать ответы в фоновом режиме (без перезагрузки страницы
+браузером) для обновления интерфейса
+
+  <b>Еndpoint</b> — url-адрес, на который мы шлем запрос на сервер, например для
+авторизации (то есть это интерфейс сервера)
+        </pre></article><article class="section-info"><pre>
+  <b>XMLHttpRequest</b> – это встроенный в браузер объект, который даёт возможность
+делать HTTP-запросы к серверу без перезагрузки страницы
+
+
+                <b>3 шага чтобы сделать запрос:</b>
+
+1. создать XMLHttpRequest:    const xhr = new XMLHttpRequest(); <span>у конструктора нет аргументов</span>
+
+2. инициализировать его:      xhr.open(method, URL, [async, user, password])
+<span>async           – если указать false, тогда запрос будет выполнен синхронно
+user, password  – логин и пароль для базовой HTTP-авторизации (если требуется)</span>
+
+3. Послать запрос:            xhr.send([body])
+<span>Некоторые типы запросов, такие как GET, не имеют тела. А некоторые,
+как, например, POST, используют body, чтобы отправлять данные на сервер</span>
+
+
+  наиболее используемых <b>события на xhr</b>:
+load      – происходит, когда получен ответ, включая ответы с HTTP-ошибкой, например 404
+error     – когда запрос не может быть выполнен, например, нет соединения или невалидный URL
+progress  – происходит периодически во время загрузки ответа, сообщает о прогрессе
+
+  после ответа сервера мы можем получить <b>результат запроса в следующих свойствах xhr</b>:
+status      - код состояния (200, 404, 403...)
+statusText  - сообщение о состоянии ответа HTTP: обычно 'OK' для 200, 'Not Found' для 404
+response    - тело ответа сервера
+
+  можно использовать свойство <b>xhr.responseType, чтобы указать ожидаемый тип ответа:</b>
+'' (по умолчанию)    – строка
+'text'               – строка
+'arraybuffer'        – ArrayBuffer (для бинарных данных)
+'blob'               – Blob (для бинарных данных)
+'document'           – XML-документ (может использовать XPath и другие XML-методы)
+'json'               – JSON (чтобы ответ был в виде распаршеного json)
+
+  у XMLHttpRequest есть <b>состояния, которые меняются по мере выполнения запроса;</b>
+текущее состояние можно посмотреть в свойстве xhr.readyState (старое); список всех состояний:
+UNSENT = 0;              исходное состояние
+OPENED = 1;              вызван метод open
+HEADERS_RECEIVED = 2;    получены заголовки ответа
+LOADING = 3;             ответ в процессе передачи (данные частично получены)
+DONE = 4;                запрос завершён
+
+
+  XMLHttpRequest умеет как указывать свои <b>заголовки</b> в запросе,
+так и читать присланные в ответ. Для работы с HTTP-заголовками есть 3 метода:
+setRequestHeader(name, value)  ( xhr.setRequestHeader('Content-Type', 'application/json') )
+getResponseHeader(name)        ( xhr.getResponseHeader('Content-Type') )
+getAllResponseHeaders()        возвращает все заголовки ответа, кроме Set-Cookie и Set-Cookie2;
+                               в виде единой строки
+
+
+        </pre><pre>
+
+<b class="center">пример XMLHttpRequest</b>
+<code class="language-js">
+const requestURL = 'https://jsonplaceholder.typicode.com/users'
+
+function sendRequest(method, url, body = null) {
+  return new Promise( (resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, url)
+    // указываем, что отправляем данные в формате json (по дефолту стоит text/plain)
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    xhr.send( JSON.stringify(body) ) // для GET без аргумента!
+    xhr.responseType = 'json' // чтобы ответ был в виде распарсеного json
+    xhr.onload = () => {
+      if (xhr.status >= 400) { // если статус-код > 400 (ошибка)
+        reject(xhr.response)
+      } else {
+        resolve(xhr.response)
+      }
+    }
+    xhr.onerror = () => {
+      console.log('нет соединения или невалидный URL')
+    }
+  })
+}
+
+sendRequest('GET', requestURL)
+  .then(data => console.log(data))
+  .catch(err => console.log(err))
+
+const body = {
+  name: 'anton',
+  age: 27
+}
+// во вкладке network видно как статус становится 201 - created (создание чего-то)
+sendRequest('POST', requestURL, body)
+  .then(data => console.log(data))
+  .catch(err => console.log(err))
+        </code>
+        </pre></article><article class="section-info"><pre>
+  <b>fetch</b> – современный метод для сетевых запросов и получения информации от сервера
+
+  типичный <b>запрос с помощью fetch</b> состоит из двух операторов await:
+
+<b>const response = await fetch(url, options)</b>   <span>завершается с заголовками ответа</span>
+<b>const result = await response.json()</b>         <span>читать тело ответа в формате JSON</span>
+
+  или:
+
+  fetch(url, options)
+    .then(response => response.json())
+    .then(result => console.log(result))
+
+* без options это простой GET-запрос, скачивающий содержимое по адресу url
+
+
+    <b>процесс получения ответа обычно происходит в два этапа:</b>
+
+1. promise выполняется с объектом встроенного класса Response в качестве
+   результата, как только сервер пришлёт заголовки ответа.
+    На этом этапе можно проверить статус HTTP-запроса и определить,
+   выполнился ли он успешно, а также посмотреть заголовки, но пока без
+   тела ответа. Можно увидеть HTTP-статус в свойствах ответа:
+<b>response.status</b>  - код статуса HTTP-запроса
+<b>response.ok</b>      – будет true, если код HTTP-статуса в диапазоне 200-299
+
+2. для получения тела ответа нам нужно использовать дополнительный вызов
+   метода. Response предоставляет несколько <b>методов (возвращающих промисы)
+   для доступа к телу ответа в различных форматах:</b>
+<b>response.text()</b>        – читает ответ и возвращает как обычный текст
+<b>response.json()</b>        – декодирует ответ в формате JSON
+<b>response.formData()</b>    – возвращает ответ как объект FormData
+<b>response.blob()</b>        – возвращает объект как Blob (бинарные данные с типом)
+<b>response.arrayBuffer()</b> – возвращает ответ как ArrayBuffer (низкоуровневое
+                                представление бинарных данных)
+<b>response.body</b>          – это объект ReadableStream («поток для чтения»), с
+                                помощью которого можно считывать тело запроса по частям
+
+
+  <b>заголовки ответа</b> хранятся в похожем на Map объекте <b>response.headers</b>. Это не
+совсем Map, но мы можем использовать такие же методы, как с Map, чтобы получить
+заголовок по его имени или перебрать заголовки в цикле:
+const url = 'https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits';
+const response = await fetch(url)
+  <span>получить один заголовок</span>
+alert(response.headers.get('Content-Type'))   // application/json; charset=utf-8
+  <span>перебрать все заголовки</span>
+for (let [key, value] of response.headers) {
+  alert(`${key} = ${value}`)
+}
+
+
+  <b>для отправки POST запроса</b> в fetch нужно указывать
+дополнительные параметры (метод, body, заголовки), например:
+let user = {
+  name: 'John',
+  surname: 'Smith'
+}
+let response = await fetch('/article/fetch/post/user', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(user)
+})
+let result = await response.json()
+alert(result.message)
+        </pre><pre>
+
+<b class="center">пример fetch (GET)</b>
+<code class="language-js">
+const requestFetchURL = 'https://jsonplaceholder.typicode.com/todos'
+
+async function sendFetchGET(url) {
+  try {
+    let response = await fetch(url)
+    if (response.ok) {  // если HTTP-статус в диапазоне 200-299
+      // получаем тело ответа (await возвращает результат промиса; json() возвращает промис)
+      let json = await response.json()
+      console.log(json)
+    } else {
+      // попадем сюда, если напимер запрос на 'https://jsonplaceholder.typicode.com/todosqqq'
+      console.error(`Ошибка HTTP: статус ${response.status}`)
+    }
+  }
+  catch(err) {
+    // если например мы обратились к несуществующей странице
+    // 'https://jsonplaceholder.typicode.com/todosqqq' на сервере
+    // (404 ошибка) и response.ok == false, то мы сюда не попадем
+    console.error(`ошибка при запросе, возможно не дошел до сервера`)
+  }
+}
+sendFetchGET(requestFetchURL)
+        </code>
+        </pre><pre>
+
+<b class="center">пример fetch (POST)</b>
+<code class="language-js">
+const requestFetchURL_POST = 'https://jsonplaceholder.typicode.com/albums'
+
+function sendFetchPOST(method, url, body = null) {
+  // т.к. тело запроса body – строка, то заголовок Content-Type по умолчанию будет text/plain
+  const headers = {
+    'Content-Type': 'application/json'
+  }
+  return fetch(url, {
+    method: method,
+    body: JSON.stringify(body),
+    headers: headers
+  })
+    .then( response => {
+      if (response.ok) {
+        return response.json()
+      }
+      // если код HTTP-статуса не в диапазоне 200-299
+      return response.json().then( error => {
+        const e = new Error(`Что то пошло не так...  ошибка ${response.status}`)
+        e.data = error
+        throw e
+      })
+    })
+}
+
+const body = {
+  name: 'Vladilen',
+  age: 26
+}
+sendFetchPOST('POST', requestFetchURL_POST, body)
+  .then(data => console.log(data))
+  .catch(err => console.log(err))
+        </code>
+        </pre></article><ul class="section-refs"><li><a href="http://xn--80adth0aefm3i.xn--j1amh/fetch" target="_blank">fetch</a></li></ul></div></section><!--FormData--><section class="section" id="formData"><div class="section-container"><h2 class="section-title">FormData</h2><article class="section-info"><pre>
+  <b>FormData</b> - это объект, представляющий данные HTML формы. Если передать в конструктор
+элемент HTML-формы form, то создаваемый объект автоматически прочитает из неё поля
+
+const formData = new FormData([form])
+
+  Методы для работы с сетью, например fetch, позволяют указать объект FormData в свойстве
+тела запроса body. Он будет соответствующим образом закодирован и отправлен с заголовком
+<b>Content-Type: form/multipart</b>. То есть, для сервера это выглядит как обычная отправка формы.
+
+
+  <b>методы для изменения полей в объекте FormData:</b>
+
+<b>formData.append(name, value)</b>          – добавляет к объекту поле с именем name и значением value
+<b>formData.append(name, blob, fileName)</b> – добавляет поле, как будто в форме имеется элемент
+                                        &lt;input type="file">, третий аргумент fileName
+                                        устанавливает имя файла, как будто это имя из файловой
+                                        системы пользователя
+<b>formData.delete(name)</b>                 – удаляет поле с заданным именем name
+<b>formData.get(name)</b>                    – получает значение поля с именем name
+<b>formData.has(name)</b>                    – если существует поле с именем name, то возвращает true
+
+  set удаляет все уже имеющиеся поля с именем name и только затем
+добавляет новое. То есть этот метод гарантирует, что будет существовать
+только одно поле с именем name, в остальном он аналогичен .append:
+<b>formData.set(name, value)</b>
+<b>formData.set(name, blob, fileName)</b>
+
+  Поля объекта formData можно перебирать, используя цикл for..of:
+for (let [name, value] of formData)
+        </pre><pre>
+
+  <b>пример:</b>
+          <code class="language-js">
+&lt;form id='formElem'>
+  &lt;input type='text' name='firstName' value='John'>
+  &lt;input type='file' name='picture' accept='image/*'>
+  &lt;input type='submit'>
+&lt;/form>
+
+formElem.onsubmit = async (e) => {
+  e.preventDefault()
+  const response = await fetch('/article/formdata/post/user-avatar', {
+    method: 'POST',
+    body: new FormData(formElem)
+  })
+  const result = await response.json()
+  alert(result.message)
+}
+          </code>
+        </pre></article></div></section><!--generator--><section class="section" id="generator"><div class="section-container"><h2 class="section-title">generator</h2><article class="section-info"><pre>
+  Обычные функции возвращают только одно-единственное значение (или ничего).
+Генераторы могут порождать (yield) множество значений одно за другим, по мере необходимости.
+  Генераторы отлично работают с перебираемыми объектами и позволяют легко создавать потоки данных.
+
+  Для объявления генератора используется специальная синтаксическая конструкция,
+которая называется <b>функция-генератор</b>:
+
+function* generateSequence() {
+  yield 1
+  yield 2
+  return 3
+}
+
+  Когда такая функция вызвана, она не выполняет свой код. Вместо этого она <b>возвращает
+специальный объект «генератор»</b>. Основным методом генератора является <b>.next()</b>.
+  При вызове он запускает выполнение кода до ближайшей инструкции <b>yield &lt;значение></b>.
+По достижении yield выполнение функции приостанавливается, а соответствующее значение
+возвращается во внешний код.
+  <b>Результатом метода next() всегда является объект с двумя свойствами:</b>
+- value: значение из yield
+- done: true, если выполнение функции завершено, иначе false
+        </pre><pre>
+          <code class="language-js">
+function* generateSequence() { // функция-генератор
+  yield 1
+  yield 2
+  return 3
+}
+
+// функция-генератор создаёт объект генератор
+let generator = generateSequence()
+
+let one = generator.next()
+alert(JSON.stringify(one)) // {value: 1, done: false}
+
+let two = generator.next()
+alert(JSON.stringify(two)) // {value: 2, done: false}
+
+let three = generator.next()
+alert(JSON.stringify(three)) // {value: 3, done: true}
+          </code>
+        </pre><pre>
+
+
+  <b>Генераторы являются перебираемыми объектами</b>: встроенный метод [Symbol.iterator]()
+возвращает объект-итератор с методом next().
+  Возвращаемые ими значения можно перебирать в цикле for..of, а так же использовать
+оператор расширения: let sequence = [...gen()]
+        </pre><pre>
+          <code class="language-js">
+function* generateSequence() {
+  yield 1
+  yield 2
+  return 3
+}
+let generator = generateSequence()
+
+for (let value of generator) {
+  // если мы хотим, чтобы были все значения при переборе
+  // через for..of, то надо возвращать их через yield
+  alert(value) // 1, затем 2; for..of игнорирует последнее значение, при котором done: true
+}
+
+
+
+function* generateSequence2() {
+  yield 1
+  yield 2
+  yield 3
+}
+let sequence2 = [0, ...generateSequence2()]
+alert(sequence2) // 0, 1, 2, 3
+          </code>
+        </pre></article><ul class="section-refs"><li><a href="https://learn.javascript.ru/generators" target="_blank">Generators</a></li></ul></div></section><!--Proxy & Reflect--><section class="section" id="proxy&reflect"><div class="section-container"><h2 class="section-title">Proxy & Reflect</h2><article class="section-info"><pre>
+  Объект Proxy «оборачивается» вокруг другого объекта (или класса / ф-ии...) и
+может перехватывать (и, при желании, самостоятельно обрабатывать) разные действия
+с ним: чтение/запись свойств, вызов ф-ии...
+
+let proxy = new Proxy(target, {
+  <span>...ловушки</span>
+})
+
+- target               – объект, для которого нужно сделать прокси, может быть чем
+                         угодно, включая функции
+- handler (2 параметр) – конфигурация прокси: объект с «ловушками» («traps»): методами,
+                         которые перехватывают разные операции, например, ловушка get –
+                         для чтения свойства из target, ловушка set – для записи свойства
+                         в target, ловушка construct - для перехвата создания объекта
+                         классом и т.д.
+
+* Если нет ловушек, то все операции на proxy применяются к оригинальному объекту target.
+
+  Мы также можем оборачивать один и тот же объект много раз в разные прокси, добавляя ему
+различные аспекты функциональности.
+
+  Обычно после создания прокси его используют везде вместо оригинального объекта target
+
+
+
+  <b>Reflect API</b> создано как дополнение к Proxy. Для любой ловушки из Proxy
+существует метод в Reflect с теми же аргументами. Нам следует использовать его,
+если нужно перенаправить вызов на оригинальный объект
+        </pre></article><ul class="section-refs"><li><a href="https://learn.javascript.ru/proxy" target="_blank">Proxy и Reflect</a></li></ul></div></section></main><script src="https://unpkg.com/scrollnav@3.0.1/dist/scrollnav.min.umd.js"></script><script src="index.js"></script></body></html>
