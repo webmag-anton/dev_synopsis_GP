@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1user-scalable=no"><title>HTML</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="html"><main class="sections-wrapper"><!-- basis --><section class="section" id="basis"><div class="section-container"><h2 class="section-title">basis</h2><article class="section-info"><pre>
           <code class="language-html">
-&lt;!DOCTYPE html&gt; &lt;!-- что бы браузер понимал, что используется именно HTML 5 --&gt;
+&lt;!DOCTYPE html&gt;   &lt;!-- что бы браузер понимал, что используется именно HTML 5 --&gt;
 &lt;html lang='en'&gt;
 &lt;head&gt;
   &lt;meta charset='UTF-8'&gt;   &lt;!-- Кодировка в документе --&gt;
-  &lt;meta http-equiv='X-UA-Compatible' content='IE=edge'&gt;  &lt;!-- Use latest ver (edge) of IE --&gt;
+  &lt;meta http-equiv='X-UA-Compatible' content='IE=edge'&gt;  &lt;!-- Use latest ver of IE (edge) --&gt;
   &lt;!-- For mobile devices. Если у сайта есть респонсив дизайн, то чтобы на устройстве
   корректно происходило перестроение нужен этот meta-тег. Если респонсив дизайна нет,
   то этот тег не нужен.  user-scalable=no (обычно не ставят) - запрещает зумить страницу --&gt;
@@ -43,7 +43,15 @@
   &lt;aside>               - сайдбар сайта
 
           </code>
-        </pre></article><ul class="section-refs"><li><a href="https://github.com/Konfuze/HEAD" target="_blank">документация по всему в &lt;head&gt</a></li><li><a href="https://frontend-stuff.com/blog/meta-tags/" target="_blank">основные мета-теги для социальных сетей</a></li></ul></div></section><!--Images--><section class="section" id="images"><div class="section-container"><h2 class="section-title">images</h2><article class="section-info"><b>responsive image</b><pre>
+        </pre></article><ul class="section-refs"><li><a href="https://github.com/Konfuze/HEAD" target="_blank">документация по всему в &lt;head&gt</a></li><li><a href="https://frontend-stuff.com/blog/meta-tags/" target="_blank">основные мета-теги для социальных сетей</a></li></ul></div></section><!--Images--><section class="section" id="images"><div class="section-container"><h2 class="section-title">images</h2><article class="section-info"><b>lazyloading</b><pre>
+          <code>
+- подключаем lazyload.js
+- инициализируем по определенному классу изображений (например .lazyload)
+- картинкам указываем data-original с путями к оригиналам и в src - заглушку
+  (лучше кодированую в base64 - https://webdesign-master.ru/services/lazy/).
+  Картинкам нужно указать width/height, что бы не прыгали при отрисовке.
+          </code>
+        </pre></article><article class="section-info"><b>responsive image</b><pre>
           <code class="language-html">
 &lt;picture&gt;
   &lt;source media='(min-width: 1024px)' srcset='images/600x600.webp' type='image/webp'&gt;
@@ -96,4 +104,4 @@
 &lt;img src='data:image/png;base64,iVB...'/>
 или
 background: '#000 url(\'data:image/svg+xml;base64,PD94bWwgd...\') no-repeat 8px center/16px 16px';
-        </pre></article><ul class="section-refs"><li><a href="https://habr.com/ru/post/488516/" target="_blank">Все про iframe</a></li></ul></div></section></main><script src="https://unpkg.com/scrollnav@3.0.1/dist/scrollnav.min.umd.js"></script><script src="index.js"></script></body></html>
+        </pre></article><ul class="section-refs"><li><a href="https://habr.com/ru/post/488516/" target="_blank">Все про iframe</a></li></ul></div></section></main><script src="index.js"></script></body></html>
