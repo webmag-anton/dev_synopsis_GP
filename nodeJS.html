@@ -426,7 +426,7 @@ console.log('система включена: ', os.uptime())        // сист
 На ответ сравнивать данные от пользователя и полученные и по результату сделать еще один
 обработчик, который либо даст войти либо отправит на страницу с ошибкой
 
-<img src="./images/nodeJS/event_login.jpg" alt="event_login">
+<img src="images/nodeJS/event_login.jpg" alt="event_login">
         </pre><pre>
           <code class="language-js">
 // класс EventEmitter получаем из встроеного модуля events
@@ -489,7 +489,7 @@ dis.dispatch('myevent',  {1: 'name'})
 
                                   <b>server's response status codes:</b>
 
-<img src="./images/nodeJS/response_status-codes.jpg" alt="response_status-codes" style="width: 60%; margin: 0 auto">
+<img src="images/nodeJS/response_status-codes.jpg" alt="response_status-codes" style="width: 60%; margin: 0 auto">
         </pre><pre>
           <code class="language-js">
 const http = require('http')
@@ -644,7 +644,7 @@ youTube видео начинает воспроизводиться еще до
 стримы, которые считывают файл по кусочкам (буферам) и уже отправлять их по сети (прочитали
 кусок и сразу отправили, прочитали следующий и отправили его и т.д.)
 
-<img src="./images/nodeJS/buffer_stream.jpg" alt="buffer_stream">
+<img src="images/nodeJS/buffer_stream.jpg" alt="buffer_stream">
 
                               <b>В nodeJS есть 4 основных типа потоков:</b>
 - readable (читающий поток)
@@ -716,7 +716,7 @@ readStream
   Поэтому на сервере мы используем middleware 'view engine', в котором определяем тип
 шаблонизатора.
 
-<img src="./images/nodeJS/ejs.jpg" alt="ejs">
+<img src="images/nodeJS/ejs.jpg" alt="ejs">
 
 
                                     <b>middleware</b>
@@ -985,7 +985,7 @@ module.exports = Post
   где <b>обработчики роутов (getPost, ...), вынесем в /controllers
       (бизнес логика по возврату нужного шаблона пользователю)</b>
 
-<img src="./images/nodeJS/MVC.jpg" alt="MVC">
+<img src="images/nodeJS/MVC.jpg" alt="MVC">
         </pre></article><article class="section-info"><b>new REST API for React</b><pre>
 
   Сейчас наш сервер отдает шаблоны (html-документы) при взаимодействии с REST API.
@@ -1095,7 +1095,7 @@ app.use(postApiRoutes)
     const Post = mongoose.model('Post', postSchema)  // 'Post' - имя модели
     module.exports = Post
 
-<img src="./images/nodeJS/mongoDB_mongoose.jpg" alt="mongoDB_mongoose">
+<img src="images/nodeJS/mongoDB_mongoose.jpg" alt="mongoDB_mongoose">
 12. используем модель Post на сервере в REST API методе добавления поста:
 
     app.post('/add-post', (req, res) => {
