@@ -1,0 +1,570 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1user-scalable=no"><title>Testing</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="testing"><main class="sections-wrapper"><!-- basis --><section class="section" id="basis"><div class="section-container"><h2 class="section-title">basis</h2><article class="section-info"><pre>
+  Цель тестирования не в том, чтобы проверить как работает компонент или функция, а в том
+что бы описать сценарий работы. И если через какое то время я или кто то другой нарушит
+этот сценарий, изменив код, тест об этом сообщит.
+  Conclusion: <b>цель тестирования</b> - проверка соответствия ПО предъявляемым требованиям.
+
+
+                                <b>тестирование делится на 2 группы:</b>
+
+- функциональное (тестирует функциональность): модульное (unit), интеграционное, end-to-end
+- нефункциональное: нагрузочное тестирование, тестирование безопасности, регресионное и т.д.
+
+
+<b>unit тестирование</b> - это тестирование отдельных независимых маленьких
+                    кусочков системы: функции, методы класса, компонент с UI
+
+<b>скриншотное тестирование</b> - тестирование, основаное на сравнении автоматически
+                           сделаных скриншотов и получении согласия что изменения верны
+
+<b>интеграционное тестирование</b> - это когда мы что то тестируем в связке: взаимосвязаных
+                              функций, классов, компонентов между собой, компонента
+                              с redux и т.д.
+
+<b>end-to-end тестирование</b> - это когда мы на реальных данных с реальным backEnd в
+                          реальном браузере пишем тест, который сам нажимает на кнопки,
+                          сам отправляет какие то данные.
+                            С помощью e2e тестов проверяется ключевая функциональность:
+                          авторизация, регистрация, удаление пользователя, оплата и т.п.
+                            В отличае от интеграционных тестов, мы не мокаем то, что
+                          возвращает сервер, а реально открываем браузер, тыкаем на кнопки,
+                          получаем реальные данные от сервера и описываем наши ожидания
+
+<b>регресионное тестирование</b> - это когда мы проверяем не новый функционал,
+                            а убеждаемся в том, что не сломали старый
+
+
+
+                                      <b>пирамида тестирования:</b>
+
+  Пирамидой она является потому, что unit тестов должно быть максимально много, а end-to-end
+тестов максимально мало.
+* скриншотные тесты относятся только к JS
+
+<img src="./images/testing/testing_pyramid.jpg" alt="testing_pyramid">
+
+  <b>тест кейсы должны быть такими:</b>
+1. на серединный положительный результат (среднее положительное значение)
+2. на пограничный положительный результат
+2. на невалидные данные
+        </pre></article><article class="section-info"><b>mock vs stub</b><pre>
+<b>Mock (имитация)</b> — объект, который заменяет реальный объект в условиях теста
+                  и позволяет проверять вызовы своих методов. Содержат заранее
+                  подготовленные описания вызовов, которые они ожидают получить.
+                  Применяются в основном для тестирования поведения пользователя.
+
+
+<b>Stub (заглушка)</b> — функция, не выполняющая никакого осмысленного действия,
+                  возвращающая заранее определенное значения или входные данные в
+                  неизменном виде. Заглушки предоставляют готовые ответы на вызовы,
+                  сделанные во время теста.
+
+
+  Mock проверяет, что какой-то код выполнился определенным образом. Это может быть
+вызов функции, HTTP-запрос и тому подобное. Задача мока убедиться в том, что это
+произошло, и в том, как конкретно это произошло, например, что в функцию были переданы
+конкретные данные.
+
+  Иногда термины stubs и mock путают: разница в том, что стаб ничего не проверяет,
+а лишь имитирует заданное состояние. А мок — это объект, у которого есть ожидания.
+Например, что данный метод класса должен быть вызван определенное число раз. Иными
+словами, ваш тест никогда не сломается из-за «стаба», а вот из-за мока может.
+  Лучше использовать не более одного мока на тест. Иначе с высокой вероятностью вы
+нарушите принцип «тестировать только одну вещь». При этом, в одном тесте может быть
+сколько угодно стабов.
+
+
+  Так же есть твкие виды тестовых двойников: <b>Dummy (пустышка), Fake (поддельный), Spies (шпион)</b>
+        </pre></article></div></section><!-- jest --><section class="section" id="jest"><div class="section-container"><h2 class="section-title">jest</h2><article class="section-info"><pre>
+  Jest — это фреймворк для тестирования JavaScript.
+
+<b>npm i -D jest</b>
+
+файлы с тестами должны иметь расширение .test.[tj]s?(x)
+
+
+<b>команды jest:</b>
+
+- запуск всех тест-файлов:                    'jest'
+- запуск конкретного файла с тестами:         'jest [path/testFile.test.js]'
+- запуск конкретного файла, даже если
+  в package.json "test": "jest":              'npm run test [testFileWithoutPath.test.js]'
+        </pre></article><article class="section-info"><b>unit тесты</b><pre>
+          <code class="language-js">
+                                     validateValue.js
+
+const validateValue = (value) => {
+  if (value &lt; 0 || value > 100) {
+    return false
+  }
+  return true
+}
+
+// т.к. это не react проект и мы не используем JS modules (import/export),
+// то экспортируем с помощью nodeJS системы CommonJS (require/exports)
+module.exports = validateValue
+
+
+
+                                   validateValue.test.js
+
+const validationValue = require('./validateValue')
+
+// тестируем методом тест у Jest. 1 аргумент - название теста, 2 - callback
+test('validate Value', () => {
+  // передаем в expect результат вычислений и после того как expect отработал
+  // можем вызвать методы (чему то равен, больше чем что то...) для проверки
+  // результата, например toBe (для toBe разные объеты с одинаковыми полями
+  // не равны, а для toEqual равны)
+  expect(validationValue(50)).toBe(true)
+})
+
+// если нужно описать несколько тест кейсов - заворачиваем все тесты в describe.
+// 1 аргумент - название тест кейса, 2 - callback с разными тестами
+describe('validateValue', () => {
+  test('корректное значение', () => {
+    expect(validationValue(50)).toBe(true)
+  })
+  test('меньше корректного', () => {
+    expect(validationValue(-1)).toBe(false)
+  })
+  test('больше корректного', () => {
+    expect(validationValue(101)).toBe(false)
+  })
+  test('пограничное значение снизу', () => {
+    expect(validationValue(0)).toBe(true)
+  })
+  test('пограничное значение сверху', () => {
+    expect(validationValue(100)).toBe(true)
+  })
+})
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                                      mapArrToStrings.js
+
+const mapArrToStrings = (arr) => {
+  return arr
+    .filter(item => Number.isInteger(item))
+    .map(String)
+}
+
+module.exports = mapArrToStrings
+
+
+
+                                     mapArrToStrings.test.js
+
+const mapArrToStrings = require('./mapArrToStrings')
+
+describe('mapArrToStrings', () => {
+  test('Корректное значение', () => {
+    expect(mapArrToStrings([1, 2 ,3])).toEqual(['1', '2', '3'])
+  })
+  test('Мешанина', () => {
+    expect(mapArrToStrings([1, 2 ,3, null, undefined, 'asfasf'])).toEqual(['1', '2', '3'])
+  })
+  test('Пустой массив', () => {
+    expect(mapArrToStrings([])).toEqual([])
+  })
+  test('Отрицание', () => {
+    expect(mapArrToStrings([1,2,3])).not.toEqual([1,2,3,4])
+  })
+})
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                                      square.js
+
+const square = (number) => {
+  if(number === 1) {
+    return 1
+  }
+  return Math.pow(number, 2)
+}
+
+module.exports = square
+
+
+
+
+                                    square.test.js
+
+const square = require('./square')
+
+describe('square', () => {
+  let mockValue
+
+  // что то сделать перед запуском каждого тест кейса
+  // (например добавляем пользователя с определенным id в DB, а в afterEach удалим)
+  beforeEach(() => { mockValue = Math.random() })
+  beforeAll(() => {}) // что то сделать один раз перед запуском всех тест кейсов
+
+  test('Корректное значение', () => {
+    // expect(square(2)).toBe(4)
+    // expect(square(2)).toBeLessThan(5)
+    // expect(square(2)).toBeGreaterThan(3)
+    // expect(square(2)).not.toBeUndefined()
+
+    const spyMathPow = jest.spyOn(Math, 'pow') // мокаем метод pow у Math (следим за ним)
+    square(2) // вызываем
+    expect(spyMathPow).toBeCalledTimes(1) // ожидаем что был 1 вызов pow
+  })
+
+  test('Корректное значение', () => {
+    const spyMathPow = jest.spyOn(Math, 'pow')
+    square(1)
+    expect(spyMathPow).toBeCalledTimes(0)
+  })
+
+  // что бы 2й тест кейс не упал нужно очистить моки после каждого
+  // теста, т.к. при 2ом тесте накопится один вызов square из 1го тест кейса
+  afterEach(() => { jest.clearAllMocks() })
+
+  afterAll(() => {})
+})
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                                      delay.js
+
+const delay = (callback, ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(callback())
+    }, ms)
+  })
+}
+
+module.exports = delay
+
+
+
+
+                                    delay.test.js  // тест простой асинхронной функции
+
+const delay = require('./delay')
+
+describe('delay',  () => {
+  test('Корректное значение', async () => {
+    const sum = await delay(() => 5 + 5, 1000)
+    expect(sum).toBe(10)
+  })
+})
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                                      getData.js
+
+const axios = require('axios')
+const mapArrToStrings = require('../mapArrToStrings/mapArrToStrings')
+
+const getData = async () => {
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/users')
+    const userIds = response.data.map(user => user.id)
+    return userIds
+  } catch (e) {
+
+  }
+}
+
+module.exports = getData
+
+
+
+
+                                    getData.test.js  // тест axios
+
+const getData = require('./getData')
+const axios = require('axios')
+
+// * все модули (в т.ч. сторонние) мокаем методом jest.mock !
+jest.mock('axios')
+
+describe('getData', () => {
+  let response
+  beforeEach(() => {
+    // схема того что должен вернуть бэкэнд (для примера 2 объекта)
+    response = {
+      data: [
+        {
+          'id': 1,
+          'name': 'Leanne Graham',
+          'username': 'Bret',
+          'website': 'hildegard.org',
+          'company': {
+            'name': 'Romaguera-Crona'
+          }
+        },
+        {
+          'id': 2,
+          'name': 'Ervin Howell',
+          'username': 'Antonette',
+          'website': 'anastasia.net',
+          'company': {
+            'name': 'Deckow-Crist'
+          }
+        }
+      ]
+    }
+  })
+  test('Корректное значение', async () => {
+    // далее согласовываем эту схему с методом get у axios.
+    // Говорим что get должен возвращать response (схему): вызываем mockReturnValue у get
+    axios.get.mockReturnValue(response)
+    const data = await getData()
+    // ожидаем что axios.get вызовется 1 раз
+    expect(axios.get).toBeCalledTimes(1)
+    // ожидаем что наша ф-я getData() вернет массив ['1', '2']
+    expect(data).toEqual([1, 2])
+    // toMatchSnapshot создаст папку __snapshots__ c результатами вычислений getData(). И если
+    // функция поменяется разрабамим - тест упадет и в файле со snapshot'ами увидим изменения
+    expect(data).toMatchSnapshot()
+  })
+})
+
+          </code>
+        </pre></article></div></section><!-- react testing --><section class="section" id="react_testing"><div class="section-container"><h2 class="section-title">react: unit & integration</h2><article class="section-info"><pre>
+  create-react-app устанавливает библиотеки для тестирования и все настроено:
+подключен Jest, настроены @testing-library/react и @testing-library/user-event.
+
+  "test": "react-scripts test"   - прогоняет все тесты
+
+  в setupTests.js можно настроить конфигурацию для тестирования.
+
+        </pre><pre>
+          <code class="language-jsx">
+                                     src/App.js
+
+import {useEffect, useState} from 'react'
+import logo from './logo.svg'
+import './App.css'
+
+function App() {
+  const [data, setData] = useState(null)
+  const [toggle, setToggle] = useState(null)
+  const [value, setValue] = useState('')
+
+  const onClick = () => setToggle(prev => !prev)
+
+  useEffect(() => {
+    setTimeout(() => {
+      setData({})
+    }, 100)
+  }, [])
+
+  return (
+    &lt;div>
+      &lt;h1 data-testid='value-elem'>{value}&lt;/h1>
+      {toggle && &lt;div data-testid='toggle-elem'>toggle&lt;/div>}
+      {data && &lt;div>data&lt;/div>}
+
+      &lt;h1>Hello world&lt;/h1>
+      &lt;button data-testid='toggle-btn' onClick={onClick}>click&lt;/button>
+      &lt;input
+        type='text'
+        placeholder='input value...'
+        onChange={e => setValue(e.target.value)}
+      />
+    &lt;/div>
+  )
+}
+
+export default App
+
+
+
+
+                                   src/App.test.js
+
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import App from './App'
+
+                            // find vs get vs query
+
+// screen.[query...]   - должен найти какой то элемент иначе null
+// screen.[get...]     - должен найти какой то элемент иначе ошибка
+// screen.[find...]    - возвращает объект завернутый в Promise, т.е. для асинхронного кода
+
+describe('TEST APP', () => {
+  test('renders learn react link', () => {
+    render(&lt;App />) // в рендер передаем компонент для теста
+
+    const helloWorldElement = screen.getByText(/Hello world/i)
+    const btn = screen.getByRole('button')
+    const input = screen.getByPlaceholderText(/input value/i)
+    // проверяем что найденый по тексту элемент появился в DOM дереве
+    expect(helloWorldElement).toBeInTheDocument()
+    expect(btn).toBeInTheDocument()
+
+
+    // screen.debug()   // debug() возвращает разметку после рендера компонента
+
+    // снимаем snapshot у компонента: в __snapshots__ создастся App.test.js.snap
+    // со снимком компонента => если input изменится запуск теста выдаст уведомление.
+    // можно будет кнопкой в консоле обновить snapshot на новый, что бы сравнивать уже
+    // с ним при изменениях
+    expect(input).toMatchSnapshot()
+  })
+
+  test('renders learn react link', async () => {
+    render(&lt;App />)
+    // findByText возвращает Promise
+    const helloWorldElement = await screen.findByText(/data/i)
+    expect(helloWorldElement).toBeInTheDocument()
+  })
+
+  // fireEvent - искуственное событие.
+  // что бы эмулировать реальное событие пользователя, нужно использовать userEvent !
+  test('CLICK EVENT', () => {
+    render(&lt;App />)
+    // селектор для data-testid='toggle-btn'
+    const btn = screen.getByTestId('toggle-btn')
+    // queryByTestId т.к. изначально элемента data-testid='toggle-elem' нет => вернется null
+    expect(screen.queryByTestId('toggle-elem')).toBeNull() // ожидаем null
+    fireEvent.click(btn)
+    // после нажатия на кнопку ожидаем что появится data-testid='toggle-elem'
+    expect(screen.queryByTestId('toggle-elem')).toBeInTheDocument()
+  })
+
+  test('INPUT EVENT', () => {
+    render(&lt;App />)
+    const input = screen.getByPlaceholderText(/input value/i)
+    // ожидаем что изначально внутри h1 пустая строка
+    expect(screen.queryByTestId('value-elem')).toContainHTML('')
+
+    // 2й аргумент - опции: вводим строку '123123' в инпут
+    // fireEvent.input(input, {
+    //   target: {value: '123123'}
+    // })
+
+    userEvent.type(input, '123123') // аналогично fireEvent выше
+
+    expect(screen.queryByTestId('value-elem')).toContainHTML('123123')
+  })
+})
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                               src/components/users/Users.jsx
+
+import React, {useEffect, useState} from 'react'
+import axios from 'axios'
+import { Link } from 'react-router-dom'
+
+const Users = () => {
+  const [users, setUsers] = useState([])
+
+  const loadUsers = async () => {
+    const resp = await axios.get('https://jsonplaceholder.typicode.com/users')
+    setUsers(resp.data)
+  }
+
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
+  return (
+    &lt;div data-testid='users-page'>
+      {users.map(user =>
+        &lt;Link
+          to={`/users/${user.id}`}
+          key={user.id}
+          data-testid='user-item'
+        >
+          {user.name}
+      &lt;/Link>)
+      }
+    &lt;/div>
+  )
+}
+
+export default Users
+
+
+
+
+
+                            src/components/users/Users.test.jsx
+
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import axios from 'axios'
+import Users from './Users'
+
+jest.mock('axios')
+
+describe('USERS TEST', () => {
+  let response
+  beforeEach(() => {
+    response = {
+      data: [
+        {
+          'id': 1,
+          'name': 'Leanne Graham',
+        },
+        {
+          'id': 2,
+          'name': 'Ervin Howell',
+        },
+        {
+          'id': 3,
+          'name': 'Clementine Bauch',
+        },
+      ]
+    }
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  // по асинхронности все как в jest
+  test('renders learn react link', async() => {
+    // мокаем ответ сервера и далее ожидаем что отрисуется соответствующий список
+    axios.get.mockReturnValue(response)
+    render(&lt;Users />)
+    // findAll т.к. несколько элементов
+    const users = await screen.findAllByTestId('user-item')
+    expect(users.length).toBe(3)
+    expect(axios.get).toBeCalledTimes(1)
+    // можно сделать debug что бы убедиться что список пользователей появился в разметке
+    screen.debug()
+  })
+})
+          </code>
+        </pre></article></div></section><!-- E2E --><section class="section" id="E2E"><div class="section-container"><h2 class="section-title">react: E2E</h2><article class="section-info"><pre>
+  Для E2E тестов будем использовать framework WebdriverIO - framework для теста
+браузера и мобильных приложений.
+
+в корне проекта: <b>npm init wdio .</b>
+
+далее в консоле выбираем:
+
+local -> on my local machine (хотя часто E2E запускают
+на удаленном облачном сервере) -> выбираем фреймворк mocha ->
+-> No! (не будем использовать Babel или TS) ->
+-> Yes (autogenerate some test files) и прописываем путь ./tests/**/*.js ->
+-> Yes (use page objects) ->
+-> прописываем путь ./tests/pages/**/*.js (Where are your page objects located)
+-> spec -> wait for -> chromedriver -> оставляем localhost (What is the base url)
+-> Yes (Do you want me to run `npm install`)
+
+далее сгенерируется wdio.conf.js с настройками, в котором после
+baseUrl укажем порт:
+
+baseUrl: 'http://localhost',
+port: 3000,
+
+так же появилась папка tests/e2e (с тестами для примера) и
+tests/pages со страницами для теста
+
+для запуска теста: npx wdio run ./wdio.conf.js
+для упрощения запуска добавим скрипт в package.json:
+"test:e2e": "npx wdio run ./wdio.conf.js"
+
+подробнее про E2E тестирование можно посмотреть у Ulbi <a href="https://www.youtube.com/watch?v=y2emL1fMRyY" target="_blank">E2E</a>
+        </pre></article></div></section></main><script src="index.js"></script></body></html>
