@@ -1,0 +1,204 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Next.js</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="next_js"><main class="sections-wrapper"><!--basis--><section class="section" id="basis"><div class="section-container"><h2 class="section-title">Basis</h2><article class="section-info"><pre>
+                                    <b>SPA</b>
+
+  SPA - это веб-приложение или веб-сайт, который взаимодействует с браузером, динамически
+переписывая текущую веб-страницу новыми данными (json) с веб-сервера, вместо того, чтобы по
+умолчанию браузер загружал целые новые страницы (Multi Page Application).
+  Цель SPA - более быстрые переходы, которые делают сайт более похожим на нативное приложение.
+  SPA использует единственный HTML-документ как оболочку для всех веб-страниц и организует
+взаимодействие с пользователем через динамически подгружаемые HTML, CSS, JavaScript, обычно
+посредством AJAX подхода (в фоновом режиме - без перезагрузки).
+
+<b>минусы SPA:</b>
+- размер загружаемого js-бандла большой, т.к. он не разбит на части и по сути содержит
+  всю логику приложения
+- за все отвечает клиент (роутинг, запрос данных, их обрабртка...). Т.к. серверные
+  процессы частично перешли на клиент - получаем некоторое замедление
+- проблемы с SEO: страницы рендерятся динамически внутрь пустого корневого элемента
+  => для поисковых роботов эти страницы фактически пусты
+
+
+
+                                <b>SSR & SSG</b> (решает минусы SPA)
+
+<b>Next.js</b> - фреймворк от компании Vercel для SSR на React. По сути он
+          является оберткой для React приложения с механизмами SSR и SSG
+
+  Решение проблемы с SEO заключается в том, что пользователю возвращается html-файл,
+но не пустой (как в SPA), а с полной разметкой страницы (разметка генерируется на
+сервере с помощью Next.js).
+
+
+<b>Next.js позволяет использовать:</b>
+
+- SSR (Server Side Rendering)     - на каждый запрос сервером генерируется html-страница.
+                                      При необходимости сервер делает запрос и далее на
+                                    основании ответа генерирует html-страницу, которую
+                                    отдает на клиент (при SSG все по другому: запросы и
+                                    генерация страниц происходит на этапе сборки)
+- SSG (Static Site Generation)    - html-страницы со всеми данными создаются во время
+                                    сборки приложения на сервере, после чего они повторно
+                                    используются при каждом запросе.
+                                      При сборке приложения в папке финального проекта
+                                    будет много автоматически сгенерировных html-страниц
+
+
+  <b>Проблема SSG</b> в том, что SSG не подразумевает динамическую работу с сервером,
+т.е. вы не можете создать, например, корзину интернет-магазина при помощи SSG, т.к.
+отображаемая в корзине информация должна быть уникальна для каждого пользователя.
+  В таком случае мы можем применить только SSR или CSR. А статическая генерация
+сайтов удобна, например, для страницы "Доставка" или для карточки товара, т.е. для
+той информации, которая идентична для каждого пользователя.
+
+
+<b>плюсы Next.js:</b>
+- пре-рендеринг разметки (SSG) => часть нагрузки отрисовки переходит с
+  клиента на сервер
+- сервер отдает js частями (при запросе новой страницы отдает
+  js-чанк для этой страницы), а не весь js-bundle целеком, как в React
+- SSR и SSG улучшают SEO
+        </pre></article><article class="section-info"><b>установка / запуск / структура</b><pre>
+  с помощью create-next-app можно создать приложение
+  на next c настройками и базовой функциональностью:
+<b>npx create-next-app [appName]</b>
+
+файл next.config.js для конфигурации настроек при необходимости
+
+  запускаем приложение:
+<b>npm run dev</b>
+
+
+можно не импортировать 'react' в файлах
+
+
+                        <b>структура приложения на Next:</b>
+
+./styles                  - содержит стили, но их можно складывать в
+                            любом месте, например, в папке с компонентом
+./public                  - как и в React
+./pages                   - основная папка, содержащая страницы.
+                            index.js - домашняя страница. Все страницы
+                            приложения должны находиться в ./pages или
+                            во вложеных в ./pages папках
+./pages/_app.js           - корневой компонент, который оборачивает все
+                            страницы.
+                            Можно например в него добавить кастомный
+                            компонент Layout, добавляющий header и footer
+                            всем страницам
+./api                     - из коробки мы можем создавать свои несложные
+                            API и использовать их в проекте. Т.е. в ./api
+                            лежат js-файлы с API
+
+./components              - сами создаем. Содержит компоненты приложения
+        </pre></article><ul class="section-refs"><li><a href="https://the-evening-code.com/posts/server-side-rendering-vs-static-site-generators" target="_blank">CSR (Client Side Rendering - React) vs SSR vs SSG</a></li></ul></div></section><!-- routing --><section class="section" id="routing"><div class="section-container"><h2 class="section-title">Routing</h2><article class="section-info"><pre>
+  Все страницы (файлы из ./pages) автоматически создают уникальные роуты по имени страницы.
+Например, создание страницы ./pages/posts.js создаст роут localhost:3000/posts
+
+  Имена компонентов страниц могут быть любыми, для роутинга это не важно. Роутинг основывается
+на названии файла страницы и его иерархии в ./pages
+
+  Если путь должен состоять из нескольких элементов, например localhost:3000/contacts/contact,
+то просто создаем вложенную страницу ./pages/contacts/contact.js.
+  Т.к. в contacts есть вложенный роут contact, то для contacts (localhost:3000/contacts) нужно
+создать ./pages/contacts/index.js
+
+  По дефолту в Next есть страница ошибки 404.
+Для создания своей кастомной 404 страницы, нужно создать ./pages/404.js
+        </pre></article></div></section><!-- styles --><section class="section" id="styles"><div class="section-container"><h2 class="section-title">Styles</h2><article class="section-info"><pre>
+  Next поддерживает все варианты стилизации: обычные стили, модули, styled-components...
+
+  По дефолту Next в корне создает папку ./styles.
+  Файл ./styles/globals.css описывает глобальные стили (т.е. могут быть применены
+для всех компонентов). Эти глобальные стили подключаются в ./pages/_app.js.
+  Дефолтный файл Home.module.css реализует модульный css. Имя модуля может быть
+любое и импортировать его можно в любой компонент с любым именем. <b>Все как в React.</b>
+Например импортируем в ./pages/index.js:
+import styles from '../styles/Home.module.css'
+и далее применяем стили:
+&lt;div className={styles.wrapper}>
+
+  Стили могут находиться и в локальных папках компонентов и страниц.
+
+
+  Для подключения SASS: <b>npm i sass</b>
+        </pre></article></div></section><!-- navigation --><section class="section" id="navigation"><div class="section-container"><h2 class="section-title">Pages Navigation & Redirect</h2><article class="section-info"><pre>
+  <b>Для создания навигационной ссылки (навигация по страницам) нужен компонент Link:</b>
+import Link from 'next/link'
+
+c версии 13 в Next.js внутрь Link не нужно дополнительно вставлять &lt;a/>:
+
+&lt;div className={styles.links}>
+  {navigation.map(({ id, title, path }) => (
+    &lt;Link key={id} href={path} className={pathname === path ? styles.active : null}>
+      {title}
+    &lt;/Link>
+  ))}
+&lt;/div>
+
+
+до версии 13 было так (устарело):
+
+&lt;Link legacyBehavior key={id} href={path}>
+  &lt;a className={pathname === path ? styles.active : null}>{title}&lt;/a>
+&lt;/Link>
+
+
+
+<b>чтобы узнать текущую страницу используем useRouter:</b>
+import { useRouter } from 'next/router'
+
+const { pathname } = useRouter()           <span>pathname - путь текущей страницы</span>
+
+
+
+                                     <b>Redirect:</b>
+
+import { useRouter } from 'next/router'
+
+const router = useRouter()   <span>router.push для програмного роутинга</span>
+
+useEffect(() => {
+  setTimeout(() => {
+    router.push('/')    <span>автоматически редиректим на главную через 3сек после попадания на 404</span>
+  }, 3000);
+}, [router]);
+        </pre></article></div></section><!-- images_and_metadata --><section class="section" id="images_and_metadata"><div class="section-container"><h2 class="section-title">images and metadata</h2><article class="section-info"><pre>
+  <b>Для подключения картинок лучше использовать компонент &lt;Image></b>
+import Image from 'next/image'
+
+&lt;Image src='/logo.png' width={60} height={60} alt='webDev' />   <span>./public можно не указывать</span>
+
+<b>&lt;Image> служит для:</b>
+- оптимизации картинки
+- lazy loading'a
+- показа прелоадера
+- подгрузки оптимальной версии картинки для разных экранов (добавляет srcset)
+
+* <b>props placeholder='blur' у &lt;Image></b> запускает механизм отображения размытой
+  base-64 копии, пока не загрузится полная версия изображения (например
+  пока не доскролили до картинки), чтобы страница в момент отрисовки была
+  максимально оптимизирована
+
+
+
+
+
+  <b>На страницы можно добавить метаинфу (в тег &lt;Head>) для улучшения SEO</b>:
+import Head from 'next/head'
+
+export function Post({ post }) {
+  return (
+    &lt;>
+      &lt;Head>
+        &lt;title>Contact page&lt;/title>
+      &lt;/Head>
+      &lt;PostInfo post={post} />
+    &lt;/>
+  )
+}
+
+<b>шрифт естественно подключаем в общем для всех страниц месте: ./pages/_app.js</b>
+&lt;Head>
+  &lt;link href='https://fonts.googleapis.com/css2?family=...' rel='stylesheet' />
+&lt;/Head>
+        </pre></article></div></section></main><script src="index.js"></script></body></html>
