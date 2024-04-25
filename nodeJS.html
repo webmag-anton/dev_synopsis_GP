@@ -1,0 +1,1118 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>NodeJS</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="nodeJS"><main class="sections-wrapper"><!-- package versions --><section class="section" id="package_versions"><div class="section-container"><h2 class="section-title">package versions</h2><article class="section-info"><pre>
+        В качестве примера возьмём версию 7.12.4
+
+  Первая цифра означает мажорную версию проекта. Мажорная версия проекта - это стабильная,
+готовая к использованию версия проекта. Когда проект на стадии релиза (первого запуска),
+то проекту выставляется мажорная версия 1. Каждая последующая цифра означает что в проекте
+произошли глобальные изменения, изменившие как внешнее взаимодействие с проектом, так и
+внутреннюю реализацию. При этом новая версия не совместима с предыдущей.
+  Вторая цифра означает минорную версию проекта. Минорная версия - это когда в проекте
+меняется внутренняя реализация функционала, при этом внешнее взаимодействие осталось не
+изменённым или изменилось, но при этом сохранены все способы взаимодействия и не ломается
+совместимость с предыдущими проектами. Например, введение новой функции во взаимодействие
+с проектом.
+  Третья цифра означает патч-версию проекта. Патч-версия означает маленькие изменения или
+правку "багов" и ошибок текущей версии, которые не отражаются на функциональности проекта
+и взаимодействии с ним. Например, это может быть оптимизация кода или рефакторинг.
+  Таким образом версия 7.12.4 означает что проект 7 раз значительно изменялся, обрастая
+новым функционалом и меняя порядок взаимодействия с ним, 12 раз был улучшен и 4 раза был
+проведён рефакторинг.
+
+
+
+    <b>При ведении версий следует придерживаться общепризнанных правил:</b>
+1. Версии не могут быть отрицательными. Например, не следует использовать версию 1.-1.2.
+2. При изменении мажорной версии обнуляются минорная и патч версия проекта. При изменении
+минорной версии обнуляется патч версия. Например, с версии 1.2.1 мы может сделать версию
+2.0.0 или 1.2.0.
+3. Версии должны изменяться пошагово. Например, не допустимо после версии 1.1.1 создавать
+версию 1.1.3. Возможные версии следующие: 2.0.0, 1.2.0, 1.1.2.
+4. Только что созданный проект, находящийся в разработке следует помечать версией 0.1.0.
+
+
+
+                <b>Метки версий проекта (этапы разработки)</b>
+
+  К версии проекта можно добавлять постфиксы "alpha", "beta", "rc" или "release".
+Это обозначения этапов разработки. Например, если к версии 1.0.0 добавить метку "alpha",
+то получится 1.0.0-alpha, что будет означать что проект представляет собой уже готовую
+версию продукта, однако пока что находиться в альфа тестировании.
+
+pre-alpha — начальный этап разработки. Фичи сделаны, но еще не протестированы QA специалистом.
+            В них может содержаться большое количество багов.
+alpha     — внутреннне тестирование. На этом этапе приложение собирается и выкатывается на
+            development стенд, где QA мануальщик проверяет его работу.
+beta      — публичное тестирование. Условно стабильная сборка приложения, протестированная QA
+            специалистом. Сборка на этом этапы выкладывается на бета стенд для тестирования
+            реальными пользователями.
+rc        — (релиз кандидат) сборка прошедшая все этапы тестирования и теперь ожидающая
+            своего релиза.
+release   — стабильная версия приложения.
+
+
+
+
+                   <b>Обновления версий с префиксами</b>:
+
+  При установке пакетов ставятся или указанные версии или последние, если не указывать.
+При повторном запуске npm i не произойдет обновление существующих пакетов!
+  Для обновления нужно использовать: <b>npm up [-g] [&lt;packages>]</b>.
+  Если перед версией указан ~ или ^, то обновление будет происходить следующим образом:
+<b>~</b>    - will update you to all future patch versions, without incrementing
+       the minor version:  ~1.2.3 will use releases from 1.2.3 to &lt;1.3.0
+<b>^</b>    - will update you to all future minor/patch versions, without incrementing
+       the major version:  ^2.3.4 will use releases from 2.3.4 to &lt;3.0.0
+        </pre></article></div></section><!-- dependencies / npx --><section class="section" id="dependencies_npx"><div class="section-container"><h2 class="section-title">dependencies / npx</h2><article class="section-info"><pre>
+       <b>Основное различие между локальными и глобальными пакетами заключается в следующем:</b>
+- локальные пакеты устанавливаются в каталог, в котором мы запускаем npm i &lt;packages>, и
+  помещаются в node_modules в этом каталоге
+- все глобальные пакеты помещаются в одно место в нашей системе (место зависит от настроек),
+  независимо от того, где мы запускаем npm i -g &lt;package>.
+
+    Обновление глобального пакета заставит все проекты использовать новую версию, что может
+  привести к плохим последствиям, т.к. некоторые пакеты могут нарушить совместимость с другими
+  зависимостями и т.д.
+    Пакет должен быть установлен глобально, когда он предоставляет исполняемую команду,
+  запускаемую из оболочки (CLI), и он повторно используется в проектах (npm, create-react-server,
+  mocha, react-native-cli, nodemon...).
+    По дефолту глобальные пакеты загружаются по такому пути:
+  C:\Users\Anton\AppData\Roaming\npm\node_modules
+    Базовые глобальные пакеты: browser-sync, create-react-server, firebase-tools, gulp,
+  json-server, npm-check-updates, yarn, typescript...
+
+
+      Почему нам нужно установить gulp глобально и локально?
+При установке инструмента глобально он будет использоваться пользователем как утилита командной
+строки где угодно, в том числе вне проектов node. Глобальные установки для проекта node плохи,
+потому что они затрудняют развертывание.
+
+
+
+  В новой версии Node.js npm пакеты (локальные) нужно запускать с помощью <b>утилиты npx</b>.
+Например: npx webpack вместо webpack.
+  В поле scripts в package.json можно не писать npx.
+  npx сначало устанавливает модуль, если он не установлен, а затем он отрабатывает, после
+чего модуль удаляется. Например: npx create-react-server my-server  сначало установит модуль
+create-react-server, который потом создаст проект my-server, а потом create-react-server удалится
+
+
+
+  В папке node_modules у установленных пакетов обычно есть несколько зависимостей (вложенные
+пакеты), которые можно посмотреть в поле dependencies в package.json для каждого пакета.
+  Эти зависимости так же устанавливаются в node_modules. Получается цепочка зависимостей.
+
+<b>devDependencies</b> — пакеты, которые нужны для разработки. Всякие галпы и плагины
+                  к ним обычно подпадают в эту категорию
+<b>dependencies</b>    — пакеты, от которых ваш пакет зависит непосредственно: как
+                  правило это библиотеки
+
+<b>peerDependencies</b> — это особый тип зависимости, который может возникнуть только в
+том случае, если вы публикуете свой собственный пакет.
+  Проблема: на момент написания своего пакета вы используете последню версию какого то
+вспомогательного пакета в dependencies, например winston@0.5.11, необходимого для работы
+вашего пакета. Но, когда кто то устанавливает ваш созданый пакет и так же в проекте
+использует зависимость winston, но уже более новой версии, например winston@0.6.2, то
+получается дублирование пакета winston с 2мя версиями: @0.5.11 и @0.6.2.
+  Решение: наличие peerDependencies означает, что вашему пакету нужна такая же зависимость,
+как и человеку, устанавливающему ваш пакет.
+
+
+  В production версию продукта попадают не все модули, использующиеся при разработке.
+Модули из devDependencies не попадут в production (при npm run build), только модули из
+dependencies! Но это не касается webpack - в финальный bundle попадут все зависимости:
+  https://jsramblings.com/do-dependencies-devdependencies-matter-when-using-webpack
+  https://stackoverflow.com/questions/40143357/
+          do-you-put-babel-and-webpack-in-devdependencies-or-dependencies
+
+<b>Пока не импортировали в проект из node_modules установленный модуль, он в проект не попадает!</b>
+
+
+  <b>package-lock.json</b> служит для сохранения конкретных версий всех зависимостей,
+которые мы устанавливаем в проект (включая все вложенные). Это полезно, если, например,
+другой разработчик разворачивает мой проект, и вроде бы все то же самое, а проект не
+работает. А все потому что где то какая то вложенная зависимость установилась не в той
+версии и в ней что то поменялось
+        </pre></article></div></section><!-- node / npm commands --><section class="section" id="node_npm_commands"><div class="section-container"><h2 class="section-title">node / npm commands</h2><article class="section-info"><pre>
+node -v                                   показывает установленную версия nodeJS
+node                                      запускает сессию nodeJS - интерактивную среду nodeJS с
+                                          командами; можно писать js и терминал будет его понимать;
+                                          если закончить текущую сессию nodeJS, например командой
+                                          ctrl + C, то при новом входе не будут доступны данные,
+                                          например переменные или функции, из прошлой сессии
+node &lt;jsFile>                             для запуска файла на nodeJs в терминале указываем путь к
+                                          файлу; расширение .js можно не писать
+
+
+npm -v                                    показывает установленную версия nodeJS package manager
+npm list -g --depth 0                     показывает список глобально установленных пакетов
+npm init                                  инициирует проект; мы попадаем в wizard (установщик
+                                          базовых полей package.json), где отвечаем на вопросы
+npm init -y                               инициирует проект без ответа на вопросы
+npm i                                     устанавливает все пакеты, указанные в package.json;
+                                          если изменить версии уже установленных пакетов в
+                                          package.json, то они переустановятся
+npm i [-g] &lt;packages>                     устанавливает последние версии пакетов в папку
+                                          node_modules, которые пойдут в проект - не только для
+                                          разработки; такие пакеты записываются в package.json в
+                                          поле dependencies; они будут в нашем приложении;
+                                          если указан -g, то устанавливает пакеты глобально, в
+                                          node_modules их не будет
+npm i &lt;package>@&lt;version>                 устанавливает заданную версию пакета; если уже есть
+                                          пакет, то переустановится на нужную версию;
+                                          можно откатиться до нужной
+npm i &lt;packages> -D                       устанавливает пакеты, как пакеты только для разработки;
+                                          такие пакеты не пойдут в приложение
+npm i &lt;packages> --no-save                устанавливает пакеты без сохранения в package.json
+npm i --package-lock-only                 установка нового лок файла (предварительно нужно
+                                          удалить старый)
+npm rm [-g] &lt;packages> [--save or -D]     удаляет локальные (глобальные с флагом -g) пакеты;
+                                          указываем --save или -D для удаления и из package.json
+                                          зависимые пакеты так же удаляются
+npm outdated                              выводит пакеты, для которых доступны более новые версии
+npm update                                обновляет все пакеты согласно ^ или ~ перед версиями,
+                                          так же меняя версии в package.json;
+                                          до alpha и других меток версий не обновляется
+npm up [-g] &lt;packages>                    обновляет все перечисленные пакеты согласно
+                                          ^ или ~ перед версиями
+npm i &lt;package>@latest                    служит для обновления уже установленного пакета до
+                                          последней версии, игнорируя ^ или ~
+npm run &lt;scriptName>                      запускает приложение через скрипты, установленные в
+                                          package.json в поле scripts; так же скрипты npm могут
+                                          запускать другие скрипты npm, например:
+                                          "build": "npm run scss && npm run uglify"
+npm publish                               публикует пакет в реестре, чтобы его можно было
+                                          установить по имени (новой версии пакета, измененной
+                                          в package.json до публикации);
+                                          команда выполняется из папки с package.json (корневой
+                                          дирректории пакета)
+
+
+ncu                                       показывает пакеты, которые можно обновить (если
+                                          установлен npm-check-updates); альтернатива npm outdated
+ncu -u                                    обновляет файл package.json (если установлен пакет
+                                          npm-check-updates), заменяя версии зависимостей
+
+
+rm -rf node_modules && npm i              быстро удалить и переустановить модули
+        </pre></article></div></section><!-- Basis --><section class="section" id="basis"><div class="section-container"><h2 class="section-title">Basis</h2><article class="section-info"><pre>
+  NodeJS — это JavaScript-окружение, построенное на движке Chrome V8 (он очень эффективно
+интерпретирует js в машинный код).
+  NodeJS позволяет запускать js-код вне браузера, т.к. NodeJS — серверный js.
+
+  На сервере с помощью NodeJS можно обрабатывать события, которые приходят из
+frontend'a, взаимодействовать с DB, со сторонними сервисами, делать редирект, роутинг...
+
+  NodeJS это тот же js + некоторые дополнительные фичи: работа с файлами, создание
+серверов и т.д.
+  В NodeJS 1 поток, как и в js.
+
+  NodeJS работает в режиме runtime - работает пока запущен.
+
+  Node.js следует модульной системе, а встроеная функция require - самый простой способ
+включить модули, которые существуют в отдельных файлах.
+
+
+
+  Вместо глобального объекта window в NodeJS глобальный объект <b>global</b>. Внутри него
+есть, например, доступ к таймерам (setTimeout...), очереди микротасок и методам
+асинхронных остановок.
+
+  Глобальный объект <b>process</b> хранит много информации о конфигурации, переменных
+среды, версии и т.д.
+
+process.env     - <span>обычно в env добавляется переменная окружения (development / production)
+                  и в зависимости от этого запускается какой то вариант окружения</span>
+process.argv    - <span>массив, содержащий аргументы командной строки</span>
+
+
+
+  <b>В Node.js очень много логики работает асинхронно!!!</b>
+Так сделано потому что мы работаем с сервером. И задача сервера не блокировать основной
+поток выполнения и как можно больше операций выполнять параллельно, что бы выполнить все
+основные действия и передать контроль в браузер.
+
+
+  После создания сервера на express деплоим его на какой то хостинг. Например, можно на
+бесплатный хостинг Heroku.
+  Перед деплоем нужно в package.json указать версию сервеного языка (nodeJS), которую
+использовали в проекте:
+"engines": {
+  "node": "16.16.0"
+}
+
+
+  Нужно обязательно учесть что в файле сервера мы храним <b>секретные данные</b>: доступы к DB
+MongoDB (в сгенерированной строке для коннекта с базой наш пароль). Поэтому такие данные
+нужно скрыть.
+  Что бы все было безопасно используют <b>.env файлы (файлы окружения)</b> и переменые среды
+разработки. В этих файлах хранятся ключи.
+1. npm i dotenv
+2. создаем .env файл в корне и добавляем в нем:
+   MONGO_URL='mongodb+srv://Anton:r8IFbVR@cluster0.mzkkbu6.mong...'
+3. на сервере:
+   require('dotenv').config()
+   и теперь вместо переменной db (удаляем ее) доступна переменная: process.env.MONGO_URL
+4. добавляем .env в .gitignore
+        </pre></article></div></section><!-- modules --><section class="section" id="modules"><div class="section-container"><h2 class="section-title">modules</h2><article class="section-info"><pre>
+  По умолчанию в nodeJS каждый js файл автоматически оборачивается в такую
+функцию => доступны exports, require, module, __dirname, __filename.
+
+  Все js файлы в nodeJS - модули. Можно экспортировать какие то данные с помощью <b>module.exports</b>
+        </pre><pre>
+          <code class="language-js">
+// (function(exports, require, module, __dirname, __filename) {
+
+// __dirname описывает путь до текущей папки
+console.log(__dirname)  	// D:\Anton\WORK\Java Script\nodeJS
+// __filename описывает путь до текущего файла
+console.log(__filename) 	// D:\Anton\WORK\Java Script\nodeJS\index.js
+
+const user = 'Anton'
+const sayHi = userName => `Hello, ${user}`
+
+module.exports = user   // превратили обычный js-файл в модуль. Теперь данные из этого
+                        // модуля (файла) можно использовать в любой части приложения
+
+// module.exports = {userName, sayHi}  // можно экспортировать и, например, объект
+
+// })
+          </code>
+        </pre><pre>
+
+  Для импорта из модуля в другом файле нужно использовать <b>require</b> (.js можно не писать)
+        </pre><pre>
+          <code class="language-js">
+// (function(exports, require, module, __dirname, __filename) {
+
+const user = require('./test')  // что бы подключить свой файл (модуль) нужно ставить ./
+const chalk = require('chalk')	// если не указан путь - nodeJS понимает что из node_modules
+
+// })
+          </code>
+        </pre></article></div></section><!-- native modules --><section class="section" id="native_modules"><div class="section-container"><h2 class="section-title">native modules</h2><article class="section-info"><pre>
+<b>некоторые встроенные модули:</b>
+<a href="#path" class="react__nav-link">path</a>
+<a href="#fs" class="react__nav-link">fs (file system)</a>
+<a href="#os" class="react__nav-link">os (operation system)</a>
+<a href="#events" class="react__nav-link">events</a>
+<a href="#http" class="react__nav-link">http (create server)</a>
+        </pre></article><article class="section-info" id="path"><b>path</b><pre>
+встроеный модуль path позволяет удобно работать с путями
+        </pre><pre>
+          <code class="language-js">
+const path = require('path')
+
+
+console.log('название файла: ', path.basename(__filename))     // path.js
+console.log('имя директории: ', path.dirname(__filename))      // D:\...\demo__native_modules
+console.log('расширение файла: ', path.extname(__filename))    // .js
+console.log('parse: ', path.parse(__filename))
+// parse: {
+//    root: 'D:\\',
+//    dir: 'D:\\Anton\\WORK\\Java Script\\nodeJS\\demo__native_modules',
+//    base: 'path.js',
+//    ext: '.js',
+//    name: 'path'
+// }
+
+
+  // path.join () объединяет все заданные сегменты пути
+console.log(path.join(__dirname, 'server', 'index.html'))
+// D:\Anton\WORK\Java Script\nodeJS\demo__native_modules\server\index.html
+
+
+  // resolve создает абсолютный путь от корня
+path.join('/hello')       // \hello
+path.resolve('/hello')    // C:\hello
+          </code>
+        </pre></article><article class="section-info" id="fs"><b>fs</b><pre>
+встроеный модуль fs (file system) позволяет удобно работать с файлами.
+
+Все методы fs асинхронны. Но есть и синхронные аналоги с постфиксом Sync.
+Лучше использовать асинхронные, т.к. они не блокирует поток!
+
+Синхронные методы могут быть полезны, например, если сначало нужно создать
+и только потом внутри нее создать файл.
+        </pre><pre>
+          <code class="language-js">
+const fs = require('fs')
+const path = require('path')
+
+
+// 1)
+// fs.mkdir(path[, options], callback)  -  первый параметр в callback - ошибка;
+//                                         если ошибки нет то вместо err будет null
+fs.mkdir(path.join(__dirname, 'test_fs'), err => {
+	if (err) {
+		// если папка уже существует, то мы не можем ее создать - будет ошибка
+		throw err
+	}
+	// если нет ошибки, то
+	console.log('папка создана')
+})
+
+
+
+const filePath = path.join(__dirname, 'test_fs', 'text.txt')
+
+// 2) Создает файл (если его нет) и что то пишет внутри. Асинхронный метод
+// fs.writeFile(file, data[, options], callback)    -  что то пишет внутри файла, может
+//                                                     перетирать существующий файл
+fs.writeFile(filePath, 'Hello NodeJS', err => {
+	if (err) {
+		throw err
+	}
+	console.log('файл создан и что то написано в него')
+})
+
+
+
+// 3)
+// fs.appendFile(file, data[, options], callback) -  что то добавляет в конец файла
+fs.appendFile(filePath, '\nhello again', err => {
+	if (err) {
+		throw err
+	}
+	console.log('добавлена надпись в конец файла')
+})
+
+
+
+// 4)
+fs.readFile(filePath, 'utf-8', (err, content) => {  // читает данные
+	if (err) {
+		throw err
+	}
+	// // данные приходят в виде буффера, его нужно привести к строке;
+	// const data = Buffer.from(content)
+	// console.log('content: ', data.toString())
+
+	// или есть другой способ - указать 2 параметр кодировки
+	console.log('content: ', content)
+})
+
+
+
+// 5)
+// fs.rmdir('./files', () => {})   // удаление папки
+
+
+
+// 6)
+// fs.unlink('./files/test2.txt', () => {})  // удаление файла
+
+
+
+// 7) existsSync проверяет существует ли папка или файл
+if (fs.existsSync('./files/test2.txt')) {
+  fs.unlink('./files/test2.txt', () => {})
+}
+          </code>
+        </pre></article><article class="section-info" id="os"><b>os</b><pre>
+встроеный модуль os ( operation system ) позволяет получать инфу об ОС
+        </pre><pre>
+          <code class="language-js">
+console.log('операционная система: ', os.platform())  // операционная система:  win32
+console.log('архитектура процессора: ', os.arch())    // архитектура процессора:  x64
+console.log('свободная память: ', os.freemem())       // свободная память:  3880718336
+console.log('всего памяти: ', os.totalmem())          // всего памяти:  8454438912
+console.log('домашняя директория: ', os.homedir())    // домашняя директория:  C:\Users\Anton
+console.log('система включена: ', os.uptime())        // система включена:  953407
+          </code>
+        </pre></article><article class="section-info" id="events"><b>events</b><pre>
+  Базовый пример: пользователь входит на сайт после чего происходит его
+верификация - данные отправляются на сервер. На это событие можно повесить обработчик и
+отправлять запрос в DB что бы проверить есть ли информация о пользователе в системе?
+На ответ сравнивать данные от пользователя и полученные и по результату сделать еще один
+обработчик, который либо даст войти либо отправит на страницу с ошибкой
+
+<img src="./images/nodeJS/event_login.jpg" alt="event_login">
+        </pre><pre>
+          <code class="language-js">
+// класс EventEmitter получаем из встроеного модуля events
+const EventEmitter = require('events')
+
+// можно создавать объекты от данного класса и с помощью них диспатчить различные события
+const emitter = new EventEmitter()
+
+// добавляем прослушку события someEvent с помощью метода on('eventName', cb)
+emitter.on('someEvent', data => {
+	console.log('ON: someEvent', data)
+})
+
+// запускаем (диспатчим) событие someEvent; вторым параметром идут
+// любые данные, которые могут обработаться в слушателе;
+// диспатчить можно только после установки прослушки (обработчика)
+emitter.emit('someEvent', {a: 1})  // ON: someEvent { a: 1 }
+setTimeout( () => {
+	emitter.emit('someEvent', {b: 2})
+}, 500)
+
+
+
+// можно наследоваться от EventEmitter
+class Dispatcher extends EventEmitter {
+	subscribe(eventName, cb) {
+		console.log('[subscribing...]')
+		this.on(eventName, cb)
+	}
+
+	dispatch(eventName, data) {
+		console.log('[dispatching...]')
+		this.emit(eventName, data)
+	}
+}
+
+const dis = new Dispatcher()
+
+dis.subscribe('myevent', data => {
+	console.log('ON: myevent', data)
+})
+dis.dispatch('myevent',  {1: 'name'})
+          </code>
+        </pre></article><article class="section-info" id="http"><b>http</b><pre>
+  NodeJS дает доступ к установке связи между различными машинами (клиентом и сервером) и
+обменом информации между ними.
+
+  Что бы локальный комп знал что отправляемый запрос должен быть обработан именно с
+помощью NodeJS сервера, устанавливаем определенный порт (обычно это 3000). Этот порт
+и будет слушать NodeJS и в случае если на него прилетит запрос, он будет обработан именно
+нашим сервером, а не сторонней программой.
+  ip 127.0.0.1 - это специальный ip, называемый <b>loopback</b>. Он возвращает отправляемые
+запросы на наш локальный компьютер. Таким образом мы можем спокойно работать на одной
+машине и с серверной и с пользовательскими частями приложения.
+
+  Встроеный модуль http позволяет создавать различные серверы. Например для обработки
+полученных запросов и отправляемых данных.
+
+
+
+                                  <b>server's response status codes:</b>
+
+<img src="./images/nodeJS/response_status-codes.jpg" alt="response_status-codes" style="width: 60%; margin: 0 auto">
+        </pre><pre>
+          <code class="language-js">
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
+
+// createServer создает сервер, но его особенность в том что он вызывается и
+// сразу завершается;
+// callback метода createServer принимает 2 параметра:
+//  1й - объект request, служит для того чтобы мы получали
+//       информацию по запросу, который отправляет клиент на сервер
+//  2й - объект response, отвечает за ответ сервера
+const server = http.createServer((req, res) => {
+  // url страницы, на которую переходим (в браузере не видно, только в консоле!)
+  console.log(req.url)
+
+  // ----------
+
+  // в зависимости от того на какую страницу идет запрос,
+  // мы может отвечать пользователю следующими данными
+  if (req.url === '/') {
+    // берем содержимое из public/index.html и, если не было
+    // ошибки при чтении, выводим его на запрашиваемую страницу
+    fs.readFile(path.join(__dirname, '../public', 'index.html'), (err, data) => {
+      if (err) {
+        throw err
+      }
+      // мы можем указывать напрямую статус ответа и, например,
+      // какие то хедеры;  метод writeHead(statusCode, headers)
+      res.writeHead(200, {
+        'Content-Type': 'text/html',  // можно указать 'text/plain' - простой текст
+      })
+      // метод end вызавается для того, чтобы завершить ответ с
+      // сервера (отдать данные на запрос); обязателен к вызову!
+      res.end(data)
+    })
+  }
+  else if (req.url === '/contact') {
+    fs.readFile(path.join(__dirname, '../public', 'contact.html'), (err, data) => {
+      if (err) {
+        throw err
+      }
+      res.writeHead(200, {
+        'Content-Type': 'text/html',
+      })
+      res.end(data)
+    })
+  }
+  else if (req.url === '/about-us') {
+    res.writeHead(301, {         // 301 говорит о контролируемом редиректе
+      'Location', '/contact'     // в 'Location' указываем роут, на который редиректим
+    })
+    res.end()
+  }
+
+  // ----------
+
+
+                    // можно сделать этот код более универсальным
+
+  if (req.url === '/about-us') { // редирект с /about-us на /contact
+    res.writeHead(301, {'Location', '/contact'})
+    res.end()
+  }
+
+  let filePath = path.join(__dirname, '../public', req.url === '/' ? 'index.html' : req.url)
+
+  const ext = path.extname(filePath) // проверяем расширение
+
+  // чтобы открыть css нужно указывать contentType (Resource
+  // interpreted as Stylesheet but transferred with MIME type text/html)
+  let contentType = 'text/html'
+  switch (ext) {
+    case '.css':
+      contentType = 'text/css'
+      break
+    case '.js':
+      contentType = 'text/javascript'
+      break
+    default:
+      contentType = 'text/html'
+  }
+
+  if (!ext) { // если нет расширения
+    filePath += '.html'
+  }
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      fs.readFile(path.join(__dirname, '../public', 'error.html'), (err, data) => {
+        if (err) {
+          res.writeHead(500) // серверная ошибка (например, нет error.html)
+          res.end('Error')
+        }
+
+        res.writeHead(200, {
+          'Content-Type': 'text/html'
+        })
+        res.end(data) // возвращаем страницу ошибки 404
+      })
+    }
+    else {
+      res.writeHead(200, {
+        'Content-Type': contentType
+      })
+      res.end(content)
+    }
+  })
+
+})
+
+// чтобы сервер работал долго (в режиме runtime) нужно createServer
+// зачейнить методом listen([port, hostname, backlog, callback]);
+// если есть системная переменная PORT, тогда берем ее, иначе по
+// умолчанию 3000 (лучше делать так чем статически указывать порт)
+const PORT = process.env.PORT || 3000
+// по умолчанию 2й аргумент (hostname) - 'localhost', поэтому можно не указывать
+server.listen(PORT, () => {
+  // можно в браузере открыть   http://localhost:3000
+  console.log(`server has been started on port ${PORT}...`)
+})
+          </code>
+        </pre><pre>
+
+  <b>Чтобы при изменениях в настройках сервера и файлах каждый раз не перезапускать
+сервер вручную нужен пакет nodemon</b> (npm i -D nodemon)
+
+что бы атоматизировать процесс можно в package.json в поле scripts
+добавить команду  "dev": "nodemon demo__native_modules/http.js"
+"scripts": {
+  "start": "node index.js",
+  "dev": "nodemon demo__native_modules/http.js"
+}
+
+
+  Периодически может происходить ситуация, когда путь до какой то страницы
+меняется. => если пользователь переходит на старый роут, его нужно перенапривлять
+на актуальный. Это называется редирект.
+        </pre></article></div></section><!-- buffer / stream --><section class="section" id="buffer_and_stream"><div class="section-container"><h2 class="section-title">buffer / stream</h2><article class="section-info"><pre>
+  Передавать большие файлы (аудио/видео...) между сервером и браузером целеком нереально,
+т.к. это будет слишком долго. Намного проще разбивать такие файлы на части.
+
+  <b>Buffer</b> - это порция передаваемых данных. Другими словами буфер - это временное
+хранилище, которое предназначено для хранения куска передающихся данных.
+  <b>Stream (поток)</b> - весь механизм передачи файла.
+
+  <b>Основная идея</b> в том, что бы за минимальное время передать максимально возможную порцию
+данных, что бы пользователь начал взаимодействие с данными еще до полной их загрузки (на
+youTube видео начинает воспроизводиться еще до полной загрузки).
+
+  Вместо fs.readFile(), который читает файл целиком, лучше для больших файлов использовать
+стримы, которые считывают файл по кусочкам (буферам) и уже отправлять их по сети (прочитали
+кусок и сразу отправили, прочитали следующий и отправили его и т.д.)
+
+<img src="./images/nodeJS/buffer_stream.jpg" alt="buffer_stream">
+
+                              <b>В nodeJS есть 4 основных типа потоков:</b>
+- readable (читающий поток)
+
+- writeable (пишущий поток)
+
+- duplex (readable + writeable)
+
+- transform (аналогичен duplex + позволяет изменять читаемые
+            или записываемые данные (например, сжатие))
+        </pre><pre>
+          <code class="language-js">
+const fs = require('fs')
+const zlib = require('zlib')  // модуль для сжатия (transform stream)
+
+// создаем читающий поток (передаем путь до файла)
+const readStream = fs.createReadStream('./docs/text.txt')
+// создаем пишущий поток
+const writeStream = fs.createWriteStream('./docs/new-text.txt')
+const compressStream = zlib.createGzip()  // transform stream
+
+// // подписываемся на событие 'data' у readStream
+// // cb принимает buffer (chunk)
+// readStream.on('data', (chunk) => {  // дуплексная реализация потока (чтение и запись)
+//   console.log(chunk.toString())
+
+//   // записываем в new-text.txt прочитанный chunk (buffer) из text.txt
+//   writeStream.write('\n ---CHUNK START--- \n')
+//   writeStream.write(chunk)
+//   writeStream.write('\n ---CHUNK END--- \n')
+// })
+
+const handleError = () => {
+  console.log('Error')
+  readStream.destroy()
+  writeStream.end('Finished with error...')   // end добавит указанную строку
+}
+
+// pipe - метод для дуплексного потока.
+// pipe осуществляет чтения получаемых данных из readStream
+// и передает их в writeStream после сжатия (compressStream)
+readStream
+  .on('error', handleError)
+  .pipe(compressStream)
+  .pipe(writeStream) // запишем сжатые данные (можно еще сделать декомпрессию)
+  .on('error', handleError)
+          </code>
+        </pre></article></div></section><!-- express --><section class="section" id="express"><div class="section-container"><h2 class="section-title">express</h2><article class="section-info"><pre>
+  Обычно nodeJS используют в связке с express.
+
+<b>express</b> — nodeJS фреймворк для более удобной работы с запросами и ответами.
+          Он позволяет писать меньше кода для коммуникации сервера и браузера.
+          Обычно используется для создания роутинга, добавления middlewares в
+          сервер, работы с API, удобной интеграции с шаблонизатором.
+
+
+
+                                    <b>шаблонизатор</b>
+
+шаблонизатор — программа, позволяющая использовать html-шаблоны для генерации конечных
+               html-страниц. Основная цель использования шаблонизаторов: отделение UI от
+               исполняемого кода
+
+<b>ejs</b> — шаблонизатор для введения динамических данных и рендеринга их на UI.
+      (аналог handlebars).
+
+  Напрямую с ejs браузер работать не может, т.к. в качестве разметки он принимает
+только html. Но шаблонизатор способен работать с динамически подставляемыми данными.
+  Поэтому на сервере мы используем middleware 'view engine', в котором определяем тип
+шаблонизатора.
+
+<img src="./images/nodeJS/ejs.jpg" alt="ejs">
+
+
+                                    <b>middleware</b>
+
+  В контексте nodeJS <b>middleware</b> - функция, которая исполняется между получением
+запроса сервером и возвратом ответа браузеру. Это может быть установка заголовков, работа
+с куками, шифрование, логирование, сжатие, настройка cors и т.д.
+  <a href="https://expressjs.com/en/resources/middleware">Список middleware в Express</a>
+  <b>В express для применения middleware используем функцию app.use((req, res, next) => {...})</b>,
+где next - специальная функция, которая должна вызываться вконце cb'ка для возвращения
+контроля серверу для дальнейшей работы с ответом.
+  <b>middleware'ы (app.use()) должны создаваться до создания роутов с ответами</b>, т.к. в каждом
+роуте у нас метод res.render(), который возвращает ответ в браузер. И в случае создания
+middleware после роутов - наша промежуточная функциональность (middleware) просто не
+успеет отработать.
+
+  Так же <b>middleware может быть в router'е</b> 2-м аргументом, например:
+router.get('/api/link/', authMiddleware, async (req, res) => {...})
+
+  Когда мы добавляем какие то статические файлы в проект (стили, каринки...), мы не можем
+получить к ним доступ => стили, картинки не видны в браузере.
+  Дело в том что если бы браузер смог работать с такими файлами, это бы означало что пользователь
+может получить доступ к любому файлу, хранящемосю на сервере. Поэтому по умолчанию nodeJS защищает
+все файлы.
+  Что бы браузер мог получить статичные данные, нам нужно это разрешить: нужно определить файлы
+или папки, к которым браузер может получить доступ. Делается это с помощью создания middleware:
+<b>app.use(express.static('styles'))</b> <span>что бы стили подключились к страницам</span>
+express.static() добавляет указанную папку в исключение
+
+  <b>morgan</b> - middleware, HTTP request logger (при переходе по страницам будем видеть метод,
+статус, длину контента и время ответа). Удобно при отлове ошибок и проверки перформанса сервера.
+npm i morgan
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+
+  <b>express.urlencoded</b> - middleware для парсинга входящего запроса:
+app.use(express.urlencoded({ extended: false })),
+extended: false - что бы не было расширенного парсинга
+
+  <b>methodOverride</b> - middleware, чтобы в роуте реагировать на параметры (из атрибута
+action (?_method=PUT) в форме)
+npm i methodOverride
+app.use(methodOverride('_method'))
+
+  NodeJS воспринимает body запроса как стрим. <b>express.json</b> - middleware для того,
+что бы корректно парсить body, если бы он был JSON строкой (самый частый вариант):
+app.use(express.json({ extended: true }))
+        </pre><pre>
+          <code class="language-js">
+const express = require('express')
+const path = require('path')
+const morgan = require('morgan')
+const mongoose = require('mongoose')
+const methodOverride = require('method-override')
+const Post = require('./models/post')  // импортируем модель Post
+const Contact = require('./models/contact')
+
+const PORT = 3000
+
+
+const app = express()  // создаем приложение (сервер)
+
+// подключаем шаблонизатор ejs в качестве 'view engine';
+// в /ejs-views копии статических страниц из /views
+app.set('view engine', 'ejs')
+
+// копируем доступ к DB на сайте MongoDB
+const db = 'mongodb+srv://Anton:r8IFbVR@cluster0.mzkkbu6.mongodb.net/node-blog?retryWrites=true&w=majority'
+
+mongoose  // connect to DB
+  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then((res) => console.log('Connected to DB'))
+  .catch((error) => console.log(error))
+
+const createPath = (page) => path.resolve(__dirname, 'ejs-views', `${page}.ejs`)
+
+app.listen(PORT, (error) => { // обрабатываем запросы к серверу на 3000 порту
+  error ? console.log(error) : console.log(`listening port ${PORT}`)
+})
+
+                                              // middlewares
+// middleware для парсинга входящего запроса
+app.use(express.urlencoded({ extended: false }))
+// request logger - при переходе по страницам будем видеть метод, статус, длину контента и время ответа
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+// делаем папку /styles доступной из браузера (общедоступной), что бы стили применились на сайте
+app.use(express.static('styles'))
+// чтобы в роуте реагировать на параметры (из атрибута action (?_method=PUT) в форме)
+app.use(methodOverride('_method'))
+// NodeJS воспринимает body запроса как стрим. middleware <b>express.json</b> нужен для того,
+// что бы корректно парсить body, если бы он был JSON строкой (самый частый вариант)
+// app.use(express.json({ extended: true }))
+
+
+const handleError = (res, error) => {
+  console.log(error);
+  res.render(createPath('error'), { title: 'Error' });
+}
+
+                                              // REST API:
+
+app.get('/', (req, res) => { // отправить данные с сервера в браузер при запросе '/'
+  // // res.send()  вместо res.write() + res.end() у нативного модуля http
+  // res.send('&lt;h1>Hello&lt;/h1>')  // не нужно устанавливать 'Content-Type'
+
+  // res.sendFile(createPath('index')) // статический файл
+
+  const title = 'Home' // передаем переменную в шаблон
+  res.render(createPath('index'), { title }) // render вместо sendFile для ejs шаблонизатора
+})
+
+app.get('/contacts', (req, res) => {
+  const title = 'Contacts'
+  Contact
+    .find() // асинхронный метод из mongoose, находит все значения в коллекции
+    // рендерим шаблон contacts
+    .then(contacts => res.render(createPath('contacts'), { contacts, title }))
+    .catch((error) => handleError(res, error))
+})
+
+app.get('/posts/:id', (req, res) => {
+  const title = 'Post'
+  Post
+    .findById(req.params.id) // поиск по id (параметр запроса из адресной строки браузера)
+    .then(post => res.render(createPath('post'), { post, title }))
+    .catch((error) => handleError(res, error))
+})
+
+app.delete('/posts/:id', (req, res) => {
+  Post
+    .findByIdAndDelete(req.params.id) // удаляем по id при клике на удаление
+    .then((result) => {
+      res.sendStatus(200)
+    })
+    .catch((error) => handleError(res, error))
+})
+
+app.get('/edit/:id', (req, res) => { // страница редактирования
+  const title = 'Edit Post'
+  Post
+    .findById(req.params.id)
+    .then(post => res.render(createPath('edit-post'), { post, title }))
+    .catch((error) => handleError(res, error))
+})
+
+app.put('/edit/:id', (req, res) => { // обработка сабмита отредактированного поста
+  const { title, author, text } = req.body
+  const { id } = req.params
+  Post
+    .findByIdAndUpdate(id, { title, author, text }) // обновляем пост
+    .then((result) => res.redirect(`/posts/${id}`))
+    .catch((error) => handleError(res, error))
+})
+
+app.get('/posts', (req, res) => {
+  const title = 'Posts'
+  Post
+    .find()
+    .sort({ createdAt: -1 })  // сортируем по полю createdAt (автоматически добавляется в DB,
+                              // т.к. в моделе поста задали { timestamps: true }) по убыванию
+    .then(posts => res.render(createPath('posts'), { posts, title }))
+    .catch((error) => handleError(res, error))
+})
+
+app.get('/add-post', (req, res) => {
+  const title = 'Add Post'
+  res.render(createPath('add-post'), { title })
+})
+
+app.post('/add-post', (req, res) => {
+  const { title, author, text } = req.body
+  const post = new Post({ title, author, text })
+  post
+    .save()// сохраняем в DB mongoDB
+    .then((result) => res.redirect('/posts')) // после создания редиректим на страницу с постами
+    .catch((error) => handleError(res, error))
+})
+
+// middleware для перехвата запросов по несуществующим путям;
+// в express порядок роутинга важен => use вконце, т.к. обрабатывает все необработанные выше
+app.use((req, res) => {
+  const title = 'Error Page'
+  res
+    .status(404)
+    .render(createPath('error'), { title })
+})
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                                        models/post.js
+
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+
+const postSchema = new Schema({
+  text: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  author: {
+    type: String,
+    required: true,
+  }
+}, { timestamps: true })  // timestamps - для присвоения даты создаваемому посту
+
+// модель предоставляет удобные методы для
+// работы с данными в DB: find, get, deleteOne...
+const Post = mongoose.model('Post', postSchema) // модель описывается с помощью схемы
+module.exports = Post
+
+          </code>
+        </pre><pre>
+          <code class="language-html">
+                                    ejs-views/edit-post.ejs
+
+&lt;!DOCTYPE html>
+&lt;html lang='en'>
+  &lt;%- include('./partials/head.ejs') %>
+&lt;body>
+  &lt;%- include('./partials/nav.ejs') %>
+  &lt;!--
+    action содержит route, который и будет обрабатывать получаемые с формы данные.
+
+    роут, который будет обрабатывать редактирование начинается на edit с методом PUT.
+
+    * т.к. в html нет метода PUT, то method='post', но в action ?_method=PUT !!!
+      но чтобы реагировать на параметры (?_method=PUT) на сервере, нужен
+      дополнительный middleware модуль: npm i method-override
+   -->
+  &lt;form id='post-form' method='post' action='/edit/&lt;%= post.id %>?_method=PUT'>
+    &lt;div class='form-info'>
+      &lt;label>Post Title
+        &lt;input type='text' name='title' value='&lt;%= post.title %>'>
+      &lt;/label>
+      &lt;label>Author
+        &lt;input type='text' name='author' value='&lt;%= post.author %>'>
+      &lt;/label>
+    &lt;/div>
+    &lt;div class='form-text'>
+      &lt;label>Post Text
+        &lt;textarea name='text'>&lt;%= post.text %>&lt;/textarea>
+      &lt;/label>
+    &lt;/div>
+    &lt;div class='form-button'>
+      &lt;input type='submit' value='Submit'>
+    &lt;/div>
+  &lt;/form>
+&lt;/body>
+&lt;/html>
+          </code>
+        </pre></article><article class="section-info"><b>MVC</b><pre>
+  Лучше не хранить всю логику в файле сервера, а отделить бизнес логику (обработку
+переходов на различные роуты) и организовать ее в соответствии с паттерном MVC.
+
+
+
+  Вынесем основные роуты, отвечающие за контакты и посты, в /routes.
+Вместо app.get(), как это было на сервере, в роут файлах используем router.get():
+
+  const router = express.Router()
+
+  router.get('/posts/:id', getPost),
+  где <b>обработчики роутов (getPost, ...), вынесем в /controllers
+      (бизнес логика по возврату нужного шаблона пользователю)</b>
+
+<img src="./images/nodeJS/MVC.jpg" alt="MVC">
+        </pre></article><article class="section-info"><b>new REST API for React</b><pre>
+
+  Сейчас наш сервер отдает шаблоны (html-документы) при взаимодействии с REST API.
+Но это не универсальное решение, т.к. данные завязаны на шаблонизатор ejs на сервере.
+
+  Если нужно было бы создать SPA на React, то взаимодействовать с таким REST API сервера
+не вышло бы.
+  Поэтому параллельно <b>создадим еще один REST API, что бы он возвращал JSON при запросах</b>:
+        </pre><pre>
+          <code class="language-js">
+// 1.
+// в роутах создаем отдельный файл для новых роутов (api-posts-routes.js).
+// Роуты будут начинаться с /api
+
+const { getPosts, ... } = require('../controllers/api-post-controller')
+
+router.get('/api/posts', getPosts)
+...
+
+
+
+// 2.
+// новые обработчики переходов по роутам (getPosts) так же создаем в отдельном
+// файле /controllers/api-post-controller.js.
+//   Теперь они возвращают не готовый html, а JSON, который уже и будет
+// использоваться в React
+
+const handleError = (res, error) => {
+  res.status(500).send(error.message)
+}
+
+const getPosts = (req, res) => {
+  Post
+    .find()
+    .sort({ createdAt: -1 })
+    .then((posts) => res.status(200).json(posts))    // json(posts) возвращает JSON-строку
+    .catch((error) => handleError(res, error))
+}
+...
+
+
+
+// 3.
+// подключаем новые роуты на сервер.
+// Теперь, например, при обращении к http://localhost:3000/api/posts сервер отдает JSON
+
+const postApiRoutes = require('./routes/api-post-routes')
+
+app.use(postApiRoutes)
+          </code>
+        </pre></article></div></section><!-- mongoDB / mongoose --><section class="section" id="mongoDB"><div class="section-container"><h2 class="section-title">mongoDB / mongoose</h2><article class="section-info"><pre>
+  MongoDB - один из самых простых вариантов NoSQL СУБД.
+  NoSQL (not only Structured Query Language) значит что для взаимодействия с DB мы не
+используем SQL команды.
+  Для хранения данных используется JSON-подобный формат, что удобно для JS разработчиков.
+
+  Данные хранятся в виде коллекций и документов. DB состоит из набора коллекций.
+Коллекция - своеобразная база данных, которая группирует эти данные по какому то типу (например,
+все что касается фильмов в коллекции Movies, а все касаемо режисеров - в коллекции Directors).
+  Каждая коллекция в свою очередь содержит какие то документы (наборы данных), а сами документы
+хранятся в JSON-подобном формате.
+  У документов (наборов данных) в одной коллекции не обязательно должна быть строгая структура:
+один документ может содержать какие то поля, а другой может и не содержать.
+
+
+
+                             <b>связываем MongoDB с nodeJS сервером:</b>
+
+1. регистрируемся на сайте MongoDB
+2. создаем free DB
+3. создаем Cluster (DB), все опции по дефолту
+4. добавляем коллекцию в кластере: задаем имя для DB (node-blog) и имя коллекции (posts)
+5. создаем DB пользователя, который будет иметь доступ для манипуляций:
+   Database Access -> Add New Database User
+   (password -> add name(Anton)/pass(r8IFbVR) -> set role (e.g. admin))
+6. что бы был досту к DB не с конкретного IP, а с любой машины:
+   Network Access -> Add an IP address -> ALLOW ACCESS FROM ANYWHERE -> confirm
+   (You will be able to connect to your cluster from anywhere)
+7. т.к. напрямую работать с DB нельзя используем прослойку между сервером и базой:
+   npm i mongoose (нужен для установки связи и, используя модели, описываем разные сущности)
+8. нажимаем на кластере Connect -> выбираем коннект приложения -> копируем url (connection string)
+9. сохраняем connection string переменную, которую будем использовать при коннекте с mongoose.
+   вставляем наш пароль в connection string и при необходимосте имя базы
+   const db =
+   'mongodb+srv://Anton:r8IFbVR@cluster0.mzkkbu6.mongodb.net/node-blog?retryWrites=true&w=majority'
+10. коннектим сервер с DB
+    mongoose
+      .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+      .then((res) => console.log('Connected to DB'))
+      .catch((error) => console.log(error))
+11. * модель (mongoose.model) предоставляет удобные методы для работы с данными в DB:
+      find, get, deleteOne...
+        В свою очередь модель описывается с помощью схемы (своего рода объект, описывающий
+      структуру данных). Схема - набор полей, у которых определены type и их свойства.
+
+                    создаем схему нашего поста в /models/post.js:
+
+    const mongoose = require('mongoose')
+    const Schema = mongoose.Schema
+
+    const postSchema = new Schema({
+      text: {type: String, required: true},
+      title: {type: String, required: true},
+      author: {type: String, required: true},
+    }, { timestamps: true })  // timestamps - для присвоения даты создаваемому посту
+
+    const Post = mongoose.model('Post', postSchema)  // 'Post' - имя модели
+    module.exports = Post
+
+<img src="./images/nodeJS/mongoDB_mongoose.jpg" alt="mongoDB_mongoose">
+12. используем модель Post на сервере в REST API методе добавления поста:
+
+    app.post('/add-post', (req, res) => {
+      const { title, author, text } = req.body
+      const post = new Post({ title, author, text })
+      post
+        .save() // сохраняем в DB mongoDB
+        .then((result) => res.send(result)) // если все удачно сохранилось - отправляем в UI
+        .catch((error) => {
+          console.log(error)
+          res.render(createPath('error'), { title: 'Error' }) // при ошибке - редирект на 404
+        })
+    })
+
+13. чтобы не хранить контакты в файле сервера, добавим их в DB: создаем для
+    контактов новую коллекцию (кнопка '+' возле нашей DB node-blog, называем contacts).
+      Теперь в этой пустой коллекции кликаем insert document для добавления 1го добавляем
+    ключи-значения ({name: 'YouTube', link: 'http://youtube.com/YauhenKavalchuk'}, ...).
+    Затем добавляем остальные документы, в каждом из которых контакт.
+        </pre></article></div></section></main><script src="index.js"></script></body></html>

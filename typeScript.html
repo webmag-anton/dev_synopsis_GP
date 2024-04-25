@@ -1,0 +1,1443 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>TypeScript</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="typeScript"><main class="sections-wrapper"><!-- basis --><section class="section" id="basis"><div class="section-container"><h2 class="section-title">basis</h2><article class="section-info"><pre>
+  TypeScript - компилируемый обратно-совместимый язык (надстройка над js) со строгой типизацией.
+
+  Компилируемый означает, что TS будет скомпилирован в JS. TypeScript преобразуется в код JS с
+помощью компилятора TypeScript или Babel.
+  Обратно-совместимый означает, что если в компилятор попадает синтаксис JS, то соответственно
+этот кусок и возращается.
+
+  TypeScript - это статически-типизируемый JS, который в основном служит для создания сложных
+и больших приложений.
+  Язык TypeScript, который разработала MicroSoft, нужен только на этапе разработки. TypeScript
+берет ядро JS и поверх него накладывает некие абстракции, которые относятся к статической
+типизации и позволяют отлавливать ошибки на этапе разработки.
+
+.tsx - typeScript react (jsx -> tsx)
+
+<b>Устанавливаем typescript глобально</b>:   npm i -g typescript
+
+<b>Устанавливаем typescript в проект</b>:    npm i -D typescript
+
+
+// @ts-ignore    (комментарий над строкой для игнора ошибки)
+
+
+
+<b>Комманды</b>:
+
+tsc -v                            глобальная версия typescript
+
+tsc --init                        generate a tsconfig.json file
+
+tsc                               compiles all .ts files, except files from exclude at config
+tsc &lt;tsFile.ts>                   compiles .ts file to .js file, at same folder and same name
+tsc -w                            watches for changes and automatically compiles .ts
+tsc -w &lt;tsFile.ts>                watches for changes in tsFileName.ts and auto compiles
+
+tsc &lt;tsFile.ts> --declaration     создаст отдельно .js файл и отдельно .d.ts файл, из которого
+                                  экспортируются все ts-компоненты для типизации.
+                                  Может быть удобно для переиспользования функционала из .d.ts
+                                  в других ts-проектах
+        </pre></article><article class="section-info"><b>tsconfig.json</b><pre>
+  После генерации tsconfig.json добавляем поле <b>exclude</b>, значением которого является массив
+папок и файлов, которые не нужно компилировать, в конфигурационный файл. /node_modules можно
+не указывать, он по умолчанию не компилируется.
+  Аналогично в конфиге можно задать массив <b>include</b> (компилировать указанные в массиве папки и
+файлы) и массив files (компилировать указанные файлы).
+
+  Раскоментируем поля <b>rootDir и outDir</b>, в которых указываем откуда берем и куда складываем
+все скомпелированные файлы при выполнении команды tsc.
+  В поле <b>target</b> можно указать в какую версию js компилировать ts (es6...).
+
+  По умолчанию, если раскоментировать поле <b>lib</b> в конфиге и в качестве значения оставить
+пустой массив, то TS не будет понимать browser API, т.е. не будет объекта document и т.д. Но если
+не указывать lib, то весь базовый функционал будет работать.
+  Настройка поля <b>lib</b> в конфиге регулирует, какие библиотеки необходимо включить в понимание TS.
+Список того, что может быть в массиве lib: <a href="https://www.typescriptlang.org/tsconfig/#lib">https://www.typescriptlang.org/tsconfig/#lib</a>
+
+  Если раскоментировать поле <b>sourceMap</b>, то в браузере во вкладке Sources будет виден исходный TS.
+
+  Если раскоментировать поле <b>removeComments</b>, то в скомпилированном js не будет комментариев.
+
+  Добавляем в конфиг "<b>noEmitOnError</b>": true    - не компилировать код, если в нем есть ошибка
+
+  Поле <b>strict</b>: true включает значение true для всех нижележащих Strict Type-Checking Options:
+"noImplicitAny": true       - для выкидывания ошибки, если мы не задали тип параметру ф-ии
+"strictNullChecks": true    - для выкидывания ошибки, если мы, например, не задали ! после
+                              document.querySelector('#btn'), т.е. если может вернуться null
+
+"noUnusedLocals": true          - предупреждение, если есть локальная неиспользуемая переменная
+"noUnusedParameters": true      - предупреждения, если есть неиспользуемые параметры ф-ии
+"noImplicitReturns": true       - предупреждения, если функция может что то явно не вернуть
+        </pre></article><article class="section-info"><b>declaration files .d.ts</b><pre>
+  В TS для установки связи ts с .js файлами служат декларативные (заголовочные) файлы.
+Это файлы с расширением .d.ts.
+
+d.ts - d означает declaration; когда ts будет компилировать файлы
+       с таким расширением, он не создаст никакого функционала.
+
+  Декларативные файлы могут содержать только ts-компоненты (интерфейсы, типы...) для типизации
+кода, которые экспортируются из декларативного файла. Затем импортритуем их в .ts и используем.
+
+  Для функции, например, декларативные файлы могут описать только типы аргументов и тип
+возвращаемого значения, но не могут описывать само тело ф-ии с ее логикой.
+
+                        Обычно d.ts файлы используются:
+
+- для типизации библиотек, которые написаны без TS
+- как автоматически сгенерированные файлы (tsc &lt;tsFile.ts> --declaration),
+  поставляемые с библиотекой, что бы обеспечить типизацию
+        </pre><pre>
+          <code class="language-ts">
+             // пример использования типов из .d.ts файла (экспорт/импорт не нужен)
+
+//  types.d.ts
+
+type Info = {
+  count: number
+  pages: number
+  next: string
+  prev: string
+}
+
+
+//  App.tsx
+
+const [info, setInfo] = useState&lt;Info>({
+  count: 0,
+  pages: 0,
+  next: '',
+  prev: ''
+})
+          </code>
+        </pre></article><ul class="section-refs"><li><a href="https://metanit.com/web/typescript/4.1.php" target="_blank">declaration files</a></li></ul></div></section><!-- types --><section class="section" id="types"><div class="section-container"><h2 class="section-title">types</h2><article class="section-info"><pre>
+                    types:
+string
+number
+boolean
+null                            - typeof null === 'null', а не 'object', как в js
+undefined
+object                          - для определения объекта или не примитива
+Array                           - массив из нескольких значений указаных типов
+
+Function
+void                            - отсутствующий тип; если ф-я ничего не возвращает
+never                           - если функция бесконечная или возвращает ошибку
+tuple                           - картэж: тип данных для массива фиксированного размера из
+                                          указанных типов (похож на Array, но более строгий)
+any                             - любой тип; можно переопределять, в отличае от других типов
+
+Date
+Symbol
+
+
+
+                    misc:
+
+| - оператор или (union)
+& - оператор и
+? - опциональный параметр ф-ии. Т.е. может не передаваться.
+    Необязательные параметры должны идти после обязательных
+
+  У TS нет доступа к DOM, поэтому надо юзать non-null оператор !, чтобы
+сказать TS, что выражение не null / undefined: const link = document.querySelector('a')!
+  Если элемент выбран по id или классу, нужно указать тип элемениа с помощью кастования (as):
+document.getElementById('some') as HTMLFormElement
+
+
+
+<b>тип для переменной задается после ее имени через :</b>
+
+<b>тип возвращаемого значения у функции задается после () через :</b>
+
+<b>тип методов (и хуков) при их вызове задается перед (), например:</b>
+const response = await axios.get&lt;IUser>(url)
+const [value, setValue] = useState&lt;number | undefined>(undefined)
+        </pre><pre>
+          <code class="language-ts">
+                  // string, boolean, number:
+
+const str: string = 'Hello'           // переменная str типа string (: string)
+
+let int: number = 42
+// int = ''                           // нельзя менять тип данных - выдаст ошибку!
+
+const float: number = 4.2
+const isFetching: boolean = true
+
+
+
+                  // Array:
+
+const list: number[] = [1, 2, 3]
+const list2: (string | number)[] = ['Apple', 2, 'Orange', 3, 4]
+const list3: Array&lt;number> = [1, 2, 3]                                // Generic type
+const list4: Array&lt;any> = [1, 'hello']                                // Generic type
+
+
+
+                  // tuple:
+
+let y: [string, number, null]
+y = ['good', 42, null]
+
+const employee: [number, string][] = [[1, 'Steve'], [2, 'Bill'], [3, 'Jeff']]
+
+
+
+                  // any:
+
+let variable: any = 42
+variable = []
+
+const arrAny: any[] = ['Hello', 21]
+
+
+
+                  // object:
+
+const user: { name: string, age: number } = {   // можно было и const user: object = {...}
+  name: 'Yauhen',
+  age: 30,
+  // age: 'test',         // ошибка, значение должно быть number
+  // nickName: 'webDev'   // ошибка, поле nickName не описано
+}
+
+
+
+                  // Function:
+
+let func: Function
+func = () => alert(1)
+
+const greetUser = (): void => {
+  alert('Hello, nice to see you!')
+}
+
+// Ошибка, т.к. в таком синтаксисе мы определяем тип константы, а не
+// возвращаемого ф-ей результата; а т.к. в константу уже присвоена ф-я,
+// то типа void у нее не может быть впринципе
+const greetUser2: void = () => {
+  alert('Hello, nice to see you!')
+}
+
+function throwError(message: string): never {
+  throw new Error(message)
+}
+
+const createPassword = (name: string, age: number | string = 20): string => `${name}${age}`
+createPassword('Max') // Max20
+
+const createPassword2 = (name: string, age?: number): object => {
+  return {test: `${name}${age}`}  // если не передать age, то age - undefined
+}
+          </code>
+        </pre></article></div></section><!-- type --><section class="section" id="type"><div class="section-container"><h2 class="section-title">type (custom type)</h2><article class="section-info"><pre>
+  type - ключевое слово для создания alias'a (псевдонима) для кастомного типа.
+
+  Создаваемый alias не попадает в js при компиляции.
+
+  type может задавать псевдоним для любых типов, включая примитивы, в то время
+как interface - только для объектов.
+
+  <b>type &lt;AliasForType> = someOfTypes</b>
+        </pre><pre>
+          <code class="language-ts">
+type Login = string            // создаем alias
+const login: Login = 'admin'
+// const login2: Login = 123   // выдаст ошибку
+
+type ID = string | number
+const id1: ID = 1234
+const id2: ID = '1234'
+
+type AlertType = 'success' | 'danger' | null  // можно указать конкретные значения!
+
+
+// 2 objects with the same types:
+let user2: { name: string, age: number, nickName: string } = {
+  name: 'Yauhen',
+  age: 30,
+  nickName: 'webDev'
+}
+let admin2: { name: string, age: number, nickName: string } = {
+  name: 'Max',
+  age: 20,
+  nickName: 'Mad'
+}
+
+// ^ нарушен принцип DRY, поэтому создадим тип Person с помощью type:
+type Person = {
+  name: string,
+  age: number,
+  nickName?: string,
+  getPass?: () => string
+}
+const user3: Person = {
+  name: 'Yauhen',
+  age: 30,
+  nickName: 'webDev'
+}
+const admin3: Person = {
+  name: 'Max',
+  age: 20,
+  getPass(): string {
+    return `${this.name}${this.age}`
+  }
+}
+          </code>
+        </pre></article></div></section><!-- enum --><section class="section" id="enum"><div class="section-container"><h2 class="section-title">enum</h2><article class="section-info"><pre>
+  enum (перечисление) - вспомагательная сущность для лучшего структурирования
+кода, если присутствуют однотипные элементы.
+
+  enum представляет из себя некую смесь объекта и массива.
+
+  * enum, в отличае от type, interface..., компилируется в объект (попадает в код) !!
+        </pre><pre>
+          <code class="language-ts">
+// создаем элементы enum'а
+enum Membership {
+  Simple,
+  Standard,
+  Premium
+}
+
+// по значению можно получить индекс
+const membership = Membership.Premium
+console.log(membership) // 2
+
+// так же можно получить строковое значение элемента enum'а, обратившись по индексу
+const membershipReverse = Membership[2]
+console.log(membershipReverse) // Premium
+
+
+// если таким образом создать элементы, то обратившись к ним, получим строку
+enum SocialMedia {
+  VK = 'VK',
+  FACEBOOK = 'FACEBOOK',
+  INSTAGRAM = 'INSTAGRAM'
+}
+const social = SocialMedia.INSTAGRAM
+console.log(social) // INSTAGRAM
+
+
+                              // пример использования:
+
+export enum CardVariant {
+  outlined = 'outlined',
+  primary = 'primary'
+}
+
+interface CardProps extends PropsWithChildren {
+  width?: string;
+  height?: string;
+  variant: CardVariant;
+  onClick: (num: number) => void
+}
+          </code>
+        </pre></article></div></section><!-- class / abstract class --><section class="section" id="class"><div class="section-container"><h2 class="section-title">class / abstract class</h2><article class="section-info"><b>class</b><pre>
+Классы в TS создаются так же, как и в ES6, просто можно указывать модификаторы.
+        </pre><pre>
+          <code class="language-ts">
+// по умолчанию поля без модификаторов - public
+
+// для определения доступности к св-вам и методам класса есть 4 модификатора:
+class User {
+  public name: string            // доступны для всех наследуемых классов и инстенсов
+  private nickName: string       // доступны только в классе, котором были определены
+  protected age: number          // доступны в классе User и для всех наследуемых классов
+  readonly pass: number = 20     // только для чтения; если задать значение по умолчанию,
+                                 // то в конструкторе можно не задавать значение
+
+  constructor(name: string, age: number, nickName: string, pass: number) {
+    this.name = name
+    this.age = age
+    this.nickName = nickName
+    this.pass = pass
+  }
+
+  // вместо создания св-ва + присвоения ему значения в конструкторе ^,
+  // можно было сделать это сразу в конструкторе; но в таком случае
+  // нужно обязательно указывать модификатор!
+  // constructor(
+  //   public name: string,
+  //   private nickName: string,
+  //   protected age: number,
+  //   readonly pass: number
+  // ) {}   // this.name = name, ... присваиваются автоматически
+
+  getPass(): string {
+    return `${this.nickName}${this.age}`
+  }
+}
+
+const yauhen = new User('Yauhen', 30, 'webDev', 123)
+
+yauhen.name        // "Yauhen"
+yauhen.nickName    // Prop 'nickName' is private and only accessible within class 'User'
+yauhen.age         // Prop 'age' is protected and only accessible within class 'User'...
+yauhen.pass = 42   // Cannot assign to 'pass' because it is a read-only property
+          </code>
+        </pre></article><article class="section-info"><b>abstract class</b><pre>
+  Абстрактный класс - это бызовый класс, от которого наследуются другие классы.
+Он нужен только для создания классов-потомков, но от него нельзя создать экземпляр.
+
+  Абстрактный класс ни во что не компилируется, нужен на этапе разработки.
+Он описывает св-ва и методы наследуемого от него класса.
+
+  Так же есть <b>абстрактные методы</b>, которые <b>должны быть реализованы в классе-наследнике</b>.
+
+    2 основные особенности:
+- абстрактный класс содержит детали свойств и методов
+- от абстрактного класса напрямую не создать экземпляр - он только для создания наследников
+        </pre><pre>
+          <code class="language-ts">
+abstract class User {
+  constructor(
+    public name: string,
+    public age: number
+  ) {}
+
+  greet(): void {
+    console.log(this.name)
+  }
+
+  // абстрактные методы не могут иметь имплементацию, поэтому не нужны {}
+  abstract getPass(): string   // абстрактные методы обязательно должны быть реализованы в
+                               // классе-наследнике, а обычные свойства/методы не обязательно
+}
+
+
+const max = new User('Max', 20)  // Cannot create an instance of an abstract class
+
+
+class Yauhen extends User {   // Create class using Abstraction
+  constructor(name: string, age: number) {
+    super(name, age)
+  }
+  getPass():string {
+    return ''
+  }
+}
+          </code>
+        </pre></article></div></section><!-- namespaces --><section class="section" id="namespaces"><div class="section-container"><h2 class="section-title">namespaces (depr)</h2><article class="section-info"><pre>
+  Для создания локальных переменных (т.е. в своей области видимости) в TS есть
+специальная сущность: namespaces - пространства имён (альтернатива модулям в JS)
+
+  В ES5 использовались анонимные самовызывающиеся ф-ии.
+В ES6 появились модули, которые инкапсулировали заложенную в них логику.
+  Для инкапсуляции данных в ES6 также можно использовать обычные классы со
+статическими свойствами.
+
+  Но чтобы не использовать классы, TS предложил свое решение - namespace,
+который <b>создает свою локальную область видимости</b>.
+  Синтаксис похож на объект.
+
+  <b>Подход c namespace'ами устарел в React</b>
+Для связки TS + React рекомендуется использовать обычные ES6 модули, т.е. просто
+экспортировать переиспользуемые ф-ии, константы..., а затем просто их импортировать
+
+* namespace'ы удобны в больших проектах
+        </pre><pre>
+          <code class="language-ts">
+// чтобы вне namespace было что то доступно, это нужно экспортировать (export)
+namespace Utils {  // внутри скобок своя локальная область видимости
+  export const SECRET: string = '123321';
+  const PI: number = 3.14;  // приватная константа
+  export const getPass = (name: string, age: number): string => `${name}${age}`;
+  export const isEmpty = &lt;T>(data: T): boolean => !data;
+}
+
+const myPass = Utils.getPass('Yauhen', 30)
+
+
+// Для импортирования namespace'a в другой файл существует свой синтаксис:
+/// &lt;reference path="path/to/namespace.ts" />     // &lt;---- import
+          </code>
+        </pre></article></div></section><!-- interface --><section class="section" id="interface"><div class="section-container"><h2 class="section-title">interface</h2><article class="section-info"><pre>
+  interface'ы похожи на абстрактные классы и служат для описания объектов или
+имплементации классов (<b>class Clock implements IClock</b>, т.е. по сути расширение
+интерфейса), от которых в дальнейшем создаются объекты.
+
+  Отличае от type в том, что type задает псевдоним для любых типов, включая примитивы,
+а interface - <b>только для объектов</b>.
+
+  Визуально interface это тот же самый объект, однако в действительности это сущность
+для описания формы объекта - как он будет выглядеть.
+  Мы указываем какие поля, методы должны присутствовать у объектов или классов.
+
+  В interface любое свойство / метод не помеченое как опциональное, является обязательным.
+
+
+  <b>создание interface для описания объектов</b>:
+interface Rect {
+  ...
+}
+const myRect = {} as Rect        приводим к типу (cast) с помощью <b>as</b>
+
+
+  <b>интерфейсы наследуются оператором extends</b>:
+interface RectWithArea extends Rect {...}
+
+
+  <b>имплементация класса от интерфейса оператором implements</b>:
+class Clock implements IClock {...}
+        </pre><pre>
+          <code class="language-ts">
+                  // создание interface для описания объектов:
+
+interface Rect {
+  readonly id: string   // можно добавлять модификаторы, как в классах
+  color?: string
+  size: {
+    width: number
+    height: number
+  }
+}
+const rect: Rect = {
+  id: '12345',
+  size: {
+    width: 10,
+    height: 5
+  },
+  // age: 12   // нельзя добавлять св-ва, которых нет в интерфейсе
+}
+rect.color = 'black'   // можем добавить поле после создания
+// rect.id = '123'     // выдаст ошибку, т.к. id только для чтения
+
+// создаем объект, который приводим к типу Rect
+const rect2 = {} as Rect  // пустой объект, но нет ошибки в том что пока нет полей!
+// старая запись:
+const rect3 = &lt;Rect>{}
+
+
+// если необходимо создать интерфейс для объекта, у которого любое
+// количество динамических ключей, то нужно использовать строковый индекс:
+interface Styles {
+  [propName: string]: string   // может быть любой строковый ключ со строковым значением
+}
+const css: Styles = {
+  border: '1px solid black',
+  marginTop: '2px'
+}
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                  // наследование интерфейсов оператором extends:
+
+interface RectWithArea extends Rect {
+  // указываем тип полю getArea - функция (указывается как стрелочная)
+  getArea: () => number  // после => указываем возвращаемый тип
+}
+// создаем объект rect5 от интерфейса RectWithArea
+const rect5: RectWithArea = {
+  id: '123',
+  size: {
+    width: 20,
+    height: 20
+  },
+  getArea(): number {    // можно так же явно указать, что getArea возвращает number
+    return this.size.width * this.size.height
+  }
+}
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                  // имплементация класса от интерфейса оператором implements:
+
+// очень часто интерфейсы называют с большой буквы I
+interface IClock {
+  time: Date  // поле time типа Date
+  setTime(date: Date): void  // метод можно указать и таким образом (без стрелочной ф-ии)
+}
+
+class Clock implements IClock {
+  time = new Date()
+  setTime(date: Date): void {
+    this.time = date
+  }
+}
+const myClock = new Clock()
+          </code>
+        </pre></article></div></section><!-- generic --><section class="section" id="generic"><div class="section-container"><h2 class="section-title">generic</h2><article class="section-info"><pre>
+  Generic тип - общий тип.
+
+  Generic позволяет создавать компоненты (массивы, функции, классы, промисы...), способные
+работать с различными строго задаными типами, или же без заранее определенных типов.
+
+  Мы сами придумываем названия для generic типов!
+  Обычно типы называют одной большой буквой, начиная с буквы T (сокращенно от type): T, R, ...
+        </pre><pre>
+          <code class="language-ts">
+// проблематика:  есть функция, принимающая любой тип в качестве аргумента
+
+const getter = (data: any): any => data
+getter('test').length    // 4
+getter(10).length        // SyntaxError (потеряли контроль над типами)
+
+// чтобы такая ситуация не произошла, мы должны точно типизировать аргумент ф-ии:
+
+const getter2 = &lt;T>(data: T): T => data  // работаем с generic типом T
+// или
+function getter3&lt;T>(data: T): T {
+  return data
+}
+// в таком случаем используя generic тип мы получим ошибку еще на этапе написания кода
+
+
+
+
+                              // с массивами:
+
+// массив из чисел (в &lt;> тип элементов массива)
+const arrayOfNumbers: Array&lt;number> = [1, 1, 2, 3, 5]
+const arrayOfStrings: Array&lt;string> = ['Hello', 'Vladilen']
+
+
+
+
+                              // с функциями:
+
+function mergeObjects(a: object, b: object) {
+  return Object.assign({}, a, b)
+}
+const merged = mergeObjects({name: 'Vladilen'}, {age: 26})
+// console.log(merged.name) // ошибка, т.к. TS не знает что поле
+                            // name должно быть в возвращаемом объекте
+
+function mergeObjects2&lt;T, R>(a: T, b: R): T & R {  // T & R можно и не указывать, т.к. явно
+  return Object.assign({}, a, b)                   // возвращается объект с данными типами
+}
+const merged2 = mergeObjects2({name: 'Vladilen'}, {age: 26})
+console.log(merged2.name)  // нет ошибки
+
+// если передать не объект, а строку, то получится ерунда, но ошибку не выкинет
+const merged3 = mergeObjects2('one', 'two')
+console.log(merged3)
+
+
+
+
+// что бы явно указать что тип T является объектом, нужно
+// указать что он наследуется от объекта с помощью extends
+function mergeObjects3&lt;T extends object, R extends object>(a: T, b: R) {
+  return Object.assign({}, a, b)
+}
+// const merged5 = mergeObjects3('one', 'two')    // ошибка - можно передавать только объекты
+
+
+
+
+// function withCount(value) {
+//   return {
+//     value,
+//     count: `В этом объекте ${value.length} символов` // ошибка, т.к. не у каждого входящего
+//   }                                                  // объекта может быть ключ length
+// }
+interface ILength {  // создаем вспомагательный интерфейс
+  length: number
+}
+// наследуемся от интерфейса, у которого есть поле length
+function withCount&lt;T extends ILength>(value: T): {value: T, count: string} {
+  return {
+    value,
+    count: `В этом объекте ${value.length} символов`
+  }
+}
+// {value: "Привет typescript", count: "В этом объекте 17 символов"}
+console.log(withCount('Привет typescript'))
+
+
+
+
+interface HttpRequest&lt;T> extends Response {
+  parsedBody?: T;
+  status: number;
+  redirect: boolean;
+}
+// возвращает Promise с типом HttpRequest (HttpRequest работает с типом T)
+export async function http&lt;T>(request: string): Promise&lt;HttpRequest&lt;T>> {
+  const response: HttpRequest&lt;T> = await fetch(request)
+  response.parsedBody = await response.json()
+  return response
+}
+
+
+
+
+                              // с интерфейсом:
+
+// работает с любым типом T
+interface ListProps&lt;T> {
+  items: T[]; // массив любых типов
+  renderItem: (item: T) => ReactNode
+}
+
+
+
+                              // с классом:
+
+class Client&lt;T> {     // работает с одним любым типом (строка, число...)
+  constructor(public name: T, public age: T) {}   // создаем 2 св-ва
+
+  getPass(): string {
+    return `${this.name}${this.age}`
+  }
+}
+
+const yauhen = new Client('Yauhen', '25')
+const max = new Client(123, 321)
+yauhen.getPass()  // 'Yauhen25'
+max.getPass()     // '123321'
+
+
+// T и R могут быть как разных типов, так и одного. Если, например,
+// R должен был бы быть только числом, то указывали бы так: &lt;T, R extends number>
+class Customers&lt;T, R> {
+  constructor(public name: T, public age: R) {}   // создаем 2 св-ва
+
+  getPass(): string {
+    return `${this.name}${this.age}`
+  }
+}
+
+const alex = new Customers('Alex', 27)
+alex.getPass()  // 'Alex27'
+
+
+
+
+                              // с промисом:
+
+const promise = new Promise&lt;number>(resolve => {
+// const promise: Promise&lt;number> = new Promise(resolve => {    // данные ^ записи аналогичны
+  setTimeout(() => {
+    resolve(42)
+  }, 10000)
+})
+promise.then(data => {
+  console.log('promise:', data)
+})
+          </code>
+        </pre></article></div></section><!-- operators / utils --><section class="section" id="operators_utils"><div class="section-container"><h2 class="section-title">operators / utils</h2><article class="section-info"><b>оператор keyof</b><pre>
+          <code class="language-ts">
+interface Person {
+  name: string
+  age: number
+}
+
+// используя данный ^ интерфейс создаем отдельный тип,
+// который будет состоять из ключей данного интерфейса
+type PersonKeys = keyof Person  // теперь в PersonKeys могут находиться ключи 'name' / 'age'
+
+let key: PersonKeys = 'name'
+key = 'age'
+// key = 'job'  // ошибка
+          </code>
+        </pre></article><article class="section-info"><b>ключевое слово Exclude, Pick</b><pre>
+          <code class="language-ts">
+type User = {
+  _id: number,
+  name: string
+  email: string
+  createdAt: Date
+}
+// Допустим мы хотим воспользоваться данным ^ типом, при этом
+// создать свой новый тип, но не включающий поля _id и createdAt;
+// это можно сделать 2 способами:
+
+// 1. Специальное ключевое слово Exclude, далее в треугольных скобках
+// мы описываем что именно нам нужно сделать: с помощью оператора keyof
+// пробегаемся по типу User и через запятую объясняем что нужно исключить
+type UserKeysNoMeta1 = Exclude&lt;keyof User, '_id' | 'createdAt'>
+// 2. Указываем какие поля нам нужно оставить с помощью ключевого слова Pick
+type UserKeysNoMeta2 = Pick&lt;User, 'name' | 'email'>
+
+let user1: UserKeysNoMeta1 = 'name'
+user1 = '_id'  // ошибка, можно задавать только 'name' или 'email'
+          </code>
+        </pre></article><article class="section-info"><b>утилиты Partial, Readonly</b><pre>
+          <code class="language-ts">
+                                                               // * всего в TS около 16 утилит
+
+                  // утилита Partial&lt;type>:
+
+interface Bike {
+  model: string
+  year: number
+}
+
+function createAndValidateBike(model: string, year: number): Bike {
+  // создаем объект bike от интерфейса Bike; по умолчанию пустой объект
+  // const bike: Bike = {}     // ошибка, т.к. не хватает полей model и
+                               // year из типа Bike; используем Partial
+
+  // как бы говорим что мы временно создаем объект и в нем временно не хватает ключей
+  const bike: Partial&lt;Bike> = {}
+
+  if (model.length > 3) {
+    bike.model = model
+  }
+
+  if (year > 3) {
+    bike.year = year
+  }
+
+  return bike as Bike  // приводим к типу Bike, что бы не было ошибки
+}
+
+
+
+                  // утилита Readonly&lt;type> :
+
+const motos: Readonly&lt;Array&lt;string>> = ['Ford', 'Audi']  // Readonly оборачивает generic тип
+// motos.shift()  // ошибка, т.к. утилита Readonly не позволяет мутировать массив
+          </code>
+        </pre></article></div></section><!-- decorators --><section class="section" id="decorators"><div class="section-container"><h2 class="section-title">decorators</h2><article class="section-info"><pre>
+  Декоратор - это функция-обёртка вокруг функции, которая изменяет поведение последней.
+
+  Чтобы TS понимал синтаксис декораторов, нужно в конфиге раскоментировать
+эксперементальную фичу: <b>"experimentalDecorators": true</b>
+
+  Синтаксис навешивания декоратора: <b>@decoratorName</b>,
+где decoratorName - ранее созданый декоратор.
+  Декоратор навешивается (т.е. просто добавляется строка с @decoratorName) над классом,
+его свойствами, методами
+
+  В основном декораторы работают с классами.
+
+
+<b>Есть 4 вида декораторов, которые мы можем добавлять</b>:
+
+для класса                              - декоратор должен принять параметр constructor
+                                          в декораторе, являющийся конструктором класса;
+                                          * если декоратор класса вернет значение, то он
+                                          заменит объявление класса с помощью конструктора
+для свойств класса                      - декоратор должен принять 2 параметра:
+                                          target (текущий класс) и propName (св-во)
+                                          и вернуть или null (ничего) или descriptor св-ва.
+                                          Если вернуть descriptor, то он будет использован
+                                          для вызова метода Object.defineProperty
+для методов класса                      - декоратор должен принять 3 параметра: target,
+                                          propName и descriptor (описание св-в метода)
+                                          и вернуть или null или descriptor
+для геттеров/сеттеров класса            - декоратор должен принять те же параметры, что
+                                          и декоратор метода, и вернуть null или descriptor
+
+
+* для descriptor специальный тип PropertyDescriptor
+
+
+
+
+                                <b>Композиция декораторов:</b>
+
+  синтаксис композиции декораторов в одну строку:
+@f @g x
+
+  синтаксис композиции декораторов в несколько строк:
+@f
+@g
+x
+
+  Сначало выражение для каждого декоратора вычисляется сверху-вниз (т.е. вызовется
+factory для @f (если есть) потом factory для @g (если есть)), затем результаты
+вызываются как функции снизу-вверх (т.е. вызовется сначало декоратор @g, потом декоратор @f)
+        </pre><pre>
+          <code class="language-ts">
+// декоратор Log для класса
+function Log(constructor: Function) {
+  console.log('1', constructor)
+}
+
+// декоратор Log2 для св-ва класса
+function Log2(target: any, propName: string | Symbol) {
+  console.log('2', target)
+  console.log('3', propName)
+}
+
+// декоратор Log3 для методов класса
+function Log3(
+    target: any,
+    propName: string | Symbol,
+    descriptor: PropertyDescriptor
+  ){
+  console.log('4', target)
+  console.log('5', propName)
+  console.log('6', descriptor)
+}
+
+// factory decorator (возвращает decorator)
+const enumerable = (value: boolean) => {
+  return (
+    target: any,
+    propName: string | Symbol,
+    descriptor: PropertyDescriptor
+  ) {
+    descriptor.enumerable = value
+  }
+}
+
+@Log // вешаем декоратор Log на класс Component (в этот момент происходит вызов декоратора)
+class Component {
+  @Log2
+  name: string
+
+  constructor(name: string, age: number) {}
+
+  @Log3
+  logName(): void {
+    console.log(`Component name: ${this.name}`)
+  }
+
+  @Log3
+  get componentName() {
+    return this.name
+  }
+
+  @enumerable(false)  // call decorator factory
+  public getPass(): string {  // метод создаваемого объекта не будет перечисляться в циклах
+    return `${this.name}${this.age}`
+  }
+}
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                        // пример реального использования (в Angular):
+
+interface ComponentInterface {
+  selector: string
+  template: string
+}
+
+function ComponentDecorator(config: ComponentInterface) { // factory decorator воз-т декоратор
+  return function // это декоратор
+    // такой generic тип; наследуемся от объекта с ключевым словом new, возвращающим объект
+    &lt;T extends { new(...args: any[]): object }>
+  (Constructor: T) {
+    // описываем наш декоратор: при создании инстэнс CardComponent, мы в #card кладем шаблон
+    return class extends Constructor {
+      constructor(...args: any[]) {  // вызывается конструктор анонимного класса
+        super(...args)
+
+        // т.к. el может быть null, то ставим !
+        const el = document.querySelector(config.selector)!
+        el.innerHTML = config.template
+      }
+    }
+  }
+}
+
+// 1й и 2й параметры нам не важны, нам только нужен descriptor для bind'инга контекста
+function Bind(_: any, _2: any, descriptor: PropertyDescriptor): PropertyDescriptor {
+  const originalFunc = descriptor.value // получаем оригинальную ф-ю
+
+  return {
+    configurable: true,
+    enumerable: false,
+    get() {
+      return originalFunc.bind(this)
+    }
+  }
+}
+
+// в этот момент происходит вызов возвращаемой внутри декоратора ф-ии;
+// а конструктор анонимного класса внутри нее вызывается при создании инстенса
+@ComponentDecorator({
+  selector: '#card',
+  template: `
+    &lt;div class='card'>
+      &lt;div class='card-content'>
+        &lt;span class='card-title'>Card Component&lt;/span>
+      &lt;/div>
+    &lt;/div>
+  `
+})
+class CardComponent {
+  // TS автоматически сделает такое: this.name = name; но в таком случае
+  // нужно обязательно указывать модификатор: protected, public, private
+  constructor(
+    public name: string
+  ) { }
+
+
+  @Bind
+  logName(): void {
+    console.log(`Component name: ${this.name}`)
+  }
+}
+
+// при создании инстенса вызывается конструктор анонимного класса
+const card = new CardComponent('My Card Component')
+
+
+
+                          // декоратор bind'инга контекста:
+
+// при клике выводится только "Component name:", т.к. у метода logName потерян
+// контекст; можно решить проблему методом bind, но мы сделаем декоратор Bind ^
+
+const button = document.querySelector('#btn')!
+button.addEventListener('click', card.logName)
+          </code>
+        </pre></article></div></section><!-- react + ts --><section class="section" id="react_and_ts"><div class="section-container"><h2 class="section-title">react + ts</h2><article class="section-info"><pre>
+<a href="#functional_component" class="react__nav-link">functional component / props</a>
+<a href="#class_component" class="react__nav-link">class component / lifecycle hooks / styles</a>
+<a href="#events" class="react__nav-link">events / target</a>
+<a href="#portal" class="react__nav-link">portal</a>
+<a href="#hooks" class="react__nav-link">hooks</a>
+<a href="#hoc" class="react__nav-link">типизация HOC'ов</a>
+<a href="#context" class="react__nav-link">context</a>
+
+<a href="#react_router_dom" class="react__nav-link">типизация react-router-dom</a>
+<a href="#redux" class="react__nav-link">типизация redux</a>
+        </pre></article><ul class="section-refs"><li><a href="https://react-typescript-cheatsheet.netlify.app/docs/basic/setup" target="_blank">react + typescript cheatsheet</a></li></ul><article class="section-info"><b>basis</b><pre>
+<b>create-react-app &lt;appName> --template typescript</b>
+
+при этом create-react-app устанавливает пакеты для типизации тестов +
+"@types/node", "@types/react", "@types/react-dom"
+
+
+
+
+
+<b>ReactElement</b>          - &lt;Component /> (ComponentType)  или  html-тег (HTMLElement).
+                        ReactElement более строгий, чем в <b>JSX.Element</b>, но по сути
+                        они одинаковые
+
+<b>ReactNode</b>             - он включает в себя все, что может быть возвращено компонентом:
+                        null / undefined / boolean / string / number /
+                        ReactElement / ReactFragment / ReactChild / array of ReactNodes
+
+<b>типизация тегов:</b>      - HTMLElement:  HTMLAnchorElement, HTMLDivElement ...
+
+
+
+                                       примеры типизации:
+
+<span>типизация компонента в качестве пропа:</span>
+PassedComponent: React.ComponentType&lt;BaseProps>
+
+<span>типизация стилей:</span>
+const styles: React.CSSProperties = {display: 'block', marginBottom: '10px'}
+        </pre></article><article class="section-info" id="functional_component"><b>functional component / props</b><pre>
+          <code class="language-ts">
+const Title: React.FunctionComponent = () => &lt;h1>Hello World!&lt;/h1>
+
+// или
+
+const Title: React.FC = () => &lt;h1>Hello World!&lt;/h1>
+
+
+
+
+                              // 2 способа типизации пропсов:
+
+// использование Generic типов
+const Title: React.FC&lt;{title: string}> = ({title}) => &lt;h1>{title}&lt;/h1>
+
+
+// если пропсов много, то лучше использовать type или interface
+// (в таком случае функциональный компонент можно не типизировать):
+type TitleProps = {
+  title: string,
+  children: ({ width }: { width: number }) => JSX.Element
+}
+const Title = ({title = 'default'}: TitleProps) => &lt;h1>{title}&lt;/h1>
+
+
+// или так
+const Card: FC&lt;CardProps> = ({ width, height, variant, children }) => { }
+
+// в 18 React можно чтобы св-во children находилось в пропсах без его описания в интерфейсе !
+:FC&lt;PropsWithChildren&lt;CardProps>>
+// или чуть очевиднее:
+import { PropsWithChildren } from 'react'    interface CardProps extends PropsWithChildren
+          </code>
+        </pre></article><article class="section-info" id="class_component"><b>class component / lifecycle hooks / styles</b><pre>
+          <code class="language-ts">
+type CounterProps = {
+  title?: string
+}
+
+type CounterState = {
+  count: number
+}
+
+// типизация стилей
+const styles: React.CSSProperties = {}
+
+// синатксис такой: используем Generic тип и определяем 2 параметра:
+// 1й - типизация пропсов, 2й - типизация state'a, например: &lt;{}, { count: number }>;
+// или можно создать отдельные типы как в этом примере:
+class Counter extends Component&lt;CounterProps, CounterState> {
+  constructor(props: CounterProps) { // пропсы в конструкторе обязательно типизировать
+    super(props)
+
+    this.state = {
+      count: 0
+    }
+  }
+
+  // задание значений по умолчанию для пропсов, это функционал react:
+  static defaultProps: CounterProps = {
+    title: "Default counter:"
+  }
+
+  // типизируем созданную ссылку (может добавляться только на &lt;div>)
+  private rootRef = React.createRef&lt;HTMLDivElement>()
+
+  static getDerivedStateFromProps(
+    props: CounterProps,
+    state: CounterState
+  ): CounterState | null {
+    return false ? { count: 2 } : null
+  }
+
+  componentDidMount():void {
+  }
+
+  shouldComponentUpdate(nextProps: CounterProps, nextState: CounterState): boolean {
+    return true
+  }
+
+  render() {
+    return (
+      &lt;div styles={styles} ref={rootRef}>
+        {this.props.title}
+      &lt;/div>
+    )
+  }
+}
+          </code>
+        </pre></article><article class="section-info" id="events"><b>events / target</b><pre>
+<a href="https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events/#list-of-event-types" target="_blank">list of event types</a>
+        </pre><pre>
+          <code class="language-ts">
+// т.к. в React все события оборачиваются в synthetic event
+// для обеспечения лучшей кроссбраузерности, то для каждой
+// такой обертки разработан свой событийный тип.
+
+// React.SyntheticEvent - расплывчатый тип, т.к. мы не уточняем
+// какой конкретно тип события произошел (событие мыши, клавиатуры...);
+// список всех синтетических событий есть в документации React
+handleClick = (e: React.SyntheticEvent) => {
+  console.log(`${e.clientX}, ${e.clientY}`)
+}
+
+// конкретизируем тип события
+handleClick = (e: React.MouseEvent) => {
+  console.log(`${e.clientX}, ${e.clientY}`)
+}
+
+// элемент по которому срабатывает событие так же можно типизировать:
+// после задания типа события используется Generic &lt;HTML+тип_элемента>.
+// &lt;HTMLButtonElement | HTMLAnchorElement> означает что можно вешать
+// обработчик события только на теги &lt;button> или &lt;a>
+handleClick = (e: React.MouseEvent&lt;HTMLButtonElement | HTMLAnchorElement>) => {
+  console.log(`${e.clientX}, ${e.clientY}`)
+}
+          </code>
+        </pre></article><article class="section-info" id="portal"><b>portal</b><pre>
+          <code class="language-ts">
+import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
+
+type PortalProps = {
+  children: React.ReactNode
+}
+
+// простейшая реализация портала:
+class Portal extends Component&lt;PortalProps> {
+  // создаем элемент разметки
+  el: HTMLDivElement = document.createElement('div')
+
+  componentDidMount():void {
+    document.body.appendChild(this.el)
+  }
+  componentWillUnmount():void {
+    document.body.removeChild(this.el)
+  }
+
+  // возвращает ReactElement (div) с пропсом (children с типом ReactNode)
+  render(): React.ReactElement&lt;PortalProps> {
+    return ReactDOM.createPortal(this.props.children, this.el)
+  }
+}
+          </code>
+        </pre></article><article class="section-info" id="hooks"><b>hooks</b><pre>
+Типизация hook'ов почти не требуется
+        </pre><pre>
+          <code class="language-ts">
+                       // --------- useState ---------
+
+// если использовать простое значение, то типизация не требуется
+const [value, setValue] = useState(0)
+
+// если значение комплексное или оно отсутствует
+// при инициализации, то может понадобиться TS:
+const [value, setValue] = useState&lt;number | undefined>(undefined)
+// или
+const [value, setValue] = useState&lt;Array&lt;number>>([])
+// или
+interface IUser {
+  name: string;
+  age?: number;
+}
+const [value, setValue] = useState&lt;IUser | null>({ name: 'Yauhen' })
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                       // --------- useRef ---------
+
+// сделает ref1.current доступной только для чтения
+const ref1 = useRef&lt;HTMLElement>(null!)
+
+// сделает ref2.current модифицируемым
+const ref2 = useRef&lt;HTMLElement | null>(null)
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                       // --------- useContext ---------
+
+interface ITheme {
+  backgroundColor: string;
+  color: string;
+}
+
+// context creation
+const ThemeContext = createContext&lt;ITheme>({
+  backgroundColor: 'black',
+  color: 'white'
+})
+
+// accessing context
+const themeContext = useContext&lt;ITheme>(ThemeContext)
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                       // --------- useReducer ---------
+
+interface State { count: number; }
+type Action = { type: 'increment' | 'decrement' }
+
+const counterReducer = ({ count }: State, { type }: Action) => {
+  switch (type) {
+    case 'increment': return { count: count + 1 }
+    case 'decrement': return { count: count - 1 }
+    default: return {}
+  }
+}
+
+// в самом хуке можно не типизировать
+const [state, dispatch] = useReducer(counterReducer, { count: 0 })
+
+dispatch({ type: 'increment' })
+dispatch({ type: 'decrement' })
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                       // --------- useCallback & useMemo ---------
+
+// явная типизация не требуется, можно указать типы передаваемых аргументов
+
+const memoizedCallback = useCallback(() => { sum(a, b) }, [a, b])
+
+const memoizedValue = useMemo((a: number, b: number) => sum(a, b), [a, b])
+          </code>
+        </pre></article><article class="section-info" id="hoc"><b>типизация HOC'ов</b><pre>
+          <code class="language-ts">
+type BaseProps = {   // пропсы компонента кнопки
+  primTitle: string,
+  secTitle?: string
+}
+type InjectedProps = {   // пропсы компонента обертки
+  toggleStatus: Boolean,
+  toggle: () => void
+}
+
+// компонент кнопки
+const Button = ({ primTitle, secTitle, toggle, toggleStatus }: any) => (
+  &lt;button onClick={toggle}>
+    {toggleStatus ? primTitle: secTitle}
+  &lt;/button>
+)
+
+const withToggle = &lt;BaseProps extends InjectedProps>(
+  PassedComponent: React.ComponentType&lt;BaseProps>
+) => {
+  return (props: BaseProps) => {
+    const [toggleStatus, toggle] = useState(false)
+
+    return (
+      &lt;PassedComponent
+        {...props as BaseProps}
+        toggle={() => toggle(!toggleStatus)}
+        toggleStatus={toggleStatus}
+      />
+    )
+  }
+}
+
+const ToggleButton = withToggle(Button)
+const App:React.FC = () => &lt;ToggleButton primTitle='Main Title' secTitle='Additional Title' />
+          </code>
+        </pre></article><article class="section-info" id="context"><b>context</b><pre>
+          <code class="language-ts">
+interface IContext {
+  isAuth: Boolean,
+  toggleAuth: () => void
+}
+
+// Context creation
+const AuthContext = React.createContext&lt;IContext>({
+  isAuth: false,
+  toggleAuth: () => {}
+})
+
+// Root component
+class Context extends Component&lt;{}, { isAuth: Boolean }> {
+  state = {
+    isAuth: false
+  }
+
+  toggleAuth = () => {
+    this.setState(({ isAuth }) => ({
+      isAuth: !isAuth
+    }))
+  }
+
+  render() {
+    const { isAuth } = this.state
+    const context: IContext = { isAuth, toggleAuth: this.toggleAuth }
+
+    return (
+      &lt;AuthContext.Provider value={context}>
+        &lt;Login />
+        &lt;Profile />
+      &lt;/AuthContext.Provider>
+    )
+  }
+}
+          </code>
+        </pre></article><article class="section-info" id="react_router_dom"><b>типизация react-router-dom</b><pre>
+<b>npm i react-router-dom @types/react-router-dom</b>
+        </pre><pre>
+          <code class="language-ts">
+import { useParams } from 'react-router-dom'
+
+type UserItemPageParams = {
+  id: string;
+}
+
+const UserItemPage: FC = () => {
+  const { id } = useParams&lt;UserItemPageParams>()
+  ...
+}
+          </code>
+        </pre></article><article class="section-info" id="redux"><b>типизация redux</b><pre>
+<b>npm i redux react-redux @types/react-redux</b>
+
+Типизируются в основном reducers, actions и store
+        </pre><pre>
+          <code class="language-ts">
+                                  // src/types.ts
+
+import { ADD_TASK, REMOVE_TASK, COMPLETE_TASK, CHANGE_FILTER } from './constants'
+
+// Store
+export type Filter = string
+
+export interface ITask {
+  id: number,
+  text: string,
+  isCompleted: boolean
+}
+
+// Actions
+interface IAddTaskAction {
+  type: typeof ADD_TASK, // в TS typeof жестко определяет тип (т.е. только константа ADD_TASK)
+  payload: ITask
+}
+
+interface IRemoveTaskAction {
+  type: typeof REMOVE_TASK,
+  payload: {
+    id: number
+  }
+}
+
+interface ICompleteTaskAction {
+  type: typeof COMPLETE_TASK,
+  payload: {
+    id: number
+  }
+}
+
+interface IChangeFilterAction {
+  type: typeof CHANGE_FILTER,
+  payload: {
+    activeFilter: Filter
+  }
+}
+
+// тип TaskActionTypes - один из интерфейсов
+export type TaskActionTypes = IAddTaskAction | IRemoveTaskAction | ICompleteTaskAction
+export type FilterActionType = IChangeFilterAction
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                              // src/actions/actionCreator.ts
+
+import { ADD_TASK, REMOVE_TASK, COMPLETE_TASK, CHANGE_FILTER } from '../constants'
+import { TaskActionTypes, FilterActionType, ITask, Filter } from '../types'
+
+export const addTast = (task: ITask): TaskActionTypes => ({
+  type: ADD_TASK,
+  payload: {
+    ...task
+  }
+})
+
+export const removeTask = (id: number): TaskActionTypes => ({
+  type: REMOVE_TASK,
+  payload: {
+    id
+  }
+})
+
+export const completeTask = (id: number): TaskActionTypes => ({
+  type: COMPLETE_TASK,
+  payload: {
+    id
+  }
+})
+
+export const changeFilter = (activeFilter: Filter): FilterActionType => ({
+  type: CHANGE_FILTER,
+  payload: {
+    activeFilter
+  }
+})
+          </code>
+        </pre><pre>
+          <code class="language-ts">
+                              // src/reducers/filters.ts
+
+import { CHANGE_FILTER } from '../constants'
+import { Filter, FilterActionType } from '../types'
+
+const BASE_FILTER: Filter = 'all'
+
+const filter = (state = BASE_FILTER, { type, payload }: FilterActionType):Filter => {
+  switch (type) {
+    case CHANGE_FILTER:
+      return payload.activeFilter
+    default:
+      return state
+  }
+}
+
+export default filter
+          </code>
+        </pre></article></div></section></main><script src="index.js"></script></body></html>

@@ -1,0 +1,3411 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>React</title><link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"><link rel="stylesheet" href="index.css"></head><body data-name="react"><main class="sections-wrapper"><!-- basis --><section class="section" id="basis"><div class="section-container"><h2 class="section-title">basis</h2><article class="section-info"><pre>
+<a href="#spa" class="react__nav-link">SPA</a>
+<a href="#components" class="react__nav-link">Components / JSX</a>
+<a href="#state_props" class="react__nav-link">state / props</a>
+<a href="#events" class="react__nav-link">events / refs</a>
+        </pre></article><article class="section-info"><pre>
+  <b>React</b> - это разработаная в 2013 Facebook'ом библиотека для создания пользовательских
+интерфейсов, не обязательно web-приложений. React спроектирован так, что не зависит от
+браузера.
+  <b>За визуализацию, за рендеринг компонентов в браузер отвечает библиотека react-dom.</b>
+  Поскольку React спроектирован таким образом, мы можем помимо браузерных приложений
+с помощью React Native (отвечает за рендеринг) создавать так же приложение на Android,
+ios. С помощью React можно даже создавать приложение на Windows.
+  Таким образом ядро реакта (React CORE) содержит большое кол-во концепций (Reconciliation
+algorithm...), а за визуализацию в том или ином окружении отвечают другие библиотеки.
+
+
+
+                        <b>Основная проблема, решаемая React:</b>
+  React позволяет работать с данными и не сосредотачиваться на работе с DOM деревом. На чистом
+JS мы должны следить что бы изменение данных совпадало с изменением UI, то есть нужно обновлять
+ноды и т.д.
+  React же позволяет сосредоточиться на данных + в нем много оптимизирующих механизмов, таких
+как Reconciliation algorithm, Virtual-DOM, которые позволяют избежать лишних перерисовок и т.д.
+
+
+
+                               <b>Преимущества React:</b>
+1. Модульность (переиспользуемые компоненты)
+2. Reconciliation algorithm - алгоритм сверки в Virtual-DOM, который позволяет отслеживать
+   какие части приложения изменились и обновить только их, а не все приложение
+3. Virtual-DOM - (т.к. React может быть вне браузера, то более правильное название Дерево
+   элементов) технология виртуального дерева узлов (объектов), в которых в разы меньше полей,
+   чем в нативных узлах документа. После рендеринга старый Virtual-DOM сравнивается с новым
+   благодаря Reconciliation algorithm и обновляются только измененные части. Благодаря такому
+   подходу React работает настолько быстро.
+   * самые ресурсоемкие операции - это работа с DOM, потому что
+     DOM-node объекты содержат большое количество свойств и методов
+
+JSX in Component  -->  JS (JSX to JS via babel)  -->
+-->  React create Virtual-DOM and compare  -->  create DOM  -->  HTML in browser
+
+
+
+                                <b>React - реактивен?</b>
+  React-компоненты это функции, которые мы не вызываем на прямую. Эти функции в некоторые
+моменты возвращают описание того что нужно рендерить.
+  Эти функции вызывает сам React в те самые "некоторые" моменты. И React может отложить
+этот вызов. React рекурсивно обходит дерево компонентов и может применять оптимизации -
+задерживать рендеры чтобы избежать потерю кадров.
+  React в первую очередь это UI фреймворк, и для того чтобы избежать тормозов такие меры
+оправданы. Т.к. данные могут поступать быстрее чем скорость обновления кадров => есть смысл
+объединять обновления в пакеты и обновлять пакетами.
+  Поэтому React это скорее «планировщик», и реактивность не проявляется в чистом виде.
+        </pre></article><article class="section-info" id="spa"><b>SPA</b><pre>
+                                   <b>MultiPage Application</b>
+
+  Раньше, до AJAX запросов и прочих современных технологий, на get-запрос, например, для
+новой страницы, сервер на php формировал html и отдавал весь html для этой страницы, тем
+самым загружая и себя и браузер и трафик + была перезагрузка браузера при запросах.
+  React работает как SPA, в отличае от классических клиентских приложений с концепцией <b>Multi
+Page Application</b>, в которой несколько html-файлов с содержимым и скриптами к ним и навигация
+между страницами (html-файлами) по ссылкам.
+
+Минусы MultiPage Application:
+- каждый раз при переходе на страницу мы загружаем полностью новый html-файл
+- при медленном подключении и неоптимизированности видны переходы между страницами
+
+
+                                            <b>SPA</b>
+
+  В современных же веб приложениях, на основе js-фреймворков, все работает по другому:
+клиент посредствам js делает запрос на сервер и получает большое количество данных (json,
+сервер очень быстро берет данные из базы и передает их в ответе без особой нагрузки) и
+почти пустой html, вместо большого количества html для всей страницы. И, как это реализовано
+в React, полученный json обрабатывается, и на его основе формируется html разметка - компонеты,
+которые рендерятся на страницу (<b>CSR - Client Side Rendering</b>). То есть получается, что у нас
+всего одна почти пустая html страница (SPA) и много js-логики.
+
+  SPA - это веб-приложение или веб-сайт, который взаимодействует с браузером, динамически
+переписывая текущую веб-страницу новыми данными с веб-сервера, вместо того, чтобы по
+умолчанию браузер загружал целые новые страницы.
+  Цель - более быстрые переходы, которые делают сайт более похожим на нативное приложение.
+  SPA использует единственный HTML-документ как оболочку для всех веб-страниц и организует
+взаимодействие с пользователем через динамически подгружаемые HTML, CSS, JavaScript, обычно
+посредством AJAX подхода (в фоновом режиме - без перезагрузки).
+
+Минусы SPA:
+- размер загружаемого js-бандла большой, т.к. он не разбит на части и по сути содержит
+  всю логику приложения
+- за все отвечает клиент (роутинг, запрос данных, их обработка...). Т.к. серверные
+  процессы частично перешли на клиент - получаем некоторое замедление
+- проблемы с SEO: страницы рендерятся динамически внутрь пустого корневого элемента
+  => для поисковых роботов эти страницы фактически пусты
+        </pre></article><article class="section-info" id="components"><b>Components / JSX</b><pre>
+  React работает по принципу компонентного подхода. Т.е. <b>все приложение разбивается
+на независимые части - компоненты, которые можно переиспользовать</b>.
+
+  Корневой компонент монтируется в index.html файл.
+  Инъекция компонент (редко шаблона) внутрь html делается с помощью метода:
+import ReactDOM from 'react-dom/client'
+<b>const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(&lt;App />)</b>
+
+
+  <b>Компонент</b> - функция или класс, которая возвращает структуру определенного компонента
+<b>в круглых скобках</b>, которые говорят о том что внутри JSX.
+
+  <b>JSX</b> – html-подобный синтаксис, позволяющий использовать разметку, похожую на html, прямо
+внутри js. JSX — синтаксический сахар (препроцессор), который <b>транспилируется babel'ом в
+вызов функции React.createElement(component, props, ...children)</b>
+
+
+
+                          <b>Основные правила в JSX:</b>
+
+- JSX элемент это:  &lt;Component />  или  html-тег
+- JSX элементы могут быть вложеными; корневой элемент в помпоненте должен
+  быть один, но если нужно несколько, можно их обернуть в &lt;>&lt;/>
+- если нужно использовать js, то пишем его внутри { }; внутри {} нельзя
+  использовать сложные конструкции типа создание классов, но можно вызывать ф-ии
+- prop'сы в компонент передаем (пробрасываем) как атрибуты тега; строчные значения
+  можно не оборачивать в {}:
+  &lt;Component subTitle='sub' share={true} onChangeTitle={this.changeTitleHandler} />
+- если не передавать значение в проп, то по умолчанию оно будет true:
+  &lt;Component autocomplete />
+- true/false, null и undefined не рендерятся, поэтому, например, если showHeader
+  false, то не отрендерится ничего:
+  &lt;div>
+    {showHeader && &lt;Header />}
+  &lt;/div>
+  но если props.messages.length равна 0, то отрендерится 0 => нужна проверка
+  props.messages.length > 0 && ...:
+  &lt;div>
+    {props.messages.length && &lt;MessageList messages={props.messages} />}
+  &lt;/div>
+- компоненты называются с заглавной буквы; если компонент начинается с маленькой
+  буквы, то React принимает его за JSX элемент-тег
+- JSX синтаксис рекомендует делать пустые JSX элементы-теги закрывающимися: &lt;i />
+- для задания класса JSX элементу-тегу вместо class используется className
+- чтобы задать inline-стили элементу-тегу необходимо атрибуту style передать
+  объект с полями стилей: &lt;div style={{color: 'red', textAlign: 'left'}}>;
+  нужно в качестве ключа использовать camelCase
+- блочные конструкции, например if, for и т.д., запрещены, поэтому для условий
+  нужно использовать тернарный оператор или &&, либо выполнять проверку вне JSX
+- инлайновые события у JSX элементов-тегов пишутся через camelCase
+  и значением атрибута-события является listener: onClick={refToHandler}
+- для удобной работы со списком JSX элементов должен быть массив внутри { },
+  возвращаемый map (или просто массив): { [components] }. Выводимые таким образом
+  компоненты или теги должны иметь обязательный атрибут key
+  * лучше не использовать index из map в качестве значения для key (хотя если
+    index не будет менятся - т.е. массив статичный, то можно юзать и index),
+    а id элемента массива или что то подобное уникальное
+    + нужно использовать статические значения, а не, например, Math.random()
+  * для генерации уникальных ключей удобно юзать библиотеку uuid:
+    import { v4 as uuidv4 } from 'uuid'
+    ...
+    &lt;ul>
+      {items.map(item => &lt;li key={uuidv4()}>{item}&lt;/li>)}
+    &lt;/ul>
+
+
+
+
+
+                            <b>Виды компонентов:</b>
+
+  До появления hook'ов было деление компонентов на stateful (классовые) и
+stateless (функциональные).
+  После появления hook'ов компоненты делятся только на классовые и функциональные,
+т.к. в функциональных компонентах так же можно создать состояние:
+
+  <b>классовые</b>
+Класс, наследующий от React.Component, в котором должен быть метод render, возвращающий
+конечный JSX
+
+  <b>функциональные</b>
+Функция, возвращающая конечный JSX. При рендере и перерендере меняются переменные и ф-ии
+даже вне JSX (вне return (...)) => лучше их мемоизировать хуками useCallback, useMemo.
+         </pre><pre>
+           <code class="language-jsx">
+                             классовый
+
+import React, { Component } from 'react'
+
+export class Welcome extends Component {
+
+  render() { // this.props наследуются от Component
+    return (
+      &lt;>
+        &lt;h1>Hello&lt;/h1>
+        &lt;h2>{this.props.subTitle}&lt;/h2>
+      &lt;/>
+    )
+  }
+}
+
+
+                          функциональный
+
+import { ReactComponent as ArrowOne } from '../icons/arrow-1.svg'
+
+export function App() {
+  return (
+    &lt;Welcome subTitle='subtitle' />
+    // Чтобы импортировать svg как компонент нужен пакет @svgr/webpack
+    &lt;ArrowOne />
+  )
+}
+           </code>
+         </pre><pre>
+
+* to render nothing return null
+        </pre></article><article class="section-info" id="state_props"><b>state / props</b><pre>
+  существует 2 типа данных, необходимых для работы компонента: state и props.
+
+  Умные компоненты - взаимодействуют с состоянием, а глупые (презентационные) - просто
+что то рисуют на основании props или без props.
+
+<b>* компонент ререндерится при изменениях props или state в компоненте или его предке!</b>
+
+
+  props - это данные, которые пробрасываются из одного компонента в другой. Пропсы
+всегда передаются сверху вниз от родительского к дочерним компонентам.
+
+  <b>В классовом компоненте св-во props и метод setState() наследуется от
+библиотечного класса Component (получаем в методах: this.props / this.setState()).
+Если есть метод constructor в классовом компоненте, то props является параметром.
+  А в функциональном компоненте объект props получаем как параметр функции.</b>
+
+  Компонент никогда не должен что-то записывать в свои пропсы, props можно только читать.
+
+  Можно вывести контент внутри закрывающегося JSX элемента свойством <b>children</b>:
+{props.children}
+
+
+  state - внутреннее состояние компонента в виде объекта со свойствами.
+Данные из state можно передавать в другие компоненты в виде props'ов (свойств)
+либо изменять. Причем их изменение вызывает перерендеринг самого компонента.
+
+  * При ререндере компонента из-за изменения пропсов или из-за ререндера родительского
+компонента, данные из state не меняются (не сбрасываются к initialState)!
+  * Но, при перезагрузке страницы, состояние конечно же сбрасывается => такие
+данные, как например isAuth лучше дублировать в LS, что бы в случае перезагрузки
+страницы брать их из LS и добавлять в state.
+
+  Обычно состояние сначало добавляется к компоненту, которому оно требуется для
+рендера. Затем, если другие компоненты также нуждаются в нём, вы можете поднять
+его до ближайшего общего предка - <b>подъем состояния</b>.
+  Поток данных в React — однонаправленный, и, если нужно изменять state родительского
+компонента из дочерних, то в родительском создаем методы для изменения state и в пропсах
+прокидываем их вниз. Либо передаем методы дочерним компонентам с помощью Context.
+
+  <b>* В state нужно хранить только те переменные, которые будут меняться (динамические)!
+  * Если данные можно вычислить на основании пропсов или других данных внутри компонента,
+  то такие данные не должны храниться в state. Например, отфильтрованый список мы вычисляем
+  внутри компонента таблицы на основании пропсов: массива данных и значения поля поиска !</b>
+
+
+  В классовых компонентах state задается или внутри конструктора с помощью свойства
+state или вне конструктора. Обычно state хранится в корневом классовом компоненте,
+а не во вложенных.
+  Метод компонента setState(), наследуемый от класса Component, позволяет менять state.
+Напрямую нельзя менять state, только с помощью метода setState!
+
+  <b>В setState() передается новый объект состояния, но не со всеми свойствами, а только
+с теми, которые хотим изменить!
+  Переданный в setState() объект состояния мержится с текущим состоянием => переданные
+новые поля состояния перезапишут текущие.
+  * В хуке useState, редьюсере для useReducer и Redux нужно задавать новое состояние.
+Оно не будет мержится с текущим (а заменит его), поэтому в объекте нового задаваемого
+состояния сначало разворачиваем старый state, а потом задаем изменившиеся поля.</b>
+
+
+  <b>Правильное изменение State</b>:
+из-за того что setSate() асинхронна (React намеренно ждёт пока все компоненты вызовут
+setState() в своих обработчиках событий прежде чем начать повторный рендер; это избавляет
+от ненужных повторных рендеров), более правильно и безопасно изменять state, передавая в
+setState не объект состояния, а функцию с параметром prevState (предыдущее состояние),
+которая возвращает объект нового состояния.
+  Для выполнения кода сразу после установки состояния, нужно 2м аргументом передать cb:
+<b>setState((prevState, props) => newStateObj, [callback])</b>
+        </pre><pre>
+           <code class="language-jsx">
+const Desk = props => {
+  return (
+    &lt;div>{`${props.children} ${props.counter}`}&lt;/div>
+  )
+}
+
+class Welcome extends Component {
+  // constructor(props) {
+  //   super(props)   // если есть constructor, то вызов super(props) обязателен!
+  //
+  //   this.state = {
+  //     counter: 0
+  //   }
+  // }
+
+  // если state не зависит от переданных props, можно и так
+  state = {
+    counter: 0
+  }
+
+  // * до появления стрелочных ф-ий listener'ам байндили контекст
+  // в конструкторе:  this.handleClick = this.handleClick.bind(this)
+  handleClick = () => {
+    this.setState(({ counter }) => ({
+      counter: ++counter
+    }))
+  }
+
+  render() {
+    const { counter } = this.state
+
+    return (
+      &lt;>
+        &lt;Desk counter={counter}>
+          Счетчик:
+        &lt;/Desk>
+        &lt;button onClick={this.handleClick}>+1&lt;/button>
+      &lt;/>
+    )
+  }
+}
+          </code>
+        </pre><pre>
+
+* валидировать типы props в компонентах можно с помощью библиотеки propTypes или с помощью TS
+        </pre></article><article class="section-info" id="events"><b>events / refs</b><pre>
+  Обычно при использовании React не нужно вызывать addEventListener, чтобы добавить
+обработчики в DOM-элемент после его создания. Вместо этого добавьте обработчик инлайново.
+  Обработчик хранится в DOM-свойстве, а значит при удалении элемента он удаляется тоже!
+
+  Обработка событий в React-элементах очень похожа на обработку событий в DOM-элементах.
+Но есть несколько синтаксических отличий:
+- события в React именуются в стиле camelCase вместо нижнего регистра
+- с JSX вы передаёте функцию как обработчик события вместо строки
+  ( в html: &lt;button onclick='clickHandler()'>      <b>в JSX: &lt;button onClick={clickHandler}></b> )
+- в React нельзя предотвратить обработчик события по умолчанию,
+  вернув false в обработчике. Нужно явно вызвать preventDefault
+
+  Обработчики событий получают экземпляр SyntheticEvent -  обёртка над нативным экземпляром
+события для кроссбраузерности. У неё такой же интерфейс, как и у нативного события, включая
+методы stopPropagation() и preventDefault().
+
+  Если по одному событию нужно вызвать два метода, нужно вызов второго метода
+поместить в первый.
+
+* событие onChange в JSX срабатывает каждый раз при
+  изменении значения инпута, как событие input в нативном js
+
+
+
+  Референция - возможность, позволяющая получать доступ к JSX элементам, получая
+ссылку на них из аттрибута <b>ref</b> у этих элементов.
+  Значением аттрибута ref может является функция (<b>Callback Refs</b>), принимающая ссылку на
+JSX элемент, и например присваивающая эту ссылку какому то свойству компонента. И затем
+в любом методе компонента есть ссылка к такому элементу с аттрибутом ref.
+  Callback Refs можно так же использовать для, например, измерения размера элемента.
+
+  Так же существует более <b>распространенный подход создания ссылки</b>: в конструкторе класса
+создаем референс с помощью <b>функции React.createRef: this.inputRef = React.createRef()</b>,
+затем атрибуту ref передаем эту референцию: <b>ref={this.inputRef}</b> и потом при
+использовании обращаемся к ней так: <b>this.inputRef.current</b>.
+  Для создания ссылки в функциональных компонента, лучше использовать хук <b>useRef</b>.
+  Референсы используются, например, для: получения фокуса элементом, для работы
+с svg-элементами, html-элементами audio и video, императивного вызова анимаций,
+интеграции со сторонними DOM-библиотеками.
+
+      <b>значение рефа отличается в зависимости от типа узла:</b>
+- когда атрибут ref используется с HTML-элементом, свойство current созданного
+  рефа в конструкторе с помощью React.createRef() получает соответствующий DOM-элемент
+- когда атрибут ref используется с классовым компонентом, свойство current объекта-рефа
+  получает экземпляр смонтированного компонента
+- нельзя использовать ref атрибут с функциональными компонентами, потому что для них не
+  создаётся экземпляров.
+
+  Если нужен реф на функциональный компонент, можно воспользоваться forwardRef!
+        </pre><pre>
+           <code class="language-jsx">
+class CustomTextInput extends Component {
+  constructor(props) {
+    super(props)
+    this.textInput = React.createRef()
+  }
+
+  focusTextInput = () => {
+    this.textInput.current.focus()
+  }
+
+  render() {
+    return (
+      &lt;div>
+        &lt;input
+          type='text'
+          ref={this.textInput}
+        />
+        &lt;input
+          type='button'
+          value='Focus the text input'
+          onClick={this.focusTextInput}
+        />
+      &lt;/div>
+    )
+  }
+}
+
+// чтобы произвести имитацию клика по CustomTextInput из прошлого примера
+// сразу же после монтирования, можно использовать реф, чтобы получить
+// доступ к пользовательскому &lt;input> и явно вызвать его метод focusTextInput
+class AutoFocusTextInput extends Component {
+  constructor(props) {
+    super(props)
+    this.textInput = React.createRef()
+  }
+
+  componentDidMount() {
+    this.textInput.current.focusTextInput()
+  }
+
+  render() {
+    return (
+      &lt;CustomTextInput ref={this.textInput} />
+    )
+  }
+}
+          </code>
+        </pre></article><ul class="section-refs"><li><a href="https://reactjs.org/docs/events.html#supported-events" target="_blank">список событий, поддерживаемых в JSX</a></li></ul></div></section><!-- component styling --><section class="section" id="component_styling"><div class="section-container"><h2 class="section-title">component styling</h2><article class="section-info"><pre>
+  Можно просто импортировать немодульные стили:
+import './Car.css'
+import './Car.scss'
+
+  Можно сделать стили <b>модульными</b>, то есть изолировать стили
+для определенного компонента, присваивая уникальный хэш классам.
+  Car.css будет доступен только модулю Car.js, в который этот стиль подключен:
+1. добавляем .module перед разрешением: Car.module.scss
+2. import classes from './Car.module.scss'
+3. &lt;div className={classes.Car}>  <span>название класса генерируется в соответствии с scss модулем</span>
+
+
+  Для работы с scss устанавливаем пакет node-sass (для create-react-app тоже нужно ставить).
+
+  * В компоненте, в зависимости от каких то условий, можно менять его css-класс,
+тем самым меняя стилизацию.
+        </pre></article></div></section><!-- class components lifecycle --><section class="section" id="class_components_lifecycle"><div class="section-container"><h2 class="section-title">class components lifecycle</h2><article class="section-info"><pre>
+<img src="./images/react/react%20lifecycle%20methods.jpg" alt="react lifecycle methods">
+        </pre><pre>
+          <code class="language-jsx">
+         // Жизненный цикл монтирования
+
+static getDerivedStateFromProps(nextProps, prevState) {
+// существует для редких случаев, когда состояние зависит от изменений в
+// props; вызывается непосредственно перед вызовом метода render, как при
+// начальном монтировании, так и при последующих обновлениях; он должен
+// вернуть объект для обновления состояния или null, чтобы ничего не обновлять
+}
+render() {}
+componentDidMount() {
+// метод, на котором готов HTML (шаблон компонента вмонтирован) и мы можем уже
+// с ним работать; можно делать side effects (запрос на сервер, изменение DOM,
+// назначать обработчики, анимация...)
+}
+
+
+         // Жизненный цикл обновления
+
+static getDerivedStateFromProps(nextProps, prevState) {}
+shouldComponentUpdate(nextProps, nextState) {
+// должен вернуть true или false;
+// не рекомендуется делать глубокое сравнение или использовать JSON.stringify() в
+// shouldComponentUpdate(). Это неэффективно и плохо влияет на производительность;
+// return nextProps !== this.props || nextState != this.state (поверхностное сравнение)
+// вместо shouldComponentUpdate() лучше использовать PureComponent (поверхностное сравнение)
+}
+render() {}
+getSnapshotBeforeUpdate(prevProps, prevState) {
+// вызывается прямо перед добавлением в DOM; позволяет компоненту брать
+// некоторую информацию из DOM (например, положение прокрутки) перед её
+// возможным изменением. Любое значение, возвращаемое этим методом жизненного
+// цикла, будет передано как третий параметр componentDidUpdate()
+}
+componentDidUpdate(prevProps, prevState, snapshot) {
+// Метод позволяет работать с DOM при обновлении компонента. Также он
+// подходит для выполнения таких сетевых запросов, которые выполняются
+// на основании результата сравнения текущих пропсов с предыдущими. Если
+// пропсы не изменились, новый запрос может и не требоваться.
+}
+
+
+         // Жизненный цикл размонтирования (удаления)
+
+componentWillUnmount() {
+// вызывается при удалении компонента из DOM; удобно использовать, например,
+// для очистки таймера, удаления подписки, очистка памяти при удалении
+// компонента. Не используйте setState() в componentWillUnmount(), так как
+// компонент никогда не рендерится повторно
+}
+          </code>
+        </pre></article></div></section><!-- PureComponent --><section class="section" id="pureComponent"><div class="section-container"><h2 class="section-title">PureComponent</h2><article class="section-info"><pre>
+  <b>React.PureComponent</b> отличается от React.Component тем, что React.Component не реализует
+shouldComponentUpdate(), а React.PureComponent реализует его поверхностным сравнением пропсов
+и состояния (не глубокое, как и у shouldComponentUpdate - т.е. если во вложенном объекте у state
+или props будет изменение, то update не произойдет). Служит для оптимизации.
+  То есть PureComponent - компонент, который обновляется, только если у него поменялись
+props/state.
+  Компонент перерисовывается, даже если у него перерисовался родитель, но props не
+поменялись. Это напрасная лишняя перерисовка. Для того что бы этого не происходило и
+нужно использовать PureComponent
+        </pre></article></div></section><!-- props drilling / Context --><section class="section" id="props_drilling_context"><div class="section-container"><h2 class="section-title">props drilling / Context</h2><article class="section-info"><pre>
+Context - передача данных через дерево компонентов без необходимости
+          передавать пропсы на промежуточных уровнях (prop drilling)
+
+Context разделяется на 2 составляющие: Provider и Consumer (потребитель)
+
+* Если контекстов в компоненте несколько, то и Provider и Consumer могут
+  быть вложеными друг в друга
+
+* при изменении контекста будут перерендериваться все Consumer'ы (потребители),
+  но промежуточные компоненты (между Provider и Consumer) не будут перерендериваться.
+    При чем будет ререндер во всех Consumer'ых компонентах, даже тех, которые
+  используют не те поля контекста, которые изменились, а не изменившиеся!!!
+  Поэтому если повторный рендер компонента затратен, можно оптимизировать его
+  с помощью мемоизации
+        </pre><pre>
+          <code class="language-jsx">
+                              алгоритм передачи контекста:
+
+// 1. создаем и экспортируем контекст в &lt;App /> (можно создать и в
+// отдельном файле), передавая в createContext какое то дефолтное значение:
+export const ClickedContext = React.createContext(false)
+
+// 2. в &lt;App /> создаем provider, указывая расшариваемое
+// свойство (или например объект со св-ми) в аттрибуте value (из state):
+&lt;ClickedContext.Provider value={this.state.clicked}>
+  &lt;Counter />
+&lt;/ClickedContext.Provider>
+
+// 3. импортируем контекст в &lt;Counter /> и в месте, которое должно
+// взаимодействовать с расшариваемыми данными, создаем Consumer,
+// в котором callback-функция в качестве параметра получает данные
+import {ClickedContext} from '../App'
+
+&lt;ClickedContext.Consumer>
+  {clicked => clicked ? &lt;p>Clicked&lt;/p> : null}
+&lt;/ClickedContext.Consumer>
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+//    Для удобства можно создать отдельный компонент, например
+//  &lt;galleryState>, в котором будет state и методы (возможно
+//  асинхронные) для его изменения (возможно с редьюсером).
+//    Этот компонент возвращает обертку над children в виде Provider
+
+export const GalleryState = ({children}) => {
+  // ...
+
+  return (
+    &lt;GalleryContext.Provider
+      value={{getAuthors, getAlbums, getPhotos, openModal, closeModal}}
+    >
+      {children}
+    &lt;/GalleryContext.Provider>
+  )
+}
+
+
+//  и далее в &lt;App /> вкладываем в этот &lt;galleryState> остальные
+//  компоненты, например &lt;Switch> для роутинга
+function App() {
+   return (
+      &lt;GalleryState>
+         &lt;Switch>
+            &lt;Route path='/' exact component={Authors} />
+            &lt;Route path='/author/:name' component={Albums} />
+            &lt;Redirect to='/' />
+         &lt;/Switch>
+      &lt;/GalleryState>
+   )
+}
+          </code>
+        </pre></article></div></section><!-- forms --><section class="section" id="forms"><div class="section-container"><h2 class="section-title">forms / fields</h2><article class="section-info"><pre>
+  Чаще всего форму удобнее обрабатывать с помощью JavaScript-функции, у которой есть
+доступ к введённым данным. Стандартный способ реализации такого поведения называется
+<b>«управляемые компоненты» - элементы, значение атрибутов которых генерируется
+динамически из пропсов или из state</b>.
+
+  В HTML элементы формы, такие как &lt;input>, &lt;textarea> и &lt;select>, обычно сами
+управляют своим состоянием и обновляют его когда пользователь вводит данные (изменяют
+текст в полях).
+  В React мутабельное состояние обычно содержится в state.
+  Мы можем скомбинировать оба подхода и сделать состояние React-компонента «единственным
+источником правды». Значение &lt;input> будет контролировать React, а сам элемент будет
+называться «управляемый компонент».
+  <b>Двухстороннее связывание</b> - это когда value элемента берется из state и при
+изменении элемента (например, ввод текста) происходит изменение этого состояния. Такой
+компонент будет управляемым.
+
+  <b>Conclusion</b>: управляемый компонент - это когда создается состояние и используется
+как value например для инпута, и так же создается слушатель для события инпута (например,
+onChange), который изменяет состояние (двухстороннее связывание).
+
+  Если вам нужны несколько управляемых элементов input, вы можете назначить каждому из
+них атрибут name, что позволит функции-обработчику решать, что делать, основываясь на
+значении event.target.name
+
+* React вместо атрибута selected у option использует value в корневом теге select.
+  В атрибут value можно передать массив, что позволит выбрать несколько опций
+* в label вместо аттрибута for используется htmlFor
+
+
+  В HTML &lt;input type='file'> позволяет пользователю выбрать один или несколько файлов.
+Так как значение такого элемента доступно только для чтения, это <b>неуправляемый React-компонент</b>
+        </pre><pre>
+          <code class="language-jsx">
+class NameForm extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      inputValue: '',
+      selected: 'coconut'
+    }
+  }
+
+  handleInputChange = (event) => {
+    this.setState({inputValue: event.target.value})
+  }
+
+  handleSelectChange = (event) => {
+    this.setState({selected: event.target.value})
+  }
+
+  handleSubmit = (event) => {
+    alert('Отправленное имя: ' + this.state.inputValue)
+    event.preventDefault()
+  }
+
+  render() {
+    return (
+      &lt;form onSubmit={this.handleSubmit}>
+        &lt;label>
+          Имя:
+          &lt;input
+            type='text'
+            value={this.state.inputValue}
+            onChange={this.handleInputChange}
+          />
+        &lt;/label>
+
+        &lt;select
+          value={this.state.selected}    // задает selected для option
+          onChange={this.handleSelectChange}
+        >
+          &lt;option value='grapefruit'>Грейпфрут&lt;/option>
+          &lt;option value='lime'>Лайм&lt;/option>
+          &lt;option value='coconut'>Кокос&lt;/option>
+          &lt;option value='mango'>Манго&lt;/option>
+        &lt;/select>
+
+        &lt;input type='submit' value='Отправить' />
+      &lt;/form>
+    )
+  }
+}
+          </code>
+        </pre></article></div></section><!-- hoc --><section class="section" id="hoc"><div class="section-container"><h2 class="section-title">hoc / ErrorBoundary</h2><article class="section-info"><pre>
+  hoc - компонент-обертка для другого компонента, которая добавляет ему определенный
+функционал, но при этом не влияют на отображение самого компонента и его собственный
+функционал.
+  hoc может быть как классом так и фукнкцией. пример hoc: ErrorBoundary (граница ошибки)
+
+
+
+ErrorBoundary - предохранитель, классовый компонент React с методом componentDidCatch,
+                который отлавливает ошибки JavaScript в любом месте деревьев их дочерних
+                компонентов. При ошибке приложение не ляжет, но ошибка будет отловлена.
+                * ErrorBoundary может быть только классовым компонентом
+
+  Предохранители могут сохранять ошибки в журнале ошибок и выводить запасной UI вместо
+рухнувшего дерева компонентов.
+  Предохранители отлавливают ошибки при рендеринге, в методах жизненного цикла и конструкторах
+дочерних компонентов.
+  Классовый компонент является предохранителем, если он включает хотя бы один из следующих
+методов жизненного цикла: static getDerivedStateFromError() или componentDidCatch().
+
+- static getDerivedStateFromError(error) {
+    <span>используется при рендеринге запасного UI в случае отлова ошибки</span>
+  }
+- componentDidCatch(error, info) {
+    <span>info - объект с ключом componentStack, содержащий информацию о компоненте с ошибкой
+    используется при написании кода для журналирования информации об отловленной ошибке</span>
+  }
+
+  Эти методы вызываются у предохранителя, если произошла ошибка в процессе рендеринга, методе
+жизненного цикла или конструкторе любого дочернего компонента.
+
+
+        <b>* предохранители не отлавливают ошибки, произошедшие в:</b>
+- Event handlers
+- Asynchronous code (e.g. fetch or setTimeout or requestAnimationFrame callbacks)
+- Server side rendering
+- Errors thrown in the error boundary itself (rather than its children)
+        </pre><pre>
+          <code class="language-jsx">
+export class ErrorBoundary extends Component {
+  state = {
+    hasError: false
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return &lt;h1 style={{color: 'red'}}>Something went wrong&lt;/h1>
+    }
+
+  	// если у детей нет ошибки, то просто выводим вложенные компоненты
+  	return this.props.children
+  }
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+function logProps(Component) {
+  class LogProps extends React.Component {
+    componentDidUpdate(prevProps) {
+      console.log('old props:', prevProps)
+      console.log('new props:', this.props)
+    }
+
+    render() {
+      const {forwardedRef, ...rest} = this.props
+
+      return &lt;Component ref={forwardedRef} {...rest} />
+    }
+  }
+
+  // перенаправить реф можно и в экземпляр классового компонента
+  return React.forwardRef((props, ref) => {
+    return &lt;LogProps {...props} forwardedRef={ref} />
+  })
+}
+
+
+
+class FancyButton extends Component {
+  focus() {
+    // ...
+  }
+
+  // ...
+}
+export logProps(FancyButton)
+          </code>
+        </pre></article></div></section><!-- forwarding refs --><section class="section" id="forwarding_refs"><div class="section-container"><h2 class="section-title">forwarding refs</h2><article class="section-info"><pre>
+  Перенаправление рефов позволяет использовать в родительском компоненте ссылку
+на DOM-узел дочернего компонента
+
+* перенаправить реф можно не только в JSX элемент-тег, но и в экземпляр
+  классового компонента
+        </pre><pre>
+          <code class="language-jsx">
+// теперь реф в родительском компоненте будет
+// указывать непосредственно на DOM-узел button (ref.current):
+const ref = React.createRef()
+&lt;FancyButton width='25px' ref={ref}>Click me!&lt;/FancyButton>
+
+
+
+// React передаёт ref в функцию (props, ref) => ... внутри forwardRef в
+// качестве второго аргумента
+
+const FancyButton = React.forwardRef(
+  (
+    { width, ...forwardingProps },
+    forwardingRef
+  ) => (
+    &lt;>
+      &lt;button
+        ref={forwardingRef}
+        className='FancyButton'
+        style={{width: width}}
+      >
+        {props.children}
+      &lt;/button>
+
+      &lt;Bump {...forwardingProps} />
+    &lt;/>
+  )
+)
+          </code>
+        </pre></article></div></section><!-- hooks --><section class="section" id="hooks"><div class="section-container"><h2 class="section-title">hooks</h2><article class="section-info"><pre>
+<a href="#useState" class="react__nav-link">useState</a>
+<a href="#useEffect" class="react__nav-link">useEffect</a>
+<a href="#useContext" class="react__nav-link">useContext</a>
+<a href="#useReducer" class="react__nav-link">useReducer</a>
+<a href="#useCallback" class="react__nav-link">useCallback</a>
+<a href="#useMemo" class="react__nav-link">useMemo</a>
+<a href="#useRef" class="react__nav-link">useRef</a>
+<a href="#useLayoutEffect" class="react__nav-link">useLayoutEffect</a>
+<a href="#customHooks" class="react__nav-link">custom hooks</a>
+        </pre></article><article class="section-info"><pre>
+  Хуки — нововведение в React 16.8, которое позволяет использовать состояние и другие
+возможности React без написания классов.
+  Хуки — это функции, с помощью которых вы можете «подцепиться» к состоянию и методам
+жизненного цикла React из функциональных компонентов. Все хуки импортируются из 'react'.
+
+  В функциональном компонете все содержимое функции является аналогом содержимого метода
+render в классовом компоненте => при рендере и перерендере меняются переменные и функции
+даже вне JSX (вне return (...)) => лучше их мемоизировать хуками useCallback, useMemo.
+
+  ** Для асинхронности не нужно подключать дополнительные middleware ('redux-thunk')
+и соответственно не нужно диспатчить thunk'и, как это делается при использовании Redux.
+Просто диспатчим action(s) после выполнения какого то асинхронного действия.
+
+
+      <b>2 правила хуков:</b>
+- хуки следует вызывать только на верхнем уровне.
+  Не вызывайте хуки внутри циклов, условий или вложенных функций
+- вызывать хуки можно только в функциональных компонентах или в кастомных хуках
+        </pre></article><article class="section-info" id="useState"><b>const [todos, setTodos] = useState(initialState)</b><pre>
+  useState позволяет работать в функциональном компоненте с локальным state.
+  В одном компоненте может быть несколько state'ов.
+  Результатом вызова useState(initialState) является картэж (массив с заранее
+известными элементами) из 2 элементов:
+- первый элемент массива - переданное состояние
+- второй - функция для изменения состояния;
+  ее можно использовать где угодно, например, в обработчике событий
+
+  initialState может быть любой тип данных, не обязательно объект
+
+  <b>* в отличие от this.setState в классах, обновление переменной состояния всегда
+замещает её значение (как в reducer'е redux и useReducer), а не осуществляет слияние!</b>
+  В классовых компонентах переданный в setState() объект состояния мержится с текущим
+состоянием => переданные новые поля состояния перезаписывают текущие. А в useState
+нужно задавать новое состояние. Оно не будет мержится с текущим, поэтому в объекте
+нового задаваемого состояния сначало разворачиваем старый state, а потом задаем
+изменившиеся поля.
+
+  При изменении props у компонента или при ререндере родительского компонента, состояние
+не сбрасывается к initialState, хоть и useState вызывается как бы внутри метода render()!
+
+  <b>* если состояние содержит несколько вложенных объектов, но изменения только
+в одном, то не нужно делать глубокую копию состояния (т.е. разварачивать каждый
+вложенный объет). Глубокая копия нужна только для изменившегося вложенного объекта.
+  Это так же касается и редьюсеров в useReducer и Redux.</b>
+
+  Т.к. useState работает асинхронно, то лучше изменять стейт, передавая не новое
+состояние, а callback, который принимает в качестве аргумента предыдущее состояние
+и, на его основании, возвращает новое. Например:
+setCounter(prev => prev + 1).
+
+  Если начальное состояние вычисляется вызовом другой ф-ии, то для оптимизации (чтобы
+не вычислять его каждый раз заново при ререндере) лучше в useState передавать callback,
+который возвращает вычисляемое состояние, например:
+const [counter, setCounter] = useState(() => computeInitialCounter()).
+
+  Поменять состояние можно только вызвав 2й элемент картежа, получаемый вызовом
+useState, но при этом initialState все равно будет вычисляться заново при перерендере,
+и, если initialState вычисляется рессурсозатратной функцией, то лучше мемоизировать ее,
+передав ее внутри callback, как было сказано выше.
+
+  В функциональных компонентах нет возможности использовать callback (для действий
+после задания состояния, т.к. оно асинхронно) как в методе setState в классовых
+компонентах. Но можно использовать useEffect, который будет выполняться после изменения
+нужного поля в состоянии (для этого в useEffect в массиве зависимостей указываем
+поле состояния или все состояние).
+   Если нужно изменять состояние при изменении каких то props компонента, т.е. сделать
+как бы эмуляцию классового метода getDerivedStateFromProps, то можно использовать
+useEffect с соответствующими props в качестве зависимостей и внутри useEffect менять
+состояние.
+        </pre></article><article class="section-info" id="useEffect"><b>useEffect(cb, deps)</b><pre>
+  Вам скорее всего доводилось ранее запрашивать данные, делать подписки или вручную
+менять DOM из React-компонента (* вместо innerHTML нужно юзать dangerouslySetInnerHTML,
+которая в целях безопасности не позволит вставить тег script, что бы предотвратить xss).
+  Мы расцениваем эти операции как side-effects, так как они могут влиять на работу других
+компонентов (то есть вне компонента с хуком) и их нельзя выполнить во время рендера.
+
+  С помощью хука эффекта useEffect вы можете выполнять побочные эффекты.
+
+  Он выполняет ту же роль, что и componentDidMount, componentDidUpdate и
+componentWillUnmount в классовых компонентах, объединив их в единый API.
+
+  Когда вы вызываете useEffect, React получает указание запустить вашу callback функцию с
+«эффектом» после того, как он отправил изменения в DOM, то есть после каждого рендера.
+  По умолчанию, React запускает эффекты после каждого рендера, включая первый рендер
+(условно componentDidMount).
+
+  Можно использовать несколько хуков useEffect. Это даёт нам возможность разделять разную
+несвязанную между собой логику между разными эффектами (например, запрос на сервер в одном
+useEffect, а подписка на событие в другом).
+
+  Если вторым необязательным аргументом в useEffect передать массив, например, со значениями
+из state или props, то эффект будет происходить после рендера компонента только если хотя бы
+одна из зависимостей в массиве поменялась (+ после первого рендера компонента). Если не
+поменялись, то не будем зря выполнять эффект. В этом заключается оптимизация.
+  Если не передать второй параметр, то callback будет вызываться на каждый update компонета
+(при каждом изменении state или props).
+
+  Если вторым аргументом передать пустой массив, то будет эммуляция componentDidMount(),
+т.к. React посчитает, что ваш эффект не зависит от каких-либо значений из пропсов или
+состояния и поэтому не будет выполнять повторных рендеров. То есть эффект выполнится только
+один раз - после монтирования, и один раз выполнится сброс эффекта (если он есть) - при
+размонтировании.
+  Чтобы использовать useEffect в качестве прямого вызова <b>componentWillUnmount()</b> - внутри
+callback'а возвращаем функцию, внутри которой делаем что нам необходимо при размонтировании
+(делаем отписки от каких то событий, очищаем хранилища...)
+
+  В некоторых эффектах нет этапа сброса, поэтому useEffect для таких side-effects не
+должен ничего возвращать.
+  Сетевые запросы, изменения DOM вручную, логирование — всё это примеры эффектов, которые
+не требуют сброса.
+  <b>Некоторым эффектам нужен сброс</b>, например, обработчикам событий (подписчики, но не
+инлайновые в JSX) и таймерам. Поэтому такие useEffect возвращают соответствующую функцию, в
+которой удаление слушателя или таймера.
+
+  Если в callback'е useEffect'а добавить слушатель события, то может произойти т.н. утечка
+памяти - это когда добавляется не один обработчик, а два. Первый, когда вызываем useState,
+то есть происходит первое изменение state => срабатывает useEffect(). А второй обработчик
+добавляется, когда используем хук useEffect в качестве componentDidMount(). Поэтому если
+есть утечка памяти, то для решения этой проблемы в callback'е нужно вернуть функцию, внутри
+которой будет удаляться этот слушатель.
+
+  * Изменение состояния внутри useEffect может привести к зацикливанию, если не передан
+массив зависимостей или если мы меняем то же поле в состоянии (либо все состояние), что и
+в массиве зависимостей.
+        </pre></article><article class="section-info" id="useContext"><b>const {removeTodo, toggleTodo} = useContext(ContextName)</b><pre>
+  useContext нужен для использования контекста в функциональных компонентах (вместо props
+drilling).
+  Для получения передаваемых данных в принимающем компоненте используем не
+&lt;MyContext.Consumer>, как в классовых компонентах, а хук useContext(Context), в который
+при вызове передаем импортируемый из родительского компонента или из отдельного файла для
+контекстов определенный Context.
+  Вызов useContext(Context) возвращает переданные данные.
+
+* при изменении контекста ContextOne будут перерендериваться все компоненты с
+  useContext(ContextOne), но промежуточные компоненты (между ContextOne.Provider
+  и useContext(ContextOne)) не будут перерендериваться.
+    При чем будет ререндер во всех компонентах с useContext(ContextOne): даже тех,
+  которые используют не те поля контекста, которые изменились, а не изменившиеся!!!
+  Поэтому если повторный рендер компонента затратен, можно оптимизировать его
+  с помощью мемоизации
+        </pre><pre>
+          <code class="language-jsx">
+export const Context = React.createContext()
+&lt;Context.Provider value={ {toggleTodo, removeTodo} }>
+&lt;/Context.Provider>
+
+
+import {Context} from './context'
+const {toggleTodo, removeTodo} = useContext(Context)
+&lt;input
+  onChange={() => toggleTodo(id)}  // меняем state в &lt;App/>
+/>
+          </code>
+        </pre></article><article class="section-info" id="useReducer"><b>const [state, dispatch] = useReducer(reducer, initialState)</b><pre>
+  За основу useReducer взят паттерн, введенный Redux'ом.
+
+  useReducer - альтернатива для useState. <b>Хук useReducer обычно предпочтительнее useState,
+когда сложная логика состояния</b>.
+
+  Если все методы, которые меняют state, лежат прямо в компоненте, то поддерживать такой
+компонент сложно. Что бы решить данную проблему и упростить понимание кода, используется
+useReducer. Он позволяет вынести логику в отдельный файл (reducer.js).
+
+  Создаем reducer в отдельном файле и экспортируем, как в redux.
+
+  <b>В отличие от setState в классах, обновление переменной состояния всегда замещает её
+значение (как в useState и reducer'е redux), а не осуществляет слияние!</b>
+  В классовых компонентах переданный в setState() объект состояния мержится с текущим
+состоянием => переданные новые поля  состояния перезаписывают текущие. А в useState
+нужно задавать новое состояние. Оно не будет мержится с текущим, поэтому в объекте
+нового задаваемого состояния сначало разворачиваем старый state, а потом задаем
+изменившиеся поля
+
+  Далее импортируем reducer в компонент, который будет использовать state (обычно это
+корневой компонент (AppState.js), которым оборачиваем роутинг).
+  Этот компонент возвращает дочерние компоненты и передает им контекст с данными из
+состояния и методами для его изменения, в т.ч. асинхронными.
+
+return (
+  &lt;AppContext.Provider
+    value={ {getAuthors, getAlbums, lastAuthorId, authorAlbums} }
+  >
+    {children}
+  &lt;/AppContext.Provider>
+)
+
+
+  Вызов useReducer возвращает массив, в котором первый элемент является state'ом, а
+второй - функция dispatch, с помощью которой мы можем изменять state, диспатча action'ы
+в reducer.
+
+  При вызове useReducer мы связываем state c reducer'ом, из которого и будем менять state.
+
+* с useReducer можно диспатчить экшены после асинхронных действий.
+  Дополнительно не нужно ничего подключать (в отличае от Redux)
+
+
+
+                          <b>** useContext + useReducer vs Redux *</b>*
+  Проблема useContext + useReducer заключается в том, что при изменении контекста Context1
+будут ререндерится все компоненты с useContext(Context1): даже те, которые используют поля
+в контексте, которые не изменились. И если таких компонентов с ненужным ререндером много -
+это плохо. И оптимизировать их все с помощью мемоизации не лучшая идея.
+  В Redux такой проблемы нет: он позволяет ререндерить только те компоненты, которые
+подписаны на изменившиеся поля!!!
+  Поэтому для больших приложений Redux лучше.
+        </pre><pre>
+          <code class="language-jsx">
+import { GET_AUTHORS, GET_ALBUMS, INCREMENT_VISITORS } from 'actionTypes'
+
+export const galleryReducer = (state, action) => {
+  switch (action.type) {
+    case GET_AUTHORS:
+      return {
+        ...state,
+        authors: action.payload
+      }
+    case GET_ALBUMS:
+      return {
+        ...state,
+        lastAuthorId: action.payload.lastAuthorId,
+        authorAlbums: action.payload.authorAlbums
+      }
+    case INCREMENT_VISITORS:
+      return {
+        ...state,
+        visitors: state.visitors + 1
+      }
+    default:
+      return state
+  }
+}
+
+
+
+
+import reducer from './reducer'
+import { GET_AUTHORS, GET_ALBUMS, INCREMENT_VISITORS } from 'actionTypes'
+
+const initialState = {
+  authors: [],
+  lastAuthorId: null,
+  visitors: 0
+}
+const [state, dispatch] = useReducer(reducer, initialState)
+
+dispatch({
+  type: GET_AUTHORS,
+  payload: response.data
+})
+
+dispatch({
+  type: INCREMENT_VISITORS
+})
+          </code>
+        </pre></article><article class="section-info" id="useCallback"><b>const memoizedCallback = useCallback(fn, deps)</b><pre>
+  Суть useCallback - мемоизировать функцию, переданную первым аргументом в useCallback,
+которая потом не будет менять ссылку на себя, т.е. не будет пересоздаваться.
+  Т.е. если произойдет ререндер компонента, то ссылка на вызов useCallback не будет
+меняться, т.к. функция не пересоздастся, что было бы с обычным обработчиком.
+
+  Функция поменяется, только если поменяются зависимости из массива, который передается
+в useCallback вторым аргументом или если вообще не передан массив.
+  Если массив deps пустой, то функция не будет меняться при ререндере (как и в useMemo).
+
+
+          Это удобно в таких ситуациях:
+
+- при удалении слушателя (добавленного внутри useEffect), при демонтировании компонента,
+т.к. если использовать обычный listener, а не переданый в useCallback, то после ререндера,
+в removeEventListener мы теряем ссылку на listener => не удаляем слушатель.
+const clickHandler = useCallback(() => eventHandler(a, b), [a, b])
+
+- функции для обработки событий часто определяются родителями и передаются потомкам,
+прежде чем быть установленными как обработчики событий. В этих ситуациях, если вы работаете с
+компонентами, которые нуждаются в оптимизации рендеринга, помните, что функции, определенные
+в родительских компонентах, могут быть переопределены при каждом рендере. Чтобы этого
+избежать нужно использовать useCallback:
+        </pre><pre>
+          <code class="language-jsx">
+function ParentComponent() {
+  const memoizedEventHandler = useCallback(() => {
+    doSomethingAwesome()
+  }, [])
+
+  return &lt;ChildComponent clickHandler={memoizedEventHandler} />
+}
+          </code>
+        </pre></article><article class="section-info" id="useMemo"><b>const memoizedValue = useMemo(cb, deps)</b><pre>
+  useMemo Возвращает мемоизированное значение.
+
+<b>useCallback(fn, deps) — это эквивалент useMemo(() => fn, deps)</b>
+
+  Передайте callback, который возвращает мемоизируемое значение и массив зависимостей.
+
+  useMemo будет повторно вычислять мемоизированное значение, только если поменяются
+зависимости из массива или если вообще не передан массив.
+  Если массив deps пустой, то memoizedValue не будет меняться при ререндере (как и
+в useCallback).
+
+  Помните, что функция, переданная useMemo, запускается во время рендеринга.
+Не делайте там ничего, что вы обычно не делаете во время рендеринга. Например,
+побочные эффекты принадлежат useEffect, а не useMemo.
+  Если массив не был передан, новое значение будет вычисляться при каждом рендере.
+        </pre></article><article class="section-info" id="useRef"><b>const refContainer = useRef(initialValue)</b><pre>
+  useRef это аналог React.createRef в конструкторе классового компонента.
+
+  useRef возвращает изменяемый ref-объект, свойство .current которого инициализируется
+переданным аргументом (initialValue).
+
+  <b>При изменении свойства .current не происходит ререндер компонента, как это происходит
+при изменении состояния из useState!</b>
+        </pre><pre>
+          <code class="language-jsx">
+        обычный случай использования — доступ к элементу
+
+
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null)
+
+  const onButtonClick = () => {
+    // 'current' указывает на смонтированный элемент 'input'
+    inputEl.current.focus()
+  }
+
+  return (
+    &lt;>
+      &lt;input ref={inputEl} type='text' />
+      &lt;button onClick={onButtonClick}>установить фокус&lt;/button>
+    &lt;/>
+  )
+}
+          </code>
+        </pre><pre>
+
+
+  По сути, useRef похож на «коробку», которая может содержать изменяемое значение
+в своём свойстве current, например:
+        </pre><pre>
+          <code class="language-jsx">
+// после ререндера компонента срабатывает useEffect (т.к. не передан массив deps) =>
+// меняется id таймера, поэтому не получится сбросить интервал из обработчика события
+// handleCancelClick => нужно использовать useRef
+function Timer() {
+  const intervalRef = useRef()
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      // ...
+    })
+    intervalRef.current = id
+
+    return () => {
+      clearInterval(intervalRef.current)
+    }
+  })
+
+  function handleCancelClick() {
+    clearInterval(intervalRef.current)
+  }
+
+  return (
+    ...
+  )
+}
+          </code>
+        </pre><pre>
+
+
+  useRef похож на useState. Он так же создает начальное состояние (ref-объект),
+значение которого можно получить из св-ва current этого ref-объекта.
+  Но <b>основное отличае useRef от useState заключается в том, что при изменениии
+состояния в useState происходит ререндер компонента, а при измении состояния в
+useRef (изменение св-ва current) - нет ререндера</b>, например:
+        </pre><pre>
+          <code class="language-jsx">
+function App() {
+  const [value, setValue] = useState('initial')
+  const renderCount = useRef(1)
+
+  useEffect(() => {
+    // считаем количество рендеров. При изменении состояния рефа нет ререндера.
+    // Если бы использовали setValue, то был бы ререндер компонента при
+    // изменении состояния, который бы вызывал useEffect => все бы зациклилось
+    renderCount.current++
+  })
+
+  return (
+    &lt;div>
+      &lt;h1>Количество рендеров: {renderCount.current}&lt;/h1>
+      &lt;input
+        type='text'
+        value={value}
+        onChange={e => setValue(e.target.value)}
+      />
+    &lt;/div>
+  )
+}
+          </code>
+        </pre></article><article class="section-info" id="useLayoutEffect"><b>useLayoutEffect(cb, deps)</b><pre>
+  Разница между useEffect и useLayoutEffect в том, что useLayoutEffect запускается
+перед отрисовкой переренжереного компонента в браузере, а useEffect - после.
+
+  Вы можете использовать useLayoutEffect вместо useEffect, если ваш эффект будет
+изменять модель DOM. Хук useEffect вызывается после рисования экрана. Поэтому повторная
+мутация (изменение) DOM сразу после того, как UI был изменен, вызовет эффект мерцания,
+если мутация будет видна клиенту.
+
+  С другой стороны, useLayoutEffect вызывается перед отрисовкой экрана, но после
+мутации DOM => нежелательного поведения, связанного с изменением DOM сразу после
+рисования экрана, описанного выше с помощью хука useEffect, можно избежать.
+
+  В большинстве случаев используется useEffect, но в некоторых случаях вы заметите,
+что ваш компонент мерцает при отображении, тогда вы можете переключиться на useLayoutEffect.
+  Но будьте осторожны при использовании useLayoutEffect, т.к. он синхронный, это снизит
+производительность. Поскольку пользовательский интерфейс не будет обновлен пока выполнение
+этого метода не будет завершено.
+        </pre><pre>
+          <code class="language-js">
+                                  lifecycle at useEffect
+
+
+           rendering is started due to props/state change
+Component -----------------------------------------------> Component rerendered ----
+                                                           (placed on the 'DOM')   |
+                                                                                   |
+           then useEffect runs &lt;--- rerendered component is displayed on screen &lt;---
+
+
+
+
+
+                                lifecycle at useLayoutEffect
+
+
+           rendering is started due to props/state change
+Component -----------------------------------------------> Component rerendered ----
+                                                           (placed on the 'DOM')   |
+                                                                                   |
+          rerendered component is displayed on screen &lt;--- useLayoutEffect runs &lt;---
+          </code>
+        </pre></article><article class="section-info" id="customHooks"><b>custom hooks</b><pre>
+  Создание пользовательских хуков позволяет вам перенести логику компонентов в функции,
+которые можно повторно использовать.
+
+  Когда мы хотим, чтобы две JavaScript-функции разделяли какую-то логику, мы извлекаем
+её в третью функцию.
+
+  <b>Пользовательский хук</b> — это JavaScript-функция, имя которой начинается с «use»,
+и которая может вызывать другие хуки.
+
+  В отличие от React-компонента, пользовательский хук не обязательно должен иметь
+конкретную сигнатуру. Мы можем решить, что он принимает в качестве аргументов, и должен
+ли он что-либо возвращать. Другими словами, всё как в обычных функциях.
+
+  Пользовательские хуки — это скорее соглашение, соответствующее дизайну хуков, нежели
+чем возможность самого React.
+
+  У хука, используемого в двух компонентах, разное состояние. Каждый раз, когда вы
+используете пользовательский хук, всё состояние и эффекты внутри него полностью
+изолированы.
+        </pre><pre>
+          <code class="language-jsx">
+import { useState } from 'react'
+
+// Хук для запросов, перед которыми показываем лоадер, а после
+// выполнения - скрываем его. Так же хук оповещает про ошибку
+export const useFetching = (callback) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const fetching = async (...args) => {
+    try {
+      setIsLoading(true)
+      await callback(...args)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return [fetching, isLoading, error]
+}
+
+
+// использование
+const [fetchPostsById, isLoading, error] = useFetching(async (id) => {
+  const response = await PostService.getById(id)
+  const data = await response.json()
+  setPost(data)
+})
+
+useEffect(() => {
+  fetchPostsById(params.id)
+}, [])
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+// хук для создания контролируемого инпута
+export function useInput(initialValue) {
+  const [value, setValue] = useState(initialValue)
+
+  const onChange = e => {
+    setValue(e.target.value)
+  }
+
+  return {
+    value, onChange
+  }
+}
+
+
+// использование
+function App (props) {
+  const username = useInput('')
+  const password = useInput('')
+
+  return (
+    &lt;div>
+      &lt;input {...username} type='text' placeholder='Username'>
+      &lt;input {...password} type='text' placeholder='password'>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+// цель хука useFriendStatus — подписать нас на статус друга.
+// Поэтому он принимает в качестве аргумента friendID и возвращает статус друга в сети
+import { useState, useEffect } from 'react'
+
+export function useFriendStatus(friendID) {
+  const [isOnline, setIsOnline] = useState(null)
+
+  useEffect(() => { // это
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline)
+    }
+
+    ChatAPI.subscribeToFriendStatus(friendID, handleStatusChange)
+    return () => {
+      ChatAPI.unsubscribeFromFriendStatus(friendID, handleStatusChange)
+    }
+  })
+
+  return isOnline
+}
+
+
+
+// использование
+function FriendStatus(props) {
+  const isOnline = useFriendStatus(props.friend.id)
+
+  if (isOnline === null) {
+    return 'Загрузка...'
+  }
+  return isOnline ? 'В сети' : 'Не в сети'
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+import { useEffect } from 'react'
+
+export const useEventListener = (eventName, handler, element = document) => {
+  useEffect(() => {
+    const eventListener = (event) => handler(event)
+    element.addEventListener(eventName, eventListener)
+
+    return () => {
+      element.removeEventListener(eventName, eventListener)
+    }
+  }, [eventName, handler, element])
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+import { useCallback } from 'react'
+import { fetchData, getProfileApiUrlParams } from './utils'
+
+export function useFetchProfiles() {
+  return useCallback(
+    (urls) => async () => {
+      const urlSearchParams = getProfileApiUrlParams(urls)
+      const { data } = await fetchData('sources', urlSearchParams)
+
+      return data
+    },
+    []
+  )
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+import { useLayoutEffect } from 'react'
+
+export const useLockBodyScroll = () => {
+  useLayoutEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow
+
+    document.body.style.overflow = 'hidden'
+
+    return () => (document.body.style.overflow = originalStyle)
+  }, [])
+}
+          </code>
+        </pre></article></div></section><!-- memo --><section class="section" id="memo"><div class="section-container"><h2 class="section-title">memo</h2><article class="section-info"><b>React.memo()</b><pre>
+React.memo() — компонент высшего порядка. Он похож на React.PureComponent,
+               но предназначен для функциональных компонентов.
+                 Как и у React.PureComponent: React.memo() возвращает компонент,
+               который обновляется, только если у него поменялись props (или
+               при использовании компонентом useState, useReducer или useContext),
+               а не при любых ререндерах родительских компонентов, не меняющих
+               пропсы этого компонента.
+
+  По умолчанию он поверхностно сравнивает вложенные объекты в объекте props.
+
+  Если вы хотите контролировать сравнение, вы можете передать свою функцию
+сравнения в качестве второго аргумента.
+        </pre><pre>
+          <code class="language-jsx">
+function MyComponent(props) {
+  // ...
+}
+function areEqual(prevProps, nextProps) {
+  // возвращает true, если nextProps рендерит
+  // тот же результат что и prevProps, иначе возвращает false
+}
+// 2 аргумент не обязателен - собственное сравнение
+export default React.memo(MyComponent, areEqual)
+          </code>
+        </pre></article></div></section><!-- lazyloading --><section class="section" id="lazyloading"><div class="section-container"><h2 class="section-title">lazyloading</h2><article class="section-info"><b>React.lazy()</b><pre>
+  Для lazyloading'а объемных компонентов - то есть их загрузки отдельно от
+основного бандла, в React предусмотрен специальный функционал.
+  Для начала удаляем привычный импорт компонента, который хотим лениво загрузить,
+что бы он не был добавлен в финальный бандл. Вместо него создаем переменную, которой
+присваиваем вызов функции React.lazy(), аргументом которой является callback, в теле
+которого указываем динамический импорт компонента.
+  Далее, что бы реакт понял, что мы загружаем компонент лениво, необходимо при рендере
+компонента обернуть его в специальный компонент &lt;React.Suspense>, который позволяет
+нам показать запасное содержимое в пропе fallback (например, индикатор загрузки) пока
+происходит загрузка ленивого компонента.
+
+  Компонент Suspense можно разместить в любом месте над ленивым компонентом. Кроме
+того, можно обернуть несколько ленивых компонентов одним компонентом Suspense.
+
+lazy      - ленивый
+suspense  - ожидание
+
+
+* lazy импорт умеет работать только с дефолтными экспортами
+        </pre><pre>
+          <code class="language-jsx">
+// вместо: import AddTodo from './Todo/AddTodo'
+const AddTodo = React.lazy(() => import('./Todo/AddTodo'))
+
+&lt;React.Suspense fallback={&lt;div>Загрузка...&lt;/div>}>
+  &lt;AddTodo />
+&lt;/React.Suspense>
+          </code>
+        </pre></article></div></section><!-- portal --><section class="section" id="portal"><div class="section-container"><h2 class="section-title">portal</h2><article class="section-info"><b>ReactDOM.createPortal(child, container)</b><pre>
+  Порталы позволяют рендерить дочерние элементы в DOM-узел, который находится
+вне DOM-иерархии родительского компонента.
+
+child       — это любой React-компонент, который может быть отрендерен
+container   — это DOM-элемент
+
+  Типовой случай применения порталов — когда в родительском компоненте заданы стили
+overflow: hidden или z-index, но вам нужно чтобы дочерний элемент визуально выходил
+за рамки своего контейнера.
+  Например, диалоги, всплывающие карточки и всплывающие подсказки.
+
+  Портал может находиться в любом месте DOM-дерева. Несмотря на это, во всех других
+аспектах он ведёт себя как обычный React-компонент. Такие возможности, как контекст,
+работают привычным образом, даже если потомок является порталом, поскольку сам портал
+всё ещё находится в React-дереве, несмотря на его расположение в DOM-дереве.
+
+  Так же работает и всплытие событий. Событие, сгенерированное изнутри портала, будет
+распространяться к родителям в содержащем React-дереве, даже если эти элементы не
+являются родительскими в DOM-дереве.
+        </pre><pre>
+          <code class="language-jsx">
+import React from 'react'
+import { createPortal } from 'react-dom'
+import { Popup } from '@elfsight/lib-ui'
+
+export function PopupElement({ width }) {
+  return (
+    createPortal(
+      &lt;Popup
+        width={width}
+        closeOnEscape
+        fixed
+      >
+        text inside popup
+      &lt;/Popup>,
+      document.body
+    )
+  )
+}
+          </code>
+        </pre></article></div></section><!-- react ecosystem --><section class="section" id="react_ecosystem"><div class="section-container"><h2 class="section-title">react ecosystem</h2><article class="section-info"><pre>
+<a href="#redux" class="react__nav-link">redux</a>
+<a href="#react_redux" class="react__nav-link">react + redux</a>
+<a href="#redux_toolkit" class="react__nav-link">redux toolkit</a>
+<a href="#reselect" class="react__nav-link">reselect</a>
+<a href="#immer" class="react__nav-link">immer</a>
+<a href="#rtk_query" class="react__nav-link">rtk query</a>
+<a href="#react_router_dom" class="react__nav-link">react-router-dom</a>
+<a href="#react_transition_group" class="react__nav-link">react-transition-group</a>
+<a href="#styled_components" class="react__nav-link">styled-components</a>
+<a href="#storybook" class="react__nav-link">storybook</a>
+        </pre></article><article class="section-info" id="redux"><b>Redux</b><pre>
+  * MobX проще, но ~ в 10 раз тяжелей, чем Redux (MINIFIED + GZIPPED): 17.2kB vs 1.8kB
+    + Redux проще в отладке за счет Redux DevTool.
+
+
+  Redux - абстракция, позволяющая работать с данными более удобно, не создавая
+в общем для нескольких компонентов (которым нужны данные из состояния) state и
+не прокидывать данные через контекст (React), что в больших проектах запутывает
+код. Для сложной логики Redux удобнее.
+
+  Так же Redux позволяет хранить данные и логику, которая с ними взаимодействует,
+отдельно от компонентов.
+  Т.е. полностью отделить визуальную состовляющую от логической.
+
+  Redux является самой популярной реализацией FLUX архитектуры (потока данных)
+
+  <b>* Без middleware Redux Store поддерживает только синхронный поток данных !</b>
+middleware стоит между диспатчем экшена и редюсером.
+Redux Thunk - самая популярная middleware библиотеки для асинхронных экшенов в Redux
+
+<img style="width: 70%" src="./images/react/redux/data-flow.png" alt="redux-data-flow">
+        </pre><pre>
+          <code class="language-jsx">
+                                Основные сущности redux:
+
+<b>Reducer</b> -     функция, которая принимает state и объект action и возвращает
+              новый state, не мутируя старый
+<b>Store</b>   -     то место где хранятся все данные приложения - state, при создании
+              принимает reducer
+<b>Action</b>  -     объект с обязательным полем type (строка с действием) для изменения
+              состояния store
+
+
+
+0. const redux = require('redux')
+1. const store = redux.createStore(reducer)
+2. const reducer = (state = initialState, action) => {
+    if (action.type === 'ADD') {
+      return {
+        // в отличие от setState в классовых компонентах, обновление переменной
+        // состояния всегда замещает её значение, а не осуществляет слияние!
+        counter: state.counter + 1
+      }
+    }
+    return state
+   }
+3. const addCounter = {type: 'ADD', payload: 7}    // action
+4. store.dispatch(addCounter)                      // форсированный запуск action'а
+5. store.subscribe(() => {
+     console.log('Subscribe', store.getState())    // при изм-ии state в Store срабатывает cb
+   })
+          </code>
+        </pre></article><article class="section-info" id="react_redux"><b>React + Redux</b><pre>
+          <code>
+                          <b>** useContext + useReducer vs Redux *</b>*
+  Проблема useContext + useReducer заключается в том, что при изменении контекста Context1
+будут ререндерится все компоненты с useContext(Context1): даже те, которые используют поля
+в контексте, которые не изменились. И если таких компонентов с ненужным ререндером много -
+это плохо. И оптимизировать их все с помощью мемоизации не лучшая идея.
+  В Redux такой проблемы нет: он позволяет ререндерить только те компоненты, которые
+подписаны на изменившиеся поля!!!
+  Поэтому для больших приложений Redux лучше.
+
+
+                                  <b>сайд эффекты в Redux</b>
+* Без middleware Redux Store поддерживает только синхронный поток данных !
+  Сайд эффект - это действие, которое должно произойти на диспатчинг экшена, помимо
+сохранения в стор. Например, логирование в консоль или отправка запроса на сервер.
+Основной способ сделать сайд эффект - вызвать его в middleware.
+  Можно написать свой middleware, а можно использовать сторонние библиотеки, например,
+redux thunk - для простых асинхронных действий или redux saga - для сложных асинхронных
+действий.
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+// создаем Store (+ добавляем middleware) и передаем его приложению:
+
+import {createStore, applyMiddleware} from 'redux'
+import rootReducer from './redux/rootReducer'
+import {Provider} from 'react-redux'
+import thunk from 'redux-thunk'   // альтернативная библиотека: redux-saga
+
+const loggerMiddleware = store => next => action => {
+   const result = next(action)
+   console.log('Middleware', store.getState())
+   return result  // обязательно должны возвращать результат
+}
+
+const store = createStore(rootReducer, applyMiddleware(
+   loggerMiddleware,
+   thunk // middleware для асинхронного диспатчинга
+))
+
+const server = (
+  &lt;Provider store={store}>
+    &lt;App />
+  &lt;/Provider>
+)
+ReactDOM.render(server, document.getElementById('root'))
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                                 // создаем reducer
+
+import {ADD, SUB, ADD_NUMBER} from '../actions/actionTypes'
+const initialState = {
+  counter: 0
+}
+export default function counter1(state = initialState, action) {
+  switch (action.type) {
+    case ADD:
+      return {
+        counter: state.counter + 1
+      }
+    case ADD_NUMBER:
+      return {
+        counter: state.counter + action.payload
+      }
+    default:
+      return state
+  }
+}
+
+                                 // объединяем reducer'ы
+
+// ** ключи стейта приложения сформированы в объекте, передаваемом в combineReducers !!
+
+import {combineReducers} from 'redux'
+import counter1 from './reducers/counter1'
+import counter2 from './reducers/counter2'
+// по ключам объекта (ключи произвольные) доступны state'ы объединенных reducer'ов
+export default combineReducers({
+  counter1: counter1,
+  counter2: counter2
+})
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                                 // создаем thunk'и
+
+//   thunk - функция, принимающая ф-ю dispatch и выполняющая асинхронное действие
+// (setTimeout, fetch...), после выполнения которого и будет диспатчиться action(s).
+// В компонентах диспатчим thunk'и (вместо action'ов).
+
+export function asyncAdd(number) {  // thunk creator
+   return dispatch => {             // thunk
+      setTimeout(() => {
+         dispatch( {type: ADD_NUMBER, payload: number} )
+      }, 3000)
+   }
+}
+
+export const fetchJoke = () => {
+  return async dispatch => {
+    const response = await fetch('https://api.icndb.com/jokes/random/')
+    const joke = await response.json()
+    dispatch( {type: 'SET_JOKE', joke} )
+  }
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                      // взаимодействие с Redux в классовых компонентах:
+
+import {connect} from 'react-redux'
+
+// App class component...
+
+// можно использовать селекторы - функции, возвращающие из Store нужные
+// данные, вместо того чтобы вручную прописывать: state.counter1.counter
+function mapStateToProps(state) {
+   // возвращаемый объект становится props для данного компонента
+   return {
+      counter: state.counter1.counter
+   }
+}
+function mapDispatchToProps(dispatch) {
+   //  методы возвращаемого объекта добавляются в props и служат обработчиками событий
+   return {
+      onAdd: () => dispatch( add() ),       // add() возвращает action (actionCreator)
+      onAddNumber: number => dispatch( addNumber(number) ),
+      onAsyncAdd: number => dispatch( asyncAdd(number) )      // диспатчим thunk
+   }
+}
+// грубо говоря, mapStateToProps для приема данных
+// из Store, а mapDispatchToProps для изменения данных в Store
+export default connect(mapStateToProps, mapDispatchToProps)(App)
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                    // взаимодействие с Redux в функциональных компонентах:
+
+// хуки useSelector, useDispatch - это аналог mapStateToProps, mapDispatchToProps
+
+import { useSelector, useDispatch } from 'react-redux'
+
+function App() {
+  // useSelector принимает селектор - функцию,
+  // принемающую state и возвращающую что то из state
+  const joke = useSelector(state => state?.value?.joke)
+  // вызов useDispatch возвращает store'ий метод
+  // dispatch, который позволяет диспатчить actions
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch( fetchJoke() )   // диспатчим thunk
+  }, [])
+
+  return &lt;div className='App'>{joke}&lt;/div>
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                              // Redux DevTools:
+
+//  Устанавливаем расширение Redux DevTools в chrome + npm i @redux-devtools/extension
+
+import { createStore, applyMiddleware } from 'redux'
+import { composeWithDevTools } from '@redux-devtools/extension'
+
+const store = createStore(
+  reducer,
+  composeWithDevTools(applyMiddleware(
+    loggerMiddleware,
+    thunk
+  ))
+)
+
+//  Теперь в панели разработчиков есть вкладка Redux
+          </code>
+        </pre></article><article class="section-info" id="redux_toolkit"><b>redux toolkit</b><pre>
+  @reduxjs/toolkit - это некоторая надстройка над Redux от самого Redux.
+Она служит для сокращения кода. По сути это синтаксический сахар. Помогает
+сократить количество рутинных действий по типу создания action creator'ов и
+сосредоточиться именно на логике работы с состоянием.
+
+npm i @reduxjs/toolkit
+
+  Если устанавливаем @reduxjs/toolkit, то отдельно устанавливать redux не
+нужно, только react-redux !
+
+  Также по умолчанию в toolkit встроены инструменты разработчика redux
+и redux-thunk, поэтому их не нужно подключать, а просто диспатчить thunk'и
+при асинхронных действиях или используем createAsyncThunk.
+
+  Так же уже встроен и по дефолту включен devTools
+        </pre><pre>
+          <code class="language-jsx">
+                          // src/index.js
+
+import {Provider} from 'react-redux'
+import {store} from './redux'
+
+reactDOM.render(
+  &lt;Provider store={store}>
+    &lt;App />
+  &lt;/Provider>
+)
+
+
+
+                          // redux/index.js
+
+import {combineReducers, configureStore} from '@reduxjs/toolkit'
+import firstReducer from './toolkitReducer'
+
+// ** ключи стейта приложения сформированы в объекте, передаваемом в combineReducers !!
+const rootReducer = combineReducers({
+  toolkit: firstReducer
+})
+
+export const store = configureStore({
+  reducer: rootReducer,
+  // сюда можно добавить поля middleware, devTools (по дефолту включен), enhancers...
+})
+
+
+
+                          // redux/toolkitReducer.js
+
+import {createReducer, createAction} from '@reduxjs/toolkit'
+
+const initialState = {
+  count: 0,
+  todos: ['снять видео', 'смонтировать видео']
+}
+
+// эти константы являются экшн-креэйторами !
+export const increment = createAction('INCREMENT')
+export const decrement = createAction('DECREMENT')
+
+export default createReducer(initialState, {
+  [increment]: function(state) {
+    // не нужно возвращать новый state, просто изменяем нужное нам поле !
+    state.count = state.count + 1
+  },
+  [decrement]: function(state) {
+    state.count = state.count - 1
+  }
+})
+
+
+
+                                      // src/App.js
+
+import {useSelector, useDispatch} from 'react-redux'
+import {increment, decrement} from './redux/toolkitReducer'
+
+function App() {
+  // функции-селекторы, передаваемые в useSelector,
+  // можно вынести в отдельный файл и экспортировать
+  const count = useSelector(state => state.toolkit.count)
+  const dispatch = useDispatch()
+
+  return (
+    &lt;div className='App'>
+      &lt;h1>Счетчик: {count}&lt;/h1>
+      &lt;button onClick={() => dispatch(increment())}>Инкремент&lt;/button>
+      &lt;button onClick={() => dispatch(decrement())}>Декремент&lt;/button>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre><pre>
+
+
+
+     Лучше использовать <b>slice</b> - тот же reducer, но немного в другой обертке.
+Если store - это все состояние нашего приложения, то слайс - это его срез (часть).
+Мы можем сделать отдельный slice для пользователей, уведомлений, заметок и т.д.
+        </pre><pre>
+          <code class="language-jsx">
+// в src/index.js как и в предыдущем примере без slice
+
+
+                                     // redux/index.js
+
+import {configureStore} from '@reduxjs/toolkit'
+import counterReducer from './toolkitSlice'
+
+// ** ключи стейта приложения сформированы в объекте, передаваемом в combineReducers !!
+
+// при использовании redux toolkit combineReducers
+// можно не использовать, а просто передать объект с редьюсерами
+export const store = configureStore({
+  reducer: {
+    // формируем стейт приложения
+    counter: counterReducer,
+  },
+  // сюда можно добавить поля middleware, devTools (по дефолту включен), enhancers...
+})
+
+
+
+                                 // redux/toolkitSlice.js
+
+import { createSlice } from '@reduxjs/toolkit'
+
+// slice создает для нас action creators в свойстве reducers
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: {
+    count: 0,
+    todos: ['снять видео', 'смонтировать видео']
+  },
+  // action creators создаем в свойстве reducers
+  reducers: {
+    increment(state) {
+      // не нужно возвращать новый state, просто изменяем нужное нам поле !
+      state.count = state.count + 1
+    },
+    decrement(state) {
+      state.count = state.count - 1
+    },
+    addTodo(state, action) {
+      state.todos.push(action.payload)
+    },
+    removeLastTodo(state) {
+      state.todos.pop()
+    }
+  }
+})
+
+export default counterSlice.reducer
+// экспортируем action creators, находящиеся в поле actions у слайса
+export const { increment, decrement, addTodo, removeLastTodo } = counterSlice.actions
+
+
+
+
+                                      // src/App.js
+
+import {useSelector, useDispatch} from 'react-redux'
+import {increment, decrement, addTodo, removeLastTodo} from './redux/toolkitSlice.js'
+
+// создаем thunk creator (можно в отдельном файле: redux/ActionCreators.js)
+const addAsyncTodo = () => {
+  return (dispatch) => {
+    setTimeout(() => {
+      // в action creator addTodo передаем payload
+      dispatch(addTodo('ASYNC TODO'))
+    }, 2000)
+  }
+}
+
+function App() {
+  const count = useSelector(state => state.counter.count)
+  const todos = useSelector(state => state.counter.todos)
+  const dispatch = useDispatch()
+
+  return (
+    &lt;div className='App'>
+      &lt;h1>Счетчик: {count}&lt;/h1>
+      &lt;button onClick={() => dispatch(increment())}>Инкремент&lt;/button>
+      &lt;button onClick={() => dispatch(decrement())}>Декремент&lt;/button>
+      &lt;button onClick={() => dispatch(removeLastTodo())}>Удалить последний ТУДУ&lt;/button>
+      &lt;button onClick={() => dispatch(addTodo( prompt() ))}>Добавить ТУДУ&lt;/button>
+      &lt;button onClick={() => dispatch(addAsyncTodo())}>Добавить АСИНК ТУДУ&lt;/button>
+      &lt;ul>
+        {todos.map(todo =>
+          &lt;li key={todo}>{todo}&lt;/li>
+        )}
+      &lt;/ul>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre><pre>
+
+
+
+                          <b>slice'ы</b> + асинхронность с <b>createAsyncThunk</b>
+        </pre><pre>
+          <code class="language-jsx">
+// * thunk - функция, принимающая ф-ю dispatch и выполняющая асинхронное действие
+//           (setTimeout, fetch...), после выполнения которого и будет диспатчиться
+//           action(s). В компонентах диспатчим thunk'и (вместо action'ов)
+
+
+                                 // redux/toolkitSlice.js
+
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
+// ** ключи стейта приложения сформированы в объекте, передаваемом в combineReducers !!
+
+// экспортируем санк креэйторы (в компонентах диспатчим thunk'и)
+export const fetchTodos = createAsyncThunk(
+  'todos/fetchTodos', // обычно нейминг (название экшена):  sliceName/thunkName
+  // 1й параметр - payload (аргументы санк креэйтора)
+  // 2Й - thunkAPI, содержащий dispatch, getState, rejectWithValue, fulfillWithValue, extra...
+  // * если в санке возращаем какие то данные, то они оборачиваются в fulfillWithValue
+  async function(_, {rejectWithValue}) {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=10')
+
+      if (!response.ok) throw new Error('Server Error!')
+
+      const data = await response.json()
+
+      return data
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+export const deleteTodo = createAsyncThunk(
+  'todos/deleteTodo',
+  async function(id, {rejectWithValue, dispatch}) {
+    try {
+      const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Can\'t delete task. Server error.')
+
+      dispatch(removeTodo({id})) // диспатчим action (из slice'a todos ниже) с payload'ом
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+
+const setError = (state, action) => {
+  state.status = 'rejected'
+  state.error = action.payload  // вернувшиеся error.message из санков
+}
+
+const todoSlice = createSlice({
+  name: 'todos',
+  initialState: {
+    todos: [],
+    status: null,
+    error: null,
+  },
+  // action creators создаем в свойстве reducers
+  reducers: {
+    addTodo(state, action) {
+      state.todos.push(action.payload)
+    },
+    removeTodo(state, action) {
+      state.todos = state.todos.filter(todo => todo.id !== action.payload.id)
+    }
+  },
+  // связываем slice с thunk'ми: в extraReducers
+  // используем методы жизненного цикла из createAsyncThunk
+  // * лучше вместо такого варианта использовать ф-ю
+  //   как значение для extraReducers (особенно с ts)
+  extraReducers: {
+    [fetchTodos.pending]: (state) => {   // идет загрузка
+      state.status = 'loading'
+      state.error = null
+    },
+    [fetchTodos.fulfilled]: (state, action) => {   // успех
+      state.status = 'resolved'
+      state.todos = action.payload   // вернувшиеся данные из fetchTodos
+    },
+    [fetchTodos.rejected]: setError,   // ошибка
+    [deleteTodo.rejected]: setError    // ошибка
+  },
+
+  // связываем slice с thunk'ми: в extraReducers
+  // используем методы жизненного цикла из createAsyncThunk
+  // * лучше использовать такой вариант extraReducers
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginByUsername.pending, (state) => {
+        state.error = undefined
+        state.isLoading = true
+      })
+      .addCase(loginByUsername.fulfilled, (state, action) => {
+        state.isLoading = false
+      })
+      .addCase(loginByUsername.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+    }
+})
+
+export default todoSlice.reducer // экспортируем reducer для configureStore
+// экспортируем action creators, находящиеся в поле actions у слайса
+export const {addTodo, removeTodo} = todoSlice.actions
+
+
+
+
+                                      // src/App.js
+
+import {useEffect} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {fetchTodos} from './redux/toolkitSlice.js'
+
+export function App() {
+  // state.todos - todos это имя слайса из объекта reducer в configureStore
+  const {todos, status, error} = useSelector(state => state.todos)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(fetchTodos()) // диспатчим thunk
+  }, [])
+
+  return (
+    &lt;div className='App'>
+      {status === 'loading' && &lt;h2>Loading...&lt;/h2>}
+      {error && &lt;h2>An error occured: {error}&lt;/h2>}
+
+      &lt;ul>
+        {todos.map((todo) => (
+          &lt;li key={todo.id}>{...todo}&lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre></article><article class="section-info" id="reselect"><b>reselect</b><pre>
+  Eсли юзаем redux toolkit, reselect уже встроен в нее:
+import { createSelector } from '@reduxjs/toolkit'
+
+  Если не юзаем redux toolkit, standalone usage:
+npm i reselect
+
+  Селектор - это функция, передаваемая в useSelector, например:
+const {todos, status} = useSelector(<b>state => state.todos</b>)
+
+  Reselect - библиотека для создания мемоизированных селекторов.
+  Reselect позволяет переиспользовать другой серектор и на его основании
+делать выборку из стейта.
+  Reselect (ф-я createSelector) мемоизирует переданный в него селектор
+и => делает очередную выборку только если тот изменится, а иначе будет
+отдавать сохраненное значение
+        </pre><pre>
+          <code class="language-jsx">
+import { createSelector } from 'reselect'
+
+const selectShopItems = state => state.shop.items
+const selectTaxPercent = state => state.shop.taxPercent
+
+const selectSubtotal = createSelector(selectShopItems, items =>
+  items.reduce((subtotal, item) => subtotal + item.value, 0)
+)
+
+const selectTax = createSelector(
+  selectSubtotal,
+  selectTaxPercent,
+  (subtotal, taxPercent) => subtotal * (taxPercent / 100)
+)
+
+const selectTotal = createSelector(
+  selectSubtotal,
+  selectTax,
+  (subtotal, tax) => ({ total: subtotal + tax })
+)
+
+const exampleState = {
+  shop: {
+    taxPercent: 8,
+    items: [
+      { name: 'apple', value: 1.2 },
+      { name: 'orange', value: 0.95 }
+    ]
+  }
+}
+
+console.log(selectSubtotal(exampleState)) // 2.15
+console.log(selectTax(exampleState))      // 0.172
+console.log(selectTotal(exampleState))    // { total: 2.322 }
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                      // создаем, например, src/store/selectors.js
+
+import { createSelector } from '@reduxjs/toolkit'
+
+// в примере 3 слайса: todos, filters, theme
+export const selectAllTodos = state => state.todos.list
+export const selectActiveFilter = state => state.filters
+export const selectTheme = state => state.theme
+
+export const selectTodosByFilter = createSelector(
+  [selectAllTodos, selectActiveFilter],
+  // параметры - результаты селекторов из массива выше (в той же последовательности);
+  (allTodos, activeFilter) => {
+    if (activeFilter === 'all') return allTodos
+
+    // эти вычисления мемоизируются и не будет лишних перерендеров
+    // в компонентах, использующих этот селектор, при изменениях состояния
+    // redux в других компонентах (например, при изменении не связанного
+    // с фильтрацией theme) !!!
+    if (activeFilter === 'completed') {
+      return allTodos.filter(todo => todo.completed)
+    }
+
+    return allTodos.filter(todo => !todo.completed)
+  },
+)
+
+
+                              // src/components/TodoList.jsx
+...
+const todos = useSelector(selectTodosByFilter)
+          </code>
+        </pre></article><article class="section-info" id="immer"><b>immer</b><pre>
+  immer позволяет делать объект (состояние) иммутабельным (защита от дурака).
+  Без immer в React хуках или Redux нельзя напрямую изменить состояние, т.к. сломаем
+приложение. А с immer можно, т.к. создает глубокую копию (draft) объекта и меняться
+будет она, а не сам объект.
+
+  <b>immer уже встроен в Redux Toolkit</b> (внутри createReducer).
+  Таким образом в Redux Toolkit мутируем состояние внутри любой функции в createReducer.
+        </pre><pre>
+          <code class="language-jsx">
+import produce from 'immer'
+
+function reducer(state, action) {
+  return produce(state, draft => {
+    if (action.type === 'ADD') {
+      draft.numbers.push(Math.round(Math.random() * 1000))
+    }
+    if (action.type === 'CLEAR') {
+      draft.numbers = []
+    }
+  })
+}
+          </code>
+        </pre></article><article class="section-info" id="rtk_query"><b>RTK Query</b><pre>
+  RTK Query — это библиотека для упрощения работы с запросами и кэшированием данных.
+              * RTK Query уже включена в Redux Toolkit.
+
+
+  В RTK Query есть два вида endpoint: query (GET-запрос) и mutation (не GET-запрос).
+
+  Для каждого endpoint RTK Query автоматически генерирует хуки, которые могут быть
+использованы в React компонентах для загрузки/изменения данных. Хуки возвращают:
+data, isLoading, error, isFetching, isError, isSuccess, refetch, currentData,
+isUninitialized.
+  В зависимости от типов endpoint, название автосгенерированных хуков будет содержать
+в себе либо Query, либо Mutation.
+
+  Хук у мутаций возвращает картеж (1й элемент - функция вызова
+запроса, 2й - объект с полями data, error, isLoading...), например:
+const [createPost, {data, isLoading, refetch}] = useCreatePostMutation()
+
+
+
+                                RTK Query решает такие задачи:
+
+- Загрузка данных
+- Отображение статуса загрузки и ошибки
+- Дедубликация запросов на странице
+- Кэширование. Инвалидация (очистка кэша)
+- Загрузка заново в случае ошибки
+- Поллинг
+- Оптимистичное обновление
+- Экономия памяти
+- Экономия кода
+- Доступ к данным в любом компоненте, при этом
+  избежание повторных запросов с одинаковыми параметрами
+
+
+
+<b>инвалидация</b> - очистка кэша запроса (удаление из кэша сфетчинных данных).
+
+<b>polling</b> (аналог WebSocket) - периодичный опрос сервера (отправка запросов),
+                             например, каждую секунду.
+                             <a href="https://learn.javascript.ru/long-polling" target="_blank">long-polling</a> - более экономный вариант опроса сервера
+        </pre><pre>
+          <code class="language-js">
+                                // Шаг 1: createApi
+
+
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+export const starWarsApi = createApi({
+  // уникальное имя редьюсера, которое станет полем стейта
+  reducerPath: 'starWars',
+  // базовый url для запросов, к которому будем конкатенировать строки в запросах (endpoints)
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://swapi.dev/api' }),
+  // добавляем endpoint'ы (query или mutation), на которые будем отправлять
+  // запросы (при этом состояние в store будет меняться автоматически):
+  endpoints: (builder) => ({
+    getFilms: builder.query({
+      // здесь помимо url для конкретного endpoint'а
+      // может быть тело запроса, параметры, загаловки, куки, ...
+      query: () => `/films?format=json`
+    }),
+    getFilmById: builder.query({
+      query: (filmId) => `/films/${filmId}?format=json`
+    })
+  })
+})
+
+// экспортируем автосгенерированные хуки (use + Endpoint + Query/Mutation):
+export const { useGetFilmsQuery, useGetFilmByIdQuery } = starWarsApi
+          </code>
+        </pre><pre>
+          <code class="language-js">
+                    // Шаг 2: добавление reducer'а API сервиса в Redux store
+
+
+// Метод createApi генерирует reducer, который должен быть добавлен в store.
+//   Также для обеспечения возможностей RTK Query (кэширование, инвалидация,
+// polling и др.) необходимо добавить middleware как на примере ниже:
+
+import { configureStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
+import { starWarsApi } from './services/starWarsApi'
+
+export const store = configureStore({
+  // формируем стейт приложения (добавляем редьюсеры)
+  reducer: {
+    ...,
+    [starWarsApi.reducerPath]: starWarsApi.reducer    // поле 'starWars' в stat'е
+  },
+
+  // Добавляем api мидлвар, что даст нам кэширование,
+  // инвалидацию, полинг, и другие полезные штуки
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware(...).concat(starWarsApi.middleware)
+})
+
+// это нужно для refetchOnFocus/refetchOnReconnect
+setupListeners(store.dispatch)
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+                      // Шаг 3: использование RTK Query хуков в компонентах
+
+
+import { useGetFilmsQuery } from '../reduxStore/services/starWarsApi'
+
+export const FilmsList = () => {
+  //   * При вызове хука будет автоматически производиться вызов к API для
+  // получения всех фильмов.
+  //   * Хук возвращает не только data, isLoading, error, но и:
+  // isFetching, isError, isSuccess, refetch, currentData, isUninitialized.
+  //   * В хуки можно передавать параметры, которые используются в запросе.
+  //   * Так же в опции можно передавать селектор, что бы получать определенные данные
+  const { data, isLoading, error } = useGetFilmsQuery()
+
+  return (
+    ...
+  )
+}
+
+
+
+// - Теперь не приходится создавать action creators для каждого запроса
+// - Нет нужды создавать множество reducers
+// - Обработка состояний запросов (isFetching, isError и др.) теперь
+//   производится автоматически
+// - В компонентах не нужно вызывать метод dispatch или использовать селекторы
+//   для взаимодействия со store
+          </code>
+        </pre><pre>
+          <code class="language-tsx">
+                          // пример ULBI с mutation запросами и TS
+
+
+                                                                // src/services/PostService.ts
+
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { IPost } from '../models/IPost'
+
+export const postAPI = createApi({
+  reducerPath: 'postAPI',
+  baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:5000'}),
+  tagTypes: ['Post'],
+  endpoints: (build) => ({
+    // в дженерике 1й параметр - возращаемый тип, 2й - тип аргумента в хуке (limit)
+    fetchAllPosts: build.query&lt;IPost[], number>({
+      query: (limit: number = 5) => ({
+        url: `/posts`,
+        params: {
+          _limit: limit
+        }
+      }),
+      // * providesTags обеспечивает доставку данных всем эндпоинтам с тегом 'Post'
+      providesTags: result => ['Post']
+    }),
+    // * что бы при создании поста он сразу автоматически добавлялся на
+    // страницу (без использования refetch), нужно сказать toolkit'у куда добавлять
+    // посты. Для этого нужно проставить определенные теги (в данном случае это один
+    // тег, который назовем 'Post'). Тегов может быть несколько
+    createPost: build.mutation&lt;IPost, IPost>({
+      query: (post) => ({
+        url: `/posts`,
+        method: 'POST',
+        body: post
+      }),
+      // * указываем что этот endpoint работает с тегом 'Post'
+      // (в запросе на мутацию мы можем указывать, какие теги инвалидируются)
+      invalidatesTags: ['Post']
+    }),
+    updatePost: build.mutation&lt;IPost, IPost>({
+      query: (post) => ({
+        url: `/posts/${post.id}`,
+        method: 'PUT',
+        body: post
+      }),
+      invalidatesTags: ['Post']
+    }),
+    deletePost: build.mutation&lt;IPost, IPost>({
+      query: (post) => ({
+        url: `/posts/${post.id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Post']
+    }),
+  })
+})
+
+
+
+
+                                                                         // src/store/store.ts
+
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import userReducer from './reducers/UserSlice'
+import { postAPI } from '../services/PostService'
+
+const rootReducer = combineReducers({
+  userReducer,
+  [postAPI.reducerPath]: postAPI.reducer
+})
+
+export const setupStore = () => {
+  return configureStore({
+    reducer: rootReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(postAPI.middleware)
+  })
+}
+
+export type RootState = ReturnType&lt;typeof rootReducer>
+export type AppStore = ReturnType&lt;typeof setupStore>
+export type AppDispatch = AppStore['dispatch']
+
+
+
+
+                                                           // src/components/PostContainer.tsx
+
+import React, { useEffect, useState } from 'react'
+import { postAPI } from '../services/PostService'
+import PostItem from './PostItem'
+import { IPost } from '../models/IPost'
+
+export const PostContainer = () => {
+  const [limit, setLimit] = useState(100)
+
+  const {data: posts, error, isLoading, refetch} = postAPI.useFetchAllPostsQuery(limit)
+
+  // * хук у мутаций возвращает картеж:
+  // 1й элемент - ф-я вызова запроса, 2й - объект с полями data, error, isLoading...
+  const [createPost, {}] = postAPI.useCreatePostMutation()
+  const [updatePost, {}] = postAPI.useUpdatePostMutation()
+  const [deletePost, {}] = postAPI.useDeletePostMutation()
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLimit(3)
+    }, 2000)
+  }, [])
+
+  const handleCreate = async () => {
+    const title = prompt()
+    await createPost({title, body: title} as IPost)
+  }
+
+  const handleRemove = (post: IPost) => {
+    deletePost(post)
+  }
+
+  const handleUpdate = (post: IPost) => {
+    updatePost(post)
+  }
+
+  return (
+    &lt;div>
+      &lt;div className="post__list">
+        &lt;button onClick={handleCreate}>Add new post&lt;/button>
+        {isLoading && &lt;h1>Идет загрузка...&lt;/h1>}
+        {error && &lt;h1>Произошла ошибка при загрузке&lt;/h1>}
+        {posts && posts.map(post =>
+          &lt;PostItem remove={handleRemove} update={handleUpdate} key={post.id} post={post}/>
+        )}
+      &lt;/div>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre></article><ul class="section-refs"><li><a href="https://habr.com/ru/companies/domrf/articles/736336/" target="_blank">краткий обзор RTK Query</a></li><li><a href="https://habr.com/ru/companies/alfa/articles/705640/" target="_blank">развернутый обзор RTK Query</a></li><li><a href="https://www.youtube.com/watch?v=Od5H_CiU2vM&t=1378s&ab_channel=UlbiTV" target="_blank">ulbi обзор RTK Query</a></li></ul><article class="section-info" id="react_router_dom"><b>react-router-dom</b><pre>
+          <code class="language-jsx">
+import {BrowserRouter} from 'react-router-dom'
+
+function App() {
+  const routes = useRoutes(isAuthenticated)
+
+  return (
+    &lt;BrowserRouter>
+        {routes}
+    &lt;/BrowserRouter>
+  )
+}
+
+
+
+                         // useRoutes.js
+
+import {Routes, Route, Navigate} from 'react-router-dom'
+import LinksPage from './pages/LinksPage'
+import CreatePage from './pages/CreatePage'
+import DetailPage from './pages/DetailPage'
+import AuthPage from './pages/AuthPage'
+
+export const useRoutes = isAuthenticated => {
+  if (isAuthenticated) {
+    return (
+      &lt;Routes>
+        &lt;Route path='/links' element={&lt;LinksPage />} />
+        &lt;Route path='/create' element={&lt;CreatePage />} />
+        {/* для динамического маршрута указываем :, а затем название параметра */}
+        &lt;Route path='/detail/:id' element={&lt;DetailPage />} />
+        {/* redirect */}
+        {/* &lt;Route path='*' element={&lt;Error />} /> */}
+        &lt;Route path='*' element={&lt;Navigate to='/create' replace />} />
+      &lt;/Routes>
+    )
+  }
+
+  return (
+    &lt;Routes>
+      &lt;Route path='/' element={&lt;AuthPage />} />
+      &lt;Route path='*' element={&lt;Navigate to='/' replace />} />
+    &lt;/Routes>
+  )
+}
+
+
+
+                         // misc.js
+
+import { useParams, useNavigate, NavLink, Link } from 'react-router-dom'
+
+const DetailPage = () => {
+  const { id: linkId } = useParams()
+  const navigate = useNavigate()
+
+  const auth = useContext(AuthContext)
+
+  const logoutHandler = () => {
+    auth.logout()
+    navigate('/')
+  }
+
+  return (
+    &lt;nav>
+      &lt;ul>
+        &lt;li>&lt;NavLink to='/create'>Создать&lt;/NavLink>&lt;/li>
+        &lt;li>&lt;span onClick={logoutHandler}>Выйти&lt;/span>&lt;/li>
+      &lt;/ul>
+    &lt;/nav>
+
+    &lt;h1>{linkId}&lt;/h1>
+
+    &lt;Link to='/somewhere'>link to somewhere&lt;/Link>
+  )
+}
+
+
+const UsersPage = ({ users }) => {
+  return (
+    {users.map(user =>
+      &lt;User onClick={(user) => navigate('/detail/' + user.id)}>
+        user {user.id}
+      &lt;/User>
+    )}
+  )
+}
+          </code>
+        </pre></article><article class="section-info" id="react_transition_group"><b>react transition group</b><pre>
+  При добавлении анимации элементу, она отрабатывает только когда элемент
+рендерится в DOM, а когда он удаляется из DOM при ререндере компонента, то
+не к чему применять css стили для анимирования.
+  Есть вариант не удалять анимируемый элемент из DOM при изменении состояния,
+а менять ему класс, что бы присутствовала плавность. Но в таком подходе есть
+минусы: элемент остается в DOM, что может привести к ошибкам
+
+
+                                        <b>&lt;Transition></b>
+
+  Компонент &lt;Transition> используется для анимации монтирования и демонтирования компонента
+
+  &lt;Transition> принимает 2 обязательных параметра:
+in={true}              - [bool, default: false], тригер, по которому срабатывает анимация
+timeout={duration}     - продолжительность анимации в ms
+  и например такие необязательные:
+mountOnEnter           - [bool, default: false] для монтирования в DOM после входа
+unmountOnExit          - [bool, default: false] для демонтирования из DOM после выхода
+
+  Внутри &lt;Transition> должна быть функция, принимающая state (состояние анимации), внутри
+которой возвращаем анимируемый элемент.
+  По мере выполнения анимации state меняется, он может быть таким:
+'entering'      (вхождение анимации)
+'entered'       (вхождение закончилась)
+'exiting'       (начало выхода (демонтирования))
+'exited'        (выход закончился)
+  Мы можем динамически добавлять state в класс, тем самым манипулируя анимацией из css.
+
+  Для каждого этапа работы анимации можно поставить прослушку события в &lt;Transition>:
+onEnter={() => ...}
+onEntering={() => ...}
+onEntered={() => ...}
+onExit={() => ...}
+onExiting={() => ...}
+onExited={() => ...}
+
+
+                                      <b>&lt;CSSTransition></b>
+
+  Что бы не работать со state'ом анимации, есть более продвинутый компонент
+&lt;CSSTransition> в библиотеке 'react-transition-group', который позволяет
+автоматически добавлять классы, отражающие состояния анимации.
+  Так же оборачиваем анимируемый элемент компонентом &lt;CSSTransition>, у
+которого такие же обязательные 2 параметра: in={inProp} и timeout={duration}.
+И теперь анимируемому элементу автоматом будут добавляться классы.
+  Параметр classNames позволяет кастомизировать преставку классов, которые
+передаются анимируемому элементу по мере выполнения анимации; то есть, если
+classNames='os', то такие классы:
+os-enter, os-enter-active, os-enter-done, os-exit, os-exit-active, os-exit-done
+
+
+                                     <b>&lt;TransitionGroup></b>
+
+  Для анимации группы элементов, оборачиваем их в компонент &lt;TransitionGroup>.
+Что бы обернуть группу анимируемых элементов (например группу из нескольких &lt;li>)
+в родительский элемент (&lt;ul>), передаем его как prop component={'ul'}.
+  И соответственно каждый элемент из группы нужно обернуть в анимирующий компонент
+(например, &lt;CSSTransition>).
+  Но теперь анимирующему компоненту &lt;CSSTransition> не нужно передавать обязательный
+параметр in, он автоматически будет добавлен из &lt;TransitionGroup>. mountOnEnter и
+unmountOnExit также не нужно указывать, они будут автоматом, то есть будет по дефолту
+монтирование и демонтирование при изменении группы (списка).
+        </pre><pre>
+          <code class="language-jsx">
+import { Transition, CSSTransition, TransitionGroup } from 'react-transition-group'
+
+export function App() {
+  const [toggle, setToggle] = useState(true)
+  const [toggle2, setToggle2] = useState(true)
+
+  const [items, setItems] = useState([
+    {id: 1, title: 'item 1'},
+    {id: 2, title: 'item 2'}
+  ])
+
+  const addItem = () => {
+    const title = prompt('Enter item title')
+    const id = Date.now()
+    setItems([...items, {id, title}])
+  }
+  const removeItem = id => setItems(items.filter(item => item.id !== id))
+
+  return (
+    &lt;div className='container'>
+      &lt;button onClick={() => setToggle(!toggle)}>Toggle&lt;/button>
+      &lt;button onClick={() => setToggle2(!toggle2)}>Toggle2&lt;/button>
+
+      &lt;div className={'blocks'}>
+        &lt;Transition
+          in={toggle}
+          timeout={{
+            enter: 1000,
+            exit: 500
+          }}
+          mountOnEnter
+          unmountOnExit
+        >
+          {state => &lt;div className={`square blue ${state}`}>{state}&lt;/div>}
+        &lt;/Transition>
+
+
+        {/* более продвинутая версия &lt;Transition>, автоматически
+            добавляет классы, отражающие состояния анимации */}
+        &lt;CSSTransition
+          in={toggle2}
+          timeout={1000}
+          mountOnEnter
+          unmountOnExit
+          classNames='os'
+        >
+          {/* этому элементу будут добавляться классы с преставкой os */}
+          &lt;div className='square orange'>
+            {toggle2.toString()}
+          &lt;/div>
+        &lt;/CSSTransition>
+      &lt;/div>
+
+
+      &lt;button onClick={addItem}>addItem&lt;/button>
+
+      &lt;TransitionGroup component={'ul'}>
+        {items.map(item => (
+          &lt;CSSTransition   // не нужен параметр in, он автоматически будет добавлен
+            key={item.id}  // mountOnEnter/Exit будут по дефолту, их не нужно указывать
+            timeout={750}
+            classNames='os'
+          >
+            &lt;li onClick={() => removeItem(item.id)}>
+              {item.title}
+            &lt;/li>
+          &lt;/CSSTransition>
+        ))}
+      &lt;/TransitionGroup>
+    &lt;/div>
+  )
+}
+          </code>
+        </pre><pre>
+          <code class="language-css">
+.square {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   width: 200px;
+   height: 200px;
+
+   &.blue{
+      background: cornflowerblue;
+   }
+   &.orange{
+      background: coral;
+   }
+
+   {/* динамические классы (состояния анимации) при изменении флага toggle */}
+   &.entering {
+      animation: square 1000ms ease-out forwards;
+   }
+   &.exiting {
+      animation: square 500ms ease-in alternate-reverse;
+   }
+   &.exited {
+      opacity: 0;
+      transform: translateY(-100px);
+   }
+}
+
+@keyframes square {
+   0%{
+      opacity: 0;
+      transform: translateY(-100px);
+   }
+   50%{
+      opacity: 1;
+      transform: translateY(30px);
+   }
+   100%{
+      transform: translateY(0);
+   }
+}
+          </code>
+        </pre></article><article class="section-info" id="styled_components"><b>styled components</b><pre>
+<a href="#sc_styled" class="react__nav-link">styled</a>
+<a href="#sc_props" class="react__nav-link">props / css</a>
+<a href="#sc_props" class="react__nav-link">prop as / extending styles</a>
+<a href="#sc_attrs" class="react__nav-link">attrs</a>
+<a href="#sc_animations" class="react__nav-link">animations</a>
+<a href="#sc_pseudoelements" class="react__nav-link">pseudoelements</a>
+<a href="#sc_theming" class="react__nav-link">theming / globalStyle</a>
+<a href="#sc_highly-specific" class="react__nav-link">highly specific style override</a>
+<a href="#sc_inline-style-overrides" class="react__nav-link">inline styles override</a>
+<a href="#sc_mixins" class="react__nav-link">mixins</a>
+        </pre><pre>
+npm i styled-components
+
+
+
+                   <b>styled-components  vs  styled-components/macro</b>
+
+  В production styled-components генерирует уникальные хэши для классов css,
+такие как .eeZmbc или .ZzNLl.
+  Они используются для экономии места, но бесполезны для разработчиков в процессе
+разработки.
+
+  Для семантических имен в development существует плагин babel-plugin-styled-components.
+Он генерирует такие имена, как .Navbar__Item-sc-14eztoj-1 (.FileName__StyledComponent-hash),
+чтобы помочь нам проследить FileName/StyledComponent.
+
+  Если вы используете create-react-app, можно не делать иньекцию и не добавлять этот плагин
+в конфигурацию babel. Просто используем styled-components/macro вместо styled-components.
+        </pre><pre id="sc_styled">
+          <code class="language-jsx">
+// 1. styled
+
+
+import styled from 'styled-components'
+
+const Title = styled.h1`
+   color: red;
+
+   @media screen and (max-width: 1000px) {
+      color: blue;
+   }
+`
+
+const A = styled.a``
+
+// вложенным может быть не только стилизованый элемент
+const Wrapper = styled('section')`
+   padding: 2em;
+
+   ${A} {
+      margin-top: 4px;
+   }
+
+   span {
+      margin-top: 8px;
+      max-width: var(--width);
+   }
+`
+
+export default props => {
+   return (
+      &lt;Wrapper>
+         &lt;Title>
+            Hello World!
+         &lt;/Title>
+         &lt;A>i am link&lt;/A>
+         &lt;span>test&lt;/span>
+      &lt;/Wrapper>
+   )
+}
+          </code>
+        </pre><pre id="sc_props">
+          <code class="language-jsx">
+// 2. props  /  css
+
+
+import styled, { css } from 'styled-components'
+
+const Button = styled.button`
+   margin: 1em;
+   background: ${props => props._primary ? 'palevioletred' : 'white'};
+
+   ${({ _primary }) => _primary && css`
+      background: blue;
+      color: white;
+   `}
+`
+
+export default props => {
+   return (
+      &lt;>
+         &lt;Button>Normal&lt;/Button>
+         &lt;Button _primary>Primary&lt;/Button>
+      &lt;/>
+   )
+}
+          </code>
+        </pre><pre id="sc_as">
+          <code class="language-jsx">
+// 3. prop  as  /  extending styles
+
+
+import styled from 'styled-components'
+
+const Button = styled.button`
+   border: 2px solid palevioletred;
+   font-size: 1em;
+   color: palevioletred;
+`
+// a new component based on Button, but with some override styles
+const TomatoButton = styled(Button)`
+   border-color: tomato;
+   color: tomato;
+`
+
+export default props => {
+   return (
+      &lt;>
+         &lt;Button>Normal Button&lt;/Button>
+         &lt;TomatoButton as='a' href='/'>Link with Tomato Button styles&lt;/TomatoButton>
+      &lt;/>
+   )
+}
+          </code>
+        </pre><pre id="sc_attrs">
+          <code class="language-jsx">
+// 4. attrs
+
+
+import styled from 'styled-components'
+
+// устанавливаем аттрибуты; можно ставить в зависимости от props
+const Input = styled.input.attrs(props => ({
+   type: 'password',
+   size: props._size || '1em'
+}))`
+   font-size: 1em;
+   margin: ${props => props._size};
+`;
+
+export default props => {
+   return (
+      &lt;>
+         &lt;Input _placeholder='A small text input' />
+         &lt;Input _placeholder='A bigger text input' _size='2em' />
+      &lt;/>
+   )
+}
+          </code>
+        </pre><pre id="sc_animations">
+          <code class="language-jsx">
+// 5. animations
+
+
+import styled from 'styled-components'
+import { keyframes } from 'styled-components'
+
+// CSS-анимации с @keyframes не привязаны к одному компоненту,
+// но вы все равно не хотите, чтобы они были глобальными, чтобы
+// избежать конфликтов имен:
+
+const rotate = keyframes`
+   from {
+      transform: rotate(0deg);
+   }
+   to {
+      transform: rotate(360deg);
+   }
+`;
+const Rotate = styled.div`
+   animation: ${rotate} 2s linear infinite;
+   font-size: 1.2rem;
+`;
+
+export default props => {
+   return (
+      &lt;Rotate>&lt; 💅🏾 &gt;&lt;/Rotate>
+   )
+}
+          </code>
+        </pre><pre id="sc_pseudoelements">
+          <code class="language-jsx">
+// 6. pseudoelements nesting
+
+
+import styled from 'styled-components'
+
+
+// & можно использовать для возврата к основному компоненту
+const Thing = styled.div.attrs((props) => ({
+   tabIndex: 0,
+   'data-test': props.test ? true : false
+}))`
+   color: blue;
+
+   &:hover {
+      color: red;
+   }
+
+   & ~ & {
+      background: tomato;
+   }
+
+   & + & {
+      background: lime;
+   }
+
+   &.something {
+      background: #9090ce;
+   }
+
+   .something-else & {
+      border: 4px solid green;   // &lt;Thing> inside '.something-else'
+   }
+
+   .something {
+      display: block;
+      background-color: #ccc;
+      border: 3px solid yellow;   // '.something' inside &lt;Thing>
+   }
+`
+
+export default props => {
+
+   return (
+      &lt;>
+         &lt;Thing test>Hello world!&lt;/Thing>
+         &lt;Thing>How ya doing?&lt;/Thing>
+         &lt;Thing className='something'>The sun is shining...&lt;/Thing>
+         &lt;div>Pretty nice day today.&lt;/div>
+         &lt;Thing>Don't you think?&lt;/Thing>
+         &lt;div className='something-else'>
+            &lt;Thing>Splendid.&lt;/Thing>
+         &lt;/div>
+
+         &lt;Thing>
+            &lt;span className='something'>'.something' inside Thing&lt;/span>
+         &lt;/Thing>
+      &lt;/>
+   )
+}
+          </code>
+        </pre><pre id="sc_theming">
+          <code class="language-jsx">
+// 7. theming / globalStyle
+
+
+import styled from 'styled-components'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
+
+// &lt;ThemeProvider> предоставляет тему для всех вложенных компонентов
+
+// place it at the top of your React tree
+export const GlobalStyle = createGlobalStyle`
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f4f4f4;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  :root {
+    --color-accent: red;
+    --width: 960px;
+  }
+`
+
+const Button = styled.button`
+   padding: 0.25em 1em;
+   color: ${props => props.theme.main};
+   border: 2px solid ${props => props.theme.main};
+`
+// We are passing a default theme for Buttons that arent wrapped in the ThemeProvider
+Button.defaultProps = {
+   theme: {
+      main: 'blue'
+   }
+}
+// Define what props.theme will look like
+const theme = {
+   main: 'red'
+}
+
+export default props => {
+   return (
+      &lt;>
+         &lt;Button>Normal&lt;/Button>
+         &lt;ThemeProvider theme={theme}>
+            &lt;Button>Themed&lt;/Button>
+         &lt;/ThemeProvider>
+
+         &lt;GlobalStyle />
+      &lt;/>
+   )
+}
+          </code>
+        </pre><pre id="sc_highly-specific">
+          <code class="language-jsx">
+// 8. способ переопределения стилей с высокой специфичностью
+
+
+// Можно добавить !important, но это подвержено ошибкам.
+
+// Каждый & заменяется сгенерированным классом:
+export const Button = styled(WidgetButton)`
+  cursor: pointer;
+  white-space: nowrap;
+
+  &&,
+  &&:hover {                  // .fbqNSO.fbqNSO, .fbqNSO.fbqNSO:hover
+    text-decoration: none;
+  }
+`
+          </code>
+        </pre><pre id="sc_inline-style-overrides">
+          <code class="language-jsx">
+// 9. способ переопределения инлайновых стилей
+
+
+// инлайновые стили всегда будут иметь приоритет над внешним CSS, поэтому
+// вы не можете переопределить их, просто увеличив специфичность. Однако в
+// styled-components есть ловкий трюк, который заключается в использовании
+// CSS-селектора [style] в сочетании с !important:
+
+const MyStyledComponent = styled(InlineStyledComponent)`
+  &[style] {
+    font-size: 12px !important;
+    color: blue !important;
+  }
+`
+          </code>
+        </pre><pre id="sc_mixins">
+          <code class="language-jsx">
+// 10. mixins
+
+
+import { css } from 'styled-components/macro';
+
+export const mixins = {
+  shadow: css`
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+      0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    :hover {
+      box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
+        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    }
+  `
+}
+
+
+import { mixins } from '../utils';
+
+const Button = styled.button`
+  font-size: 15px;
+  ${mixins.shadow};
+`
+          </code>
+        </pre></article><article class="section-info" id="storybook"><b>storybook</b><pre>
+  Storybook - инструмент, позволяющий делать библиотеку презентационных компонентов.
+
+  Можно прицельно разрабатывать отдельный компонент в отрыве от всего приложения, т.е.
+удобство в том, что не нужно запускать все приложение.
+
+  Это отличный инструмент для команды, т.к. можно в одном месте увидеть какие компоненты
+есть в проекте и посмотреть поведение каждого компонента при всевозможных переданных в
+него значениях (во вкладке Docs можно передать любые props и проверить поведение во всех
+вариациях).
+
+  Storybook может работать и с TypeScript.
+
+
+<b>npx sb init</b>  -  сканирует проект для определения используемого фреймворка (React,
+                Angular...) и устанавливает соответствующие модули (@storybook/react, ...)
+                + добавляет скрипты в package.json:
+                "storybook": "start-storybook -p 6006"      <b>запуск</b>
+                "build-storybook": "build-storybook"        <b>сборка</b>
+
+                в корне добавится /.storybook (все конфигурации):
+                - в .storybook/main.js <b>в массиве stories указываем паттерны</b>,
+                  т.е. путь к файлам story с расширением .stories.@(js|jsx|ts|tsx)
+
+                  * так же в массиве stories можно указывать файлы с расширением
+                  <b>.stories.mdx (combines Markdown with JSX)</b> для создания story
+                  с ее описанием (в табе docs на странице storybook в браузере).
+
+                - в .storybook/main.js <b>в массив addons</b> добавляем установленные
+                  перед этим addon'ы (расширяют функционал).
+                    @storybook/addon-controls дает графический интерфейс для динамического
+                  взаимодействия с аргументами компонента без необходимости написания кода.
+                  Он создает дополнительную панель рядом с вашими примерами компонентов
+                  (историями), поэтому вы можете редактировать их в реальном времени.
+                    Например @storybook/addon-actions нужен для отображения данных,
+                  полученных обработчиками событий.
+
+
+  В папке src/stories для примера появятся дефолтные компоненты и story (файлы с
+расширением .stories.@(js|jsx|ts|tsx)) к этим компонентам.
+  Компоненты могут находиться и вне /stories.
+
+  При запуске Storybook в левом сайдбаре под examples видны истории.
+Например, история Button, развернув которую видны ее вариации: Primary, Secondary, ...
+        </pre><pre>
+          <code class="language-jsx">
+                            // Button.js (компонент):
+
+import PropTypes from 'prop-types'        // лучше типизировать TypeScript'ом
+
+export const Button = () => {...}
+
+Button.propTypes = {
+  primary: PropTypes.bool,
+  backgroundColor: PropTypes.string,
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  onClick: PropTypes.func
+}
+
+Button.defaultprops = {
+  backgroundColor: null,
+  primary: false,
+  size: 'medium',
+  onClick: undefined
+}
+
+
+
+                            // Button.stories.js (история к Button):
+
+import { Button } from './Button'   // импортируем сам компонент
+
+export default {
+  // название на Storybook странице. Названия и вложенность любые (Button будет в папке UI)
+  title: 'UI/Button',
+  component: Button,
+  // определяем тип для аргументов (prop-types или с TypeScript)
+  argTypes: {
+    // указываем что в Storybook пользователь может изменять цвет
+    // с помощью контрола 'color'. Но часто Storybook сам по названию
+    // пропа или по его дефолтному значению догадывается какой контрол нужен
+    backgroundColor: { control : 'color' },
+    // т.к. мы типизировали PropTypes.oneOf, то Storybook знает что это enum;
+    // а для enum дефолтый контрол в Storybook - radio (&lt;input type='radio'>).
+    // Но мы задали select. Here is the full list of available controls you can
+    // use: https://storybook.js.org/docs/react/essentials/controls#annotation
+    size: { control : 'select' },
+    // если хотим захардкодить какой то проп, что бы вместо контрола была заглушка '-'
+    primary: { control : '' }
+  }
+}
+
+const Template = (args) => &lt;Button {...args} />   // Template это отрендереный компонент
+
+export const Primary = Template.bind({})   // экспортируем вариацию Primary для Button
+Primary.args = {    // не переданные в args пропсы возьмутся из default.argTypes
+  primary: true,
+  label: 'Button'
+}
+
+export const Secondary = Template.bind({})
+Primary.args = {
+  label: 'Button'
+}
+
+export const Large = Template.bind({})
+Primary.args = {
+  size: 'large',
+  label: 'Button'
+}
+          </code>
+        </pre><pre>
+          <code class="language-jsx">
+      // пример story компонента Tablr (таблица) в create-react-app приложении
+
+// для использования css модулей в компоненте вместе со storybook:
+// npm i -D storybook-css-modules-preset
+// npm i @storybook/addon-postcss (так же нужен)
+
+
+                            // .storybook/main.js
+
+module.exports = {
+  'stories': [
+    '../src/**/*.stories.mdx',
+    '../src/**/*.stories.@(js|jsx|ts|tsx)'
+  ],
+  'addons': [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+
+    // добавляем аддоны для css modules
+    '@storybook/addon-postcss',
+    'storybook-css-modules-preset'
+  ]
+}
+
+
+                            // src/Tablr.js
+
+import { useEffect } from 'react'
+import styles from './tablr.module.css'
+import PropTypes from 'prop-types'
+
+export const Tablr = ({
+  rows,
+  headers,
+  borderWidth = 'medium',
+  cellPadding = 'medium',
+  cellTextColor = 'black',
+  headerTextColor = 'white',
+  cellBorderColor = '#747381',
+  headerBorderColor = '#494866',
+  backgroundColor = '#a6a5b8',
+  headerBackgroundColor = '#65647a'
+}) => {
+  // Handle errors with props.
+  // 1. The header length must be at least 1
+  // 2. The length of all of the rows must equal the header length
+  useEffect(() => {
+    if (headers.length &lt; 1) {
+      throw Error('Must have at least one header')
+    } else if (!rows.every(r => r.length === headers.length)) {
+      throw Error('Row length must equal header length')
+    }
+  }, [rows, headers])
+
+  const cellPaddingMap = {
+    small: '3px',
+    medium: '8px',
+    large: '15px'
+  }
+  const borderWidthMap = {
+    thin: '1px',
+    medium: '2px',
+    thick: '3px'
+  }
+
+  return (
+    &lt;div className={styles.main}>
+      {headers.map((h, columnIndex) => (
+        &lt;div key={columnIndex} className={styles.column}>
+          &lt;div
+            className={styles.header}
+            style={{
+            color: headerTextColor,
+            padding: cellPaddingMap[cellPadding],
+            backgroundColor: headerBackgroundColor,
+            border: `${borderWidthMap[borderWidth]} solid ${headerBorderColor}`
+            }}
+          >
+            {h}
+          &lt;/div>
+
+          &lt;div className={styles.rows}>
+            {rows.map((r, rowIndex) => (
+              &lt;div
+                key={rowIndex}
+                className={styles.cell}
+                style={{
+                  color: cellTextColor,
+                  backgroundColor: backgroundColor,
+                  padding: cellPaddingMap[cellPadding],
+                  border: `${borderWidthMap[borderWidth]} solid ${cellBorderColor}`
+                }}
+              >
+                {r[columnIndex]}
+              &lt;/div>
+            ))}
+          &lt;/div>
+        &lt;/div>
+      ))}
+    &lt;/div>
+  )
+}
+
+Tablr.propTypes = {
+  cellTextColor: PropTypes.string,
+  headerTextColor: PropTypes.string,
+  cellBorderColor: PropTypes.string,
+  backgroundColor: PropTypes.string,
+  headerBorderColor: PropTypes.string,
+  headerBackgroundColor: PropTypes.string,
+  borderWidth: PropTypes.oneOf(['thin', 'medium', 'thick']),
+  cellPadding: PropTypes.oneOf(['small', 'medium', 'large']),
+  headers: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
+}
+
+
+                            // src/tablr.module.css
+
+.main {
+  display: flex;
+  font-family: sans-serif;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  width: 150px;
+}
+.cell,
+.header {
+  margin: 2px;
+}
+.header {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+
+                            // src/stories/Tablr.stories.js
+
+import Tablr from '../components/Tablr'
+
+export default {
+  title: 'Tablr - A Customizable React Table Component',
+  component: Tablr,
+  argTypes: {
+    rows: { control: '' },
+    headers: { control: '' }
+  }
+}
+
+const Template = args => &lt;Tablr {...args} />
+
+export const Default = Template.bind({})
+Default.args = {
+  rows: [
+    ['This', 'is', 'just', 'a', 'test'],
+    ['This', 'is', 'also', 'a', 'test'],
+    ['Just', 'a', 'little', 'more', 'data'],
+    ['Row', 'number', 'four', 'right', 'here']
+  ],
+  headers: ['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5']
+}
+
+
+
+                            // src/stories/Tablr.stories.mdx
+
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks';
+import { Tablr } from '../Tablr';
+
+&lt;Meta title='Tablr' component={Tablr} />
+
+## Tablr
+#### A customizeable React table component
+
+&lt;Canvas>
+  &lt;Story name='Default'>
+    &lt;Tablr
+      headers={['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5']}
+      rows={[
+        ['This', 'is', 'just', 'a', 'test'],
+        ['This', 'is', 'also', 'a', 'test'],
+        ['Just', 'a', 'little', 'more', 'data'],
+        ['Row', 'number', 'four', 'right', 'here']
+      ]}
+    />
+  &lt;/Story>
+&lt;/Canvas>
+          </code>
+        </pre></article></div></section></main><script src="index.js"></script></body></html>
